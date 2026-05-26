@@ -1,0 +1,19 @@
+# Java 后端
+Sarcopenia-springboot/target/
+Sarcopenia-springboot/.idea/
+Sarcopenia-springboot/*.iml
+*.class
+*.log
+*.jar
+*.war
+
+# Vue 前端
+Sarcopenia-Vue3/node_modules/
+Sarcopenia-Vue3/dist/
+Sarcopenia-Vue3/.vscode/
+Sarcopenia-Vue3/*.log
+
+# 系统文件
+.DS_Store
+Thumbs.db
+.uploads/

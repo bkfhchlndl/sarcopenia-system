@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.sarcopenia.web.mapper.CagScaleMapper">
+    
+    <resultMap id="selectScaleList" type="com.sarcopenia.web.entity.vo.ScaleQuestionOptionVO">
+        <id column="scale_id" property="scaleId"/>
+        <result column="scale_name" property="scaleName"/>
+        <result column="code" property="code"/>
+        <result column="total_score" property="totalScore"/>
+        <result column="remark" property="remark"/>
+        <result column="del_flag" property="delFlag"/>
+
+        <collection property="questionList" ofType="com.sarcopenia.web.entity.vo.QuestionOptionVO">
+            <id column="question_id" property="questionId"/>
+            <result column="title" property="title"/>
+            <result column="type" property="type"/>
+            <result column="sort" property="sort"/>
+
+            <collection property="optionList" ofType="com.sarcopenia.web.entity.CagOption">
+                <id column="option_id" property="id"/>
+                <result column="label" property="label"/>
+                <result column="content" property="content"/>
+                <result column="score" property="score"/>
+                <result column="sort" property="sort"/>
+            </collection>
+        </collection>
+    </resultMap>
+
+    <select id="selectScaleList" resultMap="selectScaleList">
+        select
+            s.id as scale_id,
+            s.scale_name,
+            s.code,
+            s.total_score,
+            s.remark,
+            s.del_flag,
+            q.id as question_id,
+            q.title,
+            q.type,
+            q.sort,
+            o.id as option_id,
+            o.label,
+            o.content,
+            o.score,
+            o.sort
+        from cag_scale s
+        left join cag_question q
+            on s.id = q.scale_id
+        left join cag_option o
+            on q.id = o.question_id
+        where s.del_flag = '0'
+    </select>
+</mapper>

@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sarcopenia.web.mapper.PatientMapper">
+
+<!--增加病人信息-->
+    <insert id="insertPatient" parameterType="com.sarcopenia.web.entity.Patient">
+        insert into patient
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="caseNo != null and caseNo != ''">case_no,</if>
+            <if test="name != null and name != ''">name,</if>
+            <if test="gender != null">gender,</if>
+            <if test="height != null">height,</if>
+            <if test="birthday != null">birthday,</if>
+            <if test="phone != null and phone != ''">phone,</if>
+            <if test="address != null">address,</if>
+            create_time,
+            create_by
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="caseNo != null and caseNo != ''">#{caseNo},</if>
+            <if test="name != null and name != ''">#{name},</if>
+            <if test="gender != null">#{gender},</if>
+            <if test="height != null">#{height},</if>
+            <if test="birthday != null">#{birthday},</if>
+            <if test="phone != null and phone != ''">#{phone},</if>
+            <if test="address != null">#{address},</if>
+            sysdate(),
+            #{createBy}
+        </trim>
+    </insert>
+<!--删除病人信息-->
+    <update id="deletePatientById" parameterType="java.lang.Long">
+        update patient set is_del = 1 where id = #{id}
+    </update>
+<!--修改病人信息-->
+    <update id="updatePatient" parameterType="com.sarcopenia.web.entity.Patient">
+        update patient
+        <set>
+            <if test="caseNo != null">case_no =#{caseNo},</if>
+            <if test="name != null">name =#{name},</if>
+            <if test="gender != null">gender =#{gender},</if>
+            <if test="height != null">height =#{height},</if>
+            <if test="birthday != null">birthday =#{birthday},</if>
+            <if test="phone != null">phone =#{phone},</if>
+            <if test="idCard != null">id_card =#{idCard},</if>
+            <if test="address != null">address =#{address}</if>
+        </set>
+        where id = #{id}
+    </update>
+<!--公共字段-->
+    <sql id="selectFields">
+        id, case_no, name, gender, height, birthday, phone, id_card,
+               address, create_time, create_by, update_time, update_by, remark
+    </sql>
+<!--查询全部病人信息-->
+    <select id="selectPatientList" resultType="com.sarcopenia.web.entity.Patient"
+            parameterType="com.sarcopenia.web.entity.Patient">
+        select <include refid="selectFields"/>
+        from patient
+        <where>
+            is_del = 0
+            <if test="caseNo != null">and case_no like concat('%',#{caseNo},'%')</if>
+            <if test="name != null">and name like concat('%',#{name},'%')</if>
+            <if test="gender != null">and gender = #{gender}</if>
+            <if test="height != null">and height = #{height}</if>
+            <if test="birthday != null">and birthday = #{birthday}</if>
+            <if test="phone != null">and phone like concat('%',#{phone},'%')</if>
+            <if test="idCard != null">and id_card like concat('%',#{idCard},'%')</if>
+            <if test="address != null">and address like concat('%',#{address},'%')</if>
+            <if test="beginCreateTime != null and beginCreateTime != ''">
+                and create_time &gt;= #{beginCreateTime}
+            </if>
+            <if test="endCreateTime != null and endCreateTime != ''">
+                and create_time &lt;= #{endCreateTime}
+            </if>
+        </where>
+        order by id desc
+    </select>
+<!--根据id查询-->
+    <select id="selectPatientById" resultType="com.sarcopenia.web.entity.Patient"
+            parameterType="java.lang.Long">
+        select <include refid="selectFields"/> from patient where id = #{id} and is_del = 0
+    </select>
+</mapper>
