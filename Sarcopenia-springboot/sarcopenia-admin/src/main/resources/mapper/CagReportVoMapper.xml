@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 评估报告 Mapper XML -->
+<mapper namespace="com.sarcopenia.web.mapper.CagReportVoMapper">
+
+    <!-- 评估报告结果集映射 -->
+    <resultMap id="CagReportMap" type="com.sarcopenia.web.entity.vo.CagReportVO">
+        <id column="record_id" property="recordId"/>
+
+        <result column="patient_id" property="patientId"/>
+        <result column="case_no" property="caseNo"/>
+        <result column="name" property="patientName"/>
+        <result column="gender" property="gender"/>
+        <result column="height" property="height"/>
+        <result column="birthday" property="birthday"/>
+        <result column="age" property="age"/>
+        <result column="phone" property="phone"/>
+        <result column="id_card" property="idCard"/>
+        <result column="address" property="address"/>
+
+        <result column="user_id" property="userId"/>
+        <result column="total_score" property="totalScore"/>
+        <result column="result" property="result"/>
+        <result column="suggest" property="suggest"/>
+        <result column="create_time" property="createTime"/>
+
+        <!-- 评估项明细集合 -->
+        <collection property="assessmentList" ofType="com.sarcopenia.web.entity.vo.CagReportVO$AssessmentItemVO">
+            <id column="scale_id" property="scaleId"/>
+            <result column="scale_name" property="scaleName"/>
+            <result column="scale_code" property="scaleCode"/>
+            <result column="scale_total_score" property="scaleTotalScore"/>
+            <result column="item_score" property="itemScore"/>
+            <result column="normal_range" property="normalRange"/>
+            <result column="tip" property="tip"/>
+            <result column="remark" property="remark"/>
+        </collection>
+    </resultMap>
+
+    <!-- 查询已完成评估的患者列表 -->
+    <select id="selectPatientReportedList" resultType="com.sarcopenia.web.entity.Patient">
+        select
+        p.id,
+        p.case_no,
+        p.name,
+        p.gender,
+        p.height,
+        p.birthday,
+        p.phone,
+        p.id_card,
+        p.address,
+        p.is_report,
+        p.create_time,
+        p.create_by,
+        p.update_time,
+        p.update_by,
+        p.remark
+        from patient p
+        where p.is_del = 0
+        and p.is_report = 1
+        <if test="caseNo != null and caseNo != ''">
+            and p.case_no like concat('%', #{caseNo}, '%')
+        </if>
+        <if test="name != null and name != ''">
+            and p.name like concat('%', #{name}, '%')
+        </if>
+        <if test="phone != null and phone != ''">
+            and p.phone like concat('%', #{phone}, '%')
+        </if>
+        order by p.id desc
+    </select>
+
+    <!-- 根据患者ID删除相关评估记录（逻辑删除） -->
+    <update id="deleteReportByPatientId" parameterType="java.lang.Long">
+        update patient set is_del = 1 where id = #{patientId}
+    </update>
+
+    <!-- 根据评估记录ID查询完整评估报告 -->
+    <select id="getFullReport" resultMap="CagReportMap">
+        select
+            report.patient_id,
+            report.case_no,
+            report.name,
+            report.gender,
+            report.height,
+            report.birthday,
+            report.age,
+            report.phone,
+            report.id_card,
+            report.address,
+            report.record_id,
+            report.user_id,
+            report.total_score,
+            report.result,
+            report.suggest,
+            report.create_time,
+            report.scale_id,
+            report.scale_name,
+            report.scale_code,
+            report.scale_total_score,
+            report.item_score,
+            report.remark,
+            case report.scale_code
+                when 'exercise' then '-'
+                when 'vision' then '4分'
+                when 'visual_function' then '3分'
+                when 'listening' then '4分'
+                when 'cognition' then '-'
+                when 'depression' then '-'
+                when 'anxiety' then '-'
+                when 'stay_at_home' then '14分'
+                when 'fall' then '-'
+                when 'frailty' then '≥3项衰弱；&lt;2项衰弱前期；0项无衰弱'
+                when 'incontinence' then '-'
+                when 'constipation' then '-'
+                when 'sleep' then '-'
+                when 'chronic' then '-'
+                when 'pressure' then '-'
+                when 'medication' then '&lt;5种无；5-9种轻度；≥10种重度'
+                when 'swallow' then '-'
+                when 'nutrition' then '≤11分为营养不良风险'
+                when 'sarcopenia' then '男性＜34cm，女性＜33cm为阳性'
+                when 'delirium' then '-'
+                else concat(report.scale_total_score, '分')
+                end as normal_range,
+            case
+                when report.scale_code = 'exercise' and report.item_score > 0 then '建议进行体能状况评估 B3'
+                when report.scale_code = 'exercise' then '阴性'
+                when report.scale_code = 'vision' and report.item_score >= 4 then '正常'
+                when report.scale_code = 'vision' then '≤3分应进一步到眼科评估'
+                when report.scale_code = 'visual_function' and report.item_score >= 3 then '视功能良好'
+                when report.scale_code = 'visual_function' then '≤2分应进一步到眼科评估'
+                when report.scale_code = 'listening' and report.item_score >= 4 then '听力正常'
+                when report.scale_code = 'listening' then '≤3分应进一步到耳鼻喉科评估'
+                when report.scale_code = 'cognition' and report.item_score >= 3 then '阴性'
+                when report.scale_code = 'cognition' then '建议进行认知功能评估 WS/T484 C1'
+                when report.scale_code = 'depression' and report.item_score > 0 then '建议进行抑郁评估 WS/T802 B4'
+                when report.scale_code = 'depression' then '阴性'
+                when report.scale_code = 'anxiety' and report.item_score > 0 then '建议进行焦虑评估 WS/T802 B3'
+                when report.scale_code = 'anxiety' then '阴性'
+                when report.scale_code = 'stay_at_home' and report.item_score >= 14 then '正常'
+                when report.scale_code = 'stay_at_home' then '得分越低，风险越大 B9'
+                when report.scale_code = 'fall' and report.item_score > 0 then '建议进行跌倒风险评估 MZT 185 A1'
+                when report.scale_code = 'fall' then '阴性'
+                when report.scale_code = 'frailty' and report.item_score >= 3 then '衰弱 B10'
+                when report.scale_code = 'frailty' and report.item_score > 0 then '衰弱前期 B10'
+                when report.scale_code = 'frailty' then '无衰弱'
+                when report.scale_code = 'incontinence' and report.item_score > 0 then '建议进行尿失禁评估 B11'
+                when report.scale_code = 'incontinence' then '阴性'
+                when report.scale_code = 'constipation' and report.item_score > 0 then '建议进行便秘评估 B12'
+                when report.scale_code = 'constipation' then '阴性'
+                when report.scale_code = 'sleep' and report.item_score > 0 then '建议进行睡眠障碍评估 B13'
+                when report.scale_code = 'sleep' then '阴性'
+                when report.scale_code = 'chronic' and report.item_score > 0 then '建议进行慢性疼痛评估 B14'
+                when report.scale_code = 'chronic' then '阴性'
+                when report.scale_code = 'pressure' and report.item_score > 0 then '建议进行压力性损伤风险评估 B16'
+                when report.scale_code = 'pressure' then '阴性'
+                when report.scale_code = 'medication' and report.item_score >= 2 then '重度多重用药'
+                when report.scale_code = 'medication' and report.item_score = 1 then '轻度多重用药'
+                when report.scale_code = 'medication' then '无多重用药'
+                when report.scale_code = 'swallow' and report.item_score > 0 then '建议进行吞咽障碍评估 B17'
+                when report.scale_code = 'swallow' then '阴性'
+                when report.scale_code = 'nutrition' and report.item_score &lt;= 11 then '建议进行营养不良评估及诊断 B18/B19'
+                when report.scale_code = 'nutrition' then '正常营养状况'
+                when report.scale_code = 'sarcopenia' and report.item_score > 0 then '建议进行肌肉力量和躯体功能评估'
+                when report.scale_code = 'sarcopenia' then '阴性'
+                when report.scale_code = 'delirium' and report.item_score > 0 then 'B21'
+                when report.scale_code = 'delirium' then '阴性'
+                else '请结合量表规则判断'
+                end as tip
+        from (
+                 select
+                     p.id as patient_id,
+                     p.case_no,
+                     p.name,
+                     p.gender,
+                     p.height,
+                     p.birthday,
+                     timestampdiff(year, p.birthday, curdate()) as age,
+                     p.phone,
+                     p.id_card,
+                     p.address,
+
+                     r.id as record_id,
+                     r.user_id,
+                     r.total_score,
+                     r.result,
+                     r.suggest,
+                     r.create_time,
+
+                     s.id as scale_id,
+                     s.scale_name,
+                     s.code as scale_code,
+                     s.total_score as scale_total_score,
+                     s.remark,
+                     coalesce(sum(
+                                      case
+                                          when json_type(json_extract(r.answer_json, concat('$."', q.id, '"'))) = 'OBJECT'
+                                              then cast(json_unquote(json_extract(r.answer_json, concat('$."', q.id, '".score'))) as signed)
+                                          else cast(json_unquote(json_extract(r.answer_json, concat('$."', q.id, '"'))) as signed)
+                                          end
+                              ), 0) as item_score
+                 from cag_record r
+                          left join patient p on r.patient_id = p.id
+                          left join cag_scale s on s.del_flag = '0'
+                          left join cag_question q on q.scale_id = s.id and q.del_flag = '0'
+                 where r.id = #{recordId}
+                   and r.del_flag = '0'
+                 group by
+                     p.id,
+                     p.case_no,
+                     p.name,
+                     p.gender,
+                     p.height,
+                     p.birthday,
+                     p.phone,
+                     p.id_card,
+                     p.address,
+                     r.id,
+                     r.user_id,
+                     r.total_score,
+                     r.result,
+                     r.suggest,
+                     r.create_time,
+                     s.id,
+                     s.scale_name,
+                     s.code,
+                     s.total_score,
+                     s.remark
+             ) report
+        order by report.scale_id
+    </select>
+
+</mapper>

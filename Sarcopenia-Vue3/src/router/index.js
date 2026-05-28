@@ -82,6 +82,12 @@ export const constantRoutes = [
         component: () => import('@/views/patient/detection/geriatricsyndrome'),
         name: 'GeriatricSyndrome',
         meta: { title: '老年综合评估', activeMenu: '/patient/detection/index' }
+      },
+      {
+        path: 'cag',
+        component: () => import('@/views/patient/detection/cag'),
+        name: 'Cag',
+        meta: { title: 'CAG评估', activeMenu: '/patient/detection/index' }
       }
     ]
   }

@@ -9,15 +9,17 @@ import lombok.Data;
 import java.util.Date;
 
 /**
- * 量表题目表 cag_question
+ * 【实体】测评量表题目信息
+ * 对应数据库表：cag_question（量表题目表）
  */
 @Data
 @TableName("cag_question")
 public class CagQuestion extends BaseEntity {
 
+    /** 序列化版本ID */
     private static final long serialVersionUID = 1L;
 
-    /** 主键ID */
+    /** 主键ID（自增） */
     @TableId(type = IdType.AUTO)
     private Long id;
 
@@ -29,15 +31,15 @@ public class CagQuestion extends BaseEntity {
     @Excel(name = "题目内容", sort = 2)
     private String title;
 
-    /** 题目类型 1-单选 2-多选 */
+    /** 题目类型（1-单选 2-多选） */
     @Excel(name = "题目类型", sort = 3)
     private String type;
 
-    /** 题目排序（同一量表内顺序） */
+    /** 同一量表内题目排序序号 */
     @Excel(name = "题目排序", sort = 4)
     private Integer sort;
 
-    /** 备注说明 */
+    /** 备注信息 */
     @Excel(name = "备注说明", sort = 5)
     private String remark;
 
@@ -45,7 +47,7 @@ public class CagQuestion extends BaseEntity {
     @Excel(name = "创建时间", dateFormat = "yyyy-MM-dd HH:mm:ss", sort = 6)
     private Date createTime;
 
-    /** 删除标记 0-未删除 1-已删除 */
+    /** 删除标记（0-未删除 1-已删除） */
     @Excel(name = "删除标记", sort = 7)
     private String delFlag;
 

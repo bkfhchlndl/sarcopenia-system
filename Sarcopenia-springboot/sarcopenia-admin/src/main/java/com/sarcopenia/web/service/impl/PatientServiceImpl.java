@@ -8,32 +8,61 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+/**
+ * 患者信息 业务服务实现
+ */
 @Service
 public class PatientServiceImpl implements PatientService {
 
+    /** 患者信息Mapper */
     @Autowired
     private PatientMapper patientMapper;
-// 新增病人信息
+
+    /**
+     * 新增患者信息
+     * @param patient 患者信息
+     * @return 影响行数
+     */
     @Override
     public int insertPatient(Patient patient) {
         return patientMapper.insertPatient(patient);
     }
-// 删除病人信息
+
+    /**
+     * 根据ID删除患者信息
+     * @param id 患者ID
+     * @return 影响行数
+     */
     @Override
     public int deletePatientById(Long id) {
         return patientMapper.deletePatientById(id);
     }
-// 修改病人信息
+
+    /**
+     * 修改患者信息
+     * @param patient 患者信息
+     * @return 影响行数
+     */
     @Override
     public int updatePatient(Patient patient) {
         return patientMapper.updatePatient(patient);
     }
-// 查询全部病人信息
+
+    /**
+     * 查询患者信息列表
+     * @param patient 查询条件
+     * @return 患者信息集合
+     */
     @Override
     public List<Patient> selectPatientList(Patient patient) {
         return patientMapper.selectPatientList(patient);
     }
-// 根据ID查询病人信息
+
+    /**
+     * 根据ID查询患者信息
+     * @param patientId 患者ID
+     * @return 患者信息
+     */
     @Override
     public Patient selectPatientById(Long patientId) {
         return patientMapper.selectPatientById(patientId);

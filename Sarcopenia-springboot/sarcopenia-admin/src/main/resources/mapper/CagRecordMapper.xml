@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 评估记录 Mapper XML -->
+<mapper namespace="com.sarcopenia.web.mapper.CagRecordMapper">
+
+    <!-- 评估记录结果集映射 -->
+    <resultMap id="CagRecordResult" type="com.sarcopenia.web.entity.CagRecord">
+        <id property="id" column="id"/>
+        <result property="patientId" column="patient_id"/>
+        <result property="userId" column="user_id"/>
+        <result property="scaleId" column="scale_id"/>
+        <result property="totalScore" column="total_score"/>
+        <result property="result" column="result"/>
+        <result property="suggest" column="suggest"/>
+        <result property="answerJson" column="answer_json"/>
+        <result property="createTime" column="create_time"/>
+        <result property="delFlag" column="del_flag"/>
+    </resultMap>
+
+    <!-- 公共字段集合 -->
+    <sql id="Base_Column_List">
+        id, patient_id, user_id, scale_id, total_score, result, suggest, answer_json, create_time, del_flag
+    </sql>
+
+    <!-- 根据ID查询评估记录 -->
+    <select id="selectById" resultMap="CagRecordResult">
+        select <include refid="Base_Column_List"/>
+        from cag_record
+        where id = #{id} and del_flag = '0'
+    </select>
+
+    <!-- 查询评估记录列表 -->
+    <select id="selectList" resultMap="CagRecordResult">
+        select <include refid="Base_Column_List"/>
+        from cag_record
+        where del_flag = '0'
+        <if test="patientId != null">
+            and patient_id = #{patientId}
+        </if>
+        <if test="scaleId != null">
+            and scale_id = #{scaleId}
+        </if>
+        order by create_time desc
+    </select>
+
+    <!-- 新增评估记录 -->
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        insert into cag_record (
+            patient_id,
+            user_id,
+            scale_id,
+            total_score,
+            result,
+            suggest,
+            answer_json,
+            create_time,
+            del_flag
+        ) values (
+                     #{patientId},
+                     #{userId},
+                     #{scaleId},
+                     #{totalScore},
+                     #{result},
+                     #{suggest},
+                     #{answerJson},
+                     #{createTime},
+                     #{delFlag}
+                 )
+    </insert>
+
+    <!-- 根据ID修改评估记录 -->
+    <update id="updateById">
+        update cag_record
+        <set>
+            <if test="patientId != null">patient_id = #{patientId},</if>
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="scaleId != null">scale_id = #{scaleId},</if>
+            <if test="totalScore != null">total_score = #{totalScore},</if>
+            <if test="result != null">result = #{result},</if>
+            <if test="suggest != null">suggest = #{suggest},</if>
+            <if test="answerJson != null">answer_json = #{answerJson},</if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <!-- 根据ID删除评估记录（逻辑删除） -->
+    <update id="deleteById">
+        update cag_record set del_flag = '1' where id = #{id}
+    </update>
+
+</mapper>

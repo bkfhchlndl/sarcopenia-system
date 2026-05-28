@@ -1,41 +1,69 @@
 package com.sarcopenia.web.controller;
 
+import com.sarcopenia.common.core.domain.AjaxResult;
 import com.sarcopenia.web.entity.Patient;
 import com.sarcopenia.web.service.PatientService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
+/**
+ * 患者信息 控制层
+ */
 @RestController
 @RequestMapping("/patient")
 public class PatientController {
 
+    /** 患者信息服务 */
     @Autowired
     private PatientService patientService;
-//  新增病人信息
+
+    /**
+     * 新增患者信息
+     * @param patient 患者信息
+     * @return 操作结果
+     */
     @PostMapping("/insertPatient")
-    public int insertPatient(@RequestBody Patient patient) {
-        return patientService.insertPatient(patient);
+    public AjaxResult insertPatient(@RequestBody Patient patient) {
+        return AjaxResult.success(patientService.insertPatient(patient));
     }
-//  删除病人信息
+
+    /**
+     * 根据ID删除患者信息
+     * @param id 患者ID
+     * @return 操作结果
+     */
     @PutMapping("/deletePatientById")
-    public int deletePatientById(Long id) {
-        return patientService.deletePatientById(id);
+    public AjaxResult deletePatientById(Long id) {
+        return AjaxResult.success(patientService.deletePatientById(id));
     }
-//  修改病人信息
+
+    /**
+     * 修改患者信息
+     * @param patient 患者信息
+     * @return 操作结果
+     */
     @PutMapping("/updatePatient")
-    public int updatePatient(@RequestBody Patient patient) {
-        return patientService.updatePatient(patient);
+    public AjaxResult updatePatient(@RequestBody Patient patient) {
+        return AjaxResult.success(patientService.updatePatient(patient));
     }
-//  查询全部病人信息
+
+    /**
+     * 查询患者信息列表
+     * @param patient 查询条件
+     * @return 患者列表
+     */
     @GetMapping("/selectPatientList")
-    public List<Patient> selectPatientList(Patient patient) {
-        return patientService.selectPatientList(patient);
+    public AjaxResult selectPatientList(Patient patient) {
+        return AjaxResult.success(patientService.selectPatientList(patient));
     }
-//  根据ID查询病人信息
+
+    /**
+     * 根据ID查询患者信息
+     * @param patientId 患者ID
+     * @return 患者信息
+     */
     @GetMapping("/selectPatientById")
-    public Patient selectPatientById(Long patientId) {
-        return patientService.selectPatientById(patientId);
+    public AjaxResult selectPatientById(Long patientId) {
+        return AjaxResult.success(patientService.selectPatientById(patientId));
     }
 }

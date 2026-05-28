@@ -7,49 +7,49 @@
       </div>
 
       <el-form ref="queryRef" :model="queryParams" inline label-width="76px">
-        <el-form-item label="用户ID" prop="caseNo">
+        <el-form-item prop="caseNo">
           <el-input
-            v-model="queryParams.caseNo"
-            placeholder="请输入病历号"
-            clearable
-            style="width: 220px"
-            @keyup.enter="handleQuery"
+              v-model="queryParams.caseNo"
+              placeholder="请输入病历号"
+              clearable
+              style="width: 220px"
+              @keyup.enter="handleQuery"
           />
         </el-form-item>
-        <el-form-item label="姓名" prop="name">
+        <el-form-item prop="name">
           <el-input
-            v-model="queryParams.name"
-            placeholder="请输入姓名"
-            clearable
-            style="width: 220px"
-            @keyup.enter="handleQuery"
+              v-model="queryParams.name"
+              placeholder="请输入姓名"
+              clearable
+              style="width: 220px"
+              @keyup.enter="handleQuery"
           />
         </el-form-item>
-        <el-form-item label="手机号" prop="phone">
+        <el-form-item prop="phone">
           <el-input
-            v-model="queryParams.phone"
-            placeholder="请输入手机号"
-            clearable
-            style="width: 220px"
-            @keyup.enter="handleQuery"
+              v-model="queryParams.phone"
+              placeholder="请输入手机号"
+              clearable
+              style="width: 220px"
+              @keyup.enter="handleQuery"
           />
         </el-form-item>
-        <el-form-item label="注册时间">
+        <el-form-item>
           <div class="date-range-inline">
             <el-date-picker
-              v-model="queryParams.beginCreateTime"
-              type="date"
-              value-format="YYYY-MM-DD"
-              placeholder="开始日期"
-              style="width: 160px"
+                v-model="queryParams.beginCreateTime"
+                type="date"
+                value-format="YYYY-MM-DD"
+                placeholder="开始日期"
+                style="width: 160px"
             />
             <span class="date-range-separator">-</span>
             <el-date-picker
-              v-model="queryParams.endCreateTime"
-              type="date"
-              value-format="YYYY-MM-DD"
-              placeholder="结束日期"
-              style="width: 160px"
+                v-model="queryParams.endCreateTime"
+                type="date"
+                value-format="YYYY-MM-DD"
+                placeholder="结束日期"
+                style="width: 160px"
             />
           </div>
         </el-form-item>
@@ -97,12 +97,12 @@
 
       <div v-if="patientList.length > 0" class="pager-wrap">
         <el-pagination
-          v-model:current-page="pageNum"
-          v-model:page-size="pageSize"
-          background
-          layout="total, sizes, prev, pager, next, jumper"
-          :page-sizes="[5, 10, 20, 50]"
-          :total="patientList.length"
+            v-model:current-page="pageNum"
+            v-model:page-size="pageSize"
+            background
+            layout="total, sizes, prev, pager, next, jumper"
+            :page-sizes="[5, 10, 20, 50]"
+            :total="patientList.length"
         />
       </div>
     </section>
@@ -142,11 +142,11 @@
             <el-col :span="12">
               <el-form-item label="出生年月" prop="birthday">
                 <el-date-picker
-                  v-model="form.birthday"
-                  type="date"
-                  value-format="YYYY-MM-DD"
-                  placeholder="请选择出生日期"
-                  style="width: 100%"
+                    v-model="form.birthday"
+                    type="date"
+                    value-format="YYYY-MM-DD"
+                    placeholder="请选择出生日期"
+                    style="width: 100%"
                 />
               </el-form-item>
             </el-col>
@@ -190,16 +190,26 @@ import { deletePatientById, insertPatient, selectPatientList, updatePatient } fr
 
 const router = useRouter()
 
+/** 查询表单引用 */
 const queryRef = ref()
+/** 患者表单引用 */
 const patientRef = ref()
+/** 加载状态 */
 const loading = ref(false)
+/** 提交加载状态 */
 const submitLoading = ref(false)
+/** 弹窗显示状态 */
 const open = ref(false)
+/** 弹窗标题 */
 const dialogTitle = ref('编辑信息')
+/** 患者列表 */
 const patientList = ref([])
+/** 当前页码 */
 const pageNum = ref(1)
+/** 每页条数 */
 const pageSize = ref(10)
 
+/** 查询参数 */
 const queryParams = reactive({
   caseNo: '',
   name: '',
@@ -208,6 +218,7 @@ const queryParams = reactive({
   endCreateTime: ''
 })
 
+/** 创建空表单对象 */
 const createEmptyForm = () => ({
   id: undefined,
   caseNo: '',
@@ -220,8 +231,10 @@ const createEmptyForm = () => ({
   address: ''
 })
 
+/** 表单数据 */
 const form = ref(createEmptyForm())
 
+/** 表单校验规则 */
 const rules = {
   caseNo: [{ required: true, message: '请输入病历号', trigger: 'blur' }],
   name: [{ required: true, message: '请输入姓名', trigger: 'blur' }],
@@ -234,16 +247,19 @@ const rules = {
   height: [{ required: true, message: '请输入身高', trigger: 'blur' }]
 }
 
+/** 分页患者列表（计算属性） */
 const pagedPatientList = computed(() => {
   const start = (pageNum.value - 1) * pageSize.value
   const end = start + pageSize.value
   return patientList.value.slice(start, end)
 })
 
+/** 构建查询参数 */
 function buildQueryParams() {
   return { ...queryParams }
 }
 
+/** 获取患者列表 */
 async function getList() {
   loading.value = true
   try {
@@ -255,26 +271,31 @@ async function getList() {
   }
 }
 
+/** 查询按钮 */
 function handleQuery() {
   getList()
 }
 
+/** 重置查询 */
 function resetQuery() {
   queryRef.value?.resetFields()
   getList()
 }
 
+/** 重置表单 */
 function resetForm() {
   form.value = createEmptyForm()
   patientRef.value?.resetFields()
 }
 
+/** 新增用户 */
 function handleAdd() {
   resetForm()
   dialogTitle.value = '新增用户'
   open.value = true
 }
 
+/** 编辑用户 */
 function handleEdit(row) {
   resetForm()
   dialogTitle.value = '编辑信息'
@@ -292,6 +313,7 @@ function handleEdit(row) {
   open.value = true
 }
 
+/** 提交表单（新增/修改） */
 async function submitForm() {
   const valid = await patientRef.value?.validate().catch(() => false)
   if (!valid) return
@@ -313,6 +335,7 @@ async function submitForm() {
   }
 }
 
+/** 删除用户 */
 async function handleDelete(row) {
   await ElMessageBox.confirm(`确认删除用户“${row.name}”吗？`, '提示', {
     confirmButtonText: '确定',
@@ -324,6 +347,7 @@ async function handleDelete(row) {
   getList()
 }
 
+/** 进入测试页面 */
 function handleTest(row) {
   router.push({
     name: 'DetectionIndex',
@@ -334,18 +358,21 @@ function handleTest(row) {
   })
 }
 
+/** 格式化性别 */
 function formatGender(gender) {
   if (gender === '1' || gender === 1) return '男性'
   if (gender === '2' || gender === 2) return '女性'
   return '-'
 }
 
+/** 格式化出生日期 */
 function formatBirthday(value) {
   if (!value) return ''
   if (typeof value === 'string') return value.slice(0, 10)
   return parseTime(value, '{y}-{m}-{d}') || ''
 }
 
+/** 计算年龄 */
 function getAge(value) {
   if (!value) return null
   const birthday = new Date(formatBirthday(value))
@@ -358,6 +385,7 @@ function getAge(value) {
   return age
 }
 
+/** 格式化生日+年龄 */
 function formatBirthdayWithAge(value) {
   const birthday = formatBirthday(value)
   if (!birthday) return '-'
@@ -365,11 +393,13 @@ function formatBirthdayWithAge(value) {
   return age === null ? birthday : `${birthday}（${age}岁）`
 }
 
+/** 手机号脱敏 */
 function maskPhone(phone) {
   if (!phone) return '-'
   return String(phone).replace(/^(\d{3})\d{4}(\d{4})$/, '$1****$2')
 }
 
+/** 初始化加载列表 */
 getList()
 </script>
 
@@ -378,9 +408,9 @@ getList()
   min-height: calc(100vh - 84px);
   padding-bottom: 24px;
   background:
-    radial-gradient(circle at top left, rgba(125, 201, 154, 0.16), transparent 24%),
-    radial-gradient(circle at top right, rgba(106, 169, 255, 0.14), transparent 28%),
-    linear-gradient(180deg, #f8fbff 0%, #eef4fb 100%);
+      radial-gradient(circle at top left, rgba(125, 201, 154, 0.16), transparent 24%),
+      radial-gradient(circle at top right, rgba(106, 169, 255, 0.14), transparent 28%),
+      linear-gradient(180deg, #f8fbff 0%, #eef4fb 100%);
 }
 
 .filter-card,

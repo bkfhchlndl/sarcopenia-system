@@ -1,5 +1,6 @@
 <template>
   <div class="app-container create-page">
+    <!-- 页面头部标题区域 -->
     <section class="create-hero">
       <div>
         <p class="hero-kicker">New Profile</p>
@@ -12,13 +13,14 @@
       </div>
     </section>
 
+    <!-- 表单卡片区域 -->
     <section class="form-card">
       <el-form
-        ref="patientFormRef"
-        :model="patientForm"
-        :rules="rules"
-        label-width="86px"
-        class="patient-form"
+          ref="patientFormRef"
+          :model="patientForm"
+          :rules="rules"
+          label-width="86px"
+          class="patient-form"
       >
         <div class="section-title">基础资料</div>
         <el-row :gutter="20">
@@ -46,11 +48,11 @@
           <el-col :xs="24" :md="12">
             <el-form-item label="出生年月" prop="birthday">
               <el-date-picker
-                v-model="patientForm.birthday"
-                type="date"
-                value-format="YYYY-MM-DD"
-                placeholder="请选择出生日期"
-                style="width: 100%"
+                  v-model="patientForm.birthday"
+                  type="date"
+                  value-format="YYYY-MM-DD"
+                  placeholder="请选择出生日期"
+                  style="width: 100%"
               />
             </el-form-item>
           </el-col>
@@ -72,13 +74,14 @@
 
         <el-form-item label="家庭住址" prop="address">
           <el-input
-            v-model="patientForm.address"
-            type="textarea"
-            :rows="4"
-            placeholder="请输入家庭住址"
+              v-model="patientForm.address"
+              type="textarea"
+              :rows="4"
+              placeholder="请输入家庭住址"
           />
         </el-form-item>
 
+        <!-- 表单操作按钮 -->
         <div class="action-bar">
           <el-button type="primary" class="primary-btn" @click="submitForm">提交保存</el-button>
           <el-button class="ghost-btn" @click="resetForm">重置内容</el-button>
@@ -93,8 +96,13 @@ import { ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import { insertPatient } from '@/api/patient'
 
+/** 表单DOM引用 */
 const patientFormRef = ref(null)
 
+/**
+ * 创建空表单对象
+ * @returns 初始化的患者表单数据
+ */
 const createEmptyForm = () => ({
   caseNo: '',
   name: '',
@@ -105,8 +113,10 @@ const createEmptyForm = () => ({
   address: ''
 })
 
+/** 患者表单数据 */
 const patientForm = ref(createEmptyForm())
 
+/** 表单校验规则 */
 const rules = ref({
   caseNo: [{ required: true, message: '请输入病历号', trigger: 'blur' }],
   name: [{ required: true, message: '请输入姓名', trigger: 'blur' }],
@@ -120,20 +130,28 @@ const rules = ref({
   address: [{ required: true, message: '请输入家庭住址', trigger: 'blur' }]
 })
 
+/**
+ * 提交表单
+ * 校验通过后调用接口新增患者信息
+ */
 function submitForm() {
   patientFormRef.value.validate((valid) => {
     if (!valid) return
     insertPatient(patientForm.value)
-      .then(() => {
-        ElMessage.success('新增成功')
-        resetForm()
-      })
-      .catch(() => {
-        ElMessage.error('提交失败')
-      })
+        .then(() => {
+          ElMessage.success('新增成功')
+          resetForm()
+        })
+        .catch(() => {
+          ElMessage.error('提交失败')
+        })
   })
 }
 
+/**
+ * 重置表单
+ * 恢复为初始空数据并清除校验状态
+ */
 function resetForm() {
   patientForm.value = createEmptyForm()
   patientFormRef.value?.resetFields()
@@ -141,14 +159,16 @@ function resetForm() {
 </script>
 
 <style scoped lang="scss">
+/* 页面整体样式 */
 .create-page {
   min-height: calc(100vh - 84px);
   background:
-    radial-gradient(circle at top right, rgba(255, 214, 153, 0.16), transparent 24%),
-    radial-gradient(circle at left top, rgba(143, 203, 167, 0.18), transparent 28%),
-    linear-gradient(180deg, #f9fbff 0%, #eef5fb 100%);
+      radial-gradient(circle at top right, rgba(255, 214, 153, 0.16), transparent 24%),
+      radial-gradient(circle at left top, rgba(143, 203, 167, 0.18), transparent 28%),
+      linear-gradient(180deg, #f9fbff 0%, #eef5fb 100%);
 }
 
+/* 头部标题卡片 */
 .create-hero,
 .form-card {
   border: 1px solid rgba(172, 194, 216, 0.72);
@@ -165,8 +185,8 @@ function resetForm() {
   margin-bottom: 18px;
   padding: 28px 30px;
   background:
-    linear-gradient(135deg, rgba(255, 242, 213, 0.92), rgba(228, 241, 255, 0.95)),
-    #fff;
+      linear-gradient(135deg, rgba(255, 242, 213, 0.92), rgba(228, 241, 255, 0.95)),
+      #fff;
 }
 
 .create-hero h1 {
@@ -207,6 +227,7 @@ function resetForm() {
   background: linear-gradient(135deg, #7bc96f, #f2b94b);
 }
 
+/* 表单卡片 */
 .form-card {
   padding: 26px;
 }
@@ -228,6 +249,7 @@ function resetForm() {
   border-radius: 14px;
 }
 
+/* 按钮区域 */
 .action-bar {
   display: flex;
   gap: 12px;
@@ -245,6 +267,7 @@ function resetForm() {
   box-shadow: 0 14px 24px rgba(64, 138, 255, 0.2);
 }
 
+/* 响应式样式 */
 @media (max-width: 768px) {
   .create-hero {
     flex-direction: column;
