@@ -43,4 +43,11 @@ public interface PatientService {
      * @return 患者信息
      */
     Patient selectPatientById(Long patientId);
+
+    /**
+     * 获取已评估患者列表
+     * @param patient 患者查询条件
+     * @return 患者信息集合
+     */
+    List<Patient> selectPatientReportedList(Patient patient);
 }

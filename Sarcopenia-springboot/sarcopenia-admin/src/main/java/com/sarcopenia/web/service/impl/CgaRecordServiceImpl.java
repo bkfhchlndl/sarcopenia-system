@@ -3,15 +3,16 @@ package com.sarcopenia.web.service.impl;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sarcopenia.common.utils.SecurityUtils;
-import com.sarcopenia.web.entity.CagOption;
-import com.sarcopenia.web.entity.CagRecord;
-import com.sarcopenia.web.entity.dto.CagRecordDTO;
+import com.sarcopenia.web.entity.CgaOption;
+import com.sarcopenia.web.entity.CgaRecord;
+import com.sarcopenia.web.entity.dto.CgaRecordDTO;
 import com.sarcopenia.web.entity.vo.QuestionOptionVO;
 import com.sarcopenia.web.entity.vo.ScaleQuestionOptionVO;
-import com.sarcopenia.web.mapper.CagRecordMapper;
-import com.sarcopenia.web.mapper.CagScaleMapper;
+import com.sarcopenia.web.mapper.CgaRecordMapper;
+import com.sarcopenia.web.mapper.CgaScaleMapper;
 import com.sarcopenia.web.mapper.PatientMapper;
-import com.sarcopenia.web.service.CagRecordService;
+import com.sarcopenia.web.service.CgaRecordService;
+import com.sarcopenia.web.service.PatientProjectService;
 import jakarta.annotation.Resource;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +30,7 @@ import java.util.stream.Collectors;
  * 评估记录 业务服务实现
  */
 @Service
-public class CagRecordServiceImpl extends ServiceImpl<CagRecordMapper, CagRecord> implements CagRecordService {
+public class CgaRecordServiceImpl extends ServiceImpl<CgaRecordMapper, CgaRecord> implements CgaRecordService {
 
     /** JSON序列化工具 */
     @Resource
@@ -41,7 +42,11 @@ public class CagRecordServiceImpl extends ServiceImpl<CagRecordMapper, CagRecord
 
     /** 量表Mapper */
     @Autowired
-    private CagScaleMapper cagScaleMapper;
+    private CgaScaleMapper cgaScaleMapper;
+
+    /** 项目病人关联服务 */
+    @Autowired
+    private PatientProjectService patientProjectService;
 
     /**
      * 提交量表评估并保存记录
@@ -50,16 +55,17 @@ public class CagRecordServiceImpl extends ServiceImpl<CagRecordMapper, CagRecord
      */
     @Override
     @Transactional
-    public boolean insertCagRecord(CagRecordDTO dto) {
-        Map<Long, CagOption> optionMap = loadOptionMap();
-        Map<Long, StoredAnswer> storedAnswers = buildStoredAnswers(dto.getAnswers(), optionMap);
+    public boolean insertCgaRecord(CgaRecordDTO dto) {
+        Map<Long, CgaOption> optionMap = loadOptionMap();// 查库获取所有选项
+        Map<Long, StoredAnswer> storedAnswers = buildStoredAnswers(dto.getAnswers(), optionMap);// 处理答案
+        // ========== 计算总分 ==========
         int totalScore = storedAnswers.values().stream()
                 .map(StoredAnswer::getScore)
                 .filter(Objects::nonNull)
                 .mapToInt(Integer::intValue)
                 .sum();
-
-        CagRecord record = new CagRecord();
+        // ========== 构建实体 ==========
+        CgaRecord record = new CgaRecord();
         record.setPatientId(dto.getPatientId());
         try {
             record.setUserId(SecurityUtils.getUserId());
@@ -75,37 +81,32 @@ public class CagRecordServiceImpl extends ServiceImpl<CagRecordMapper, CagRecord
         } catch (Exception e) {
             throw new RuntimeException("保存失败");
         }
-
+        // 保存评估记录
         boolean save = this.save(record);
 
         if (!save) {
             throw new RuntimeException("保存失败");
         } else {
+            // 更新患者状态为已检查
             patientMapper.updatePatientIsReport(dto.getPatientId());
+            // 插入项目病人关联记录（一个病人可以做多个检查项目）
+            if (dto.getProjectId() != null) {
+                patientProjectService.insertIfNotExists(dto.getPatientId(), dto.getProjectId());
+            }
         }
         return save;
-    }
-
-    /**
-     * 根据ID查询量表评估记录
-     * @param id 评估记录ID
-     * @return 评估记录信息
-     */
-    @Override
-    public CagRecord selectCagRecordById(Long id) {
-        return this.getById(id);
     }
 
     /**
      * 加载所有选项并组装为Map结构
      * @return 选项ID-选项对象映射
      */
-    private Map<Long, CagOption> loadOptionMap() {
-        List<ScaleQuestionOptionVO> scaleList = cagScaleMapper.selectScaleList();
-        Map<Long, CagOption> optionMap = new LinkedHashMap<>();
+    private Map<Long, CgaOption> loadOptionMap() {
+        List<ScaleQuestionOptionVO> scaleList = cgaScaleMapper.selectScaleList();
+        Map<Long, CgaOption> optionMap = new LinkedHashMap<>();
         for (ScaleQuestionOptionVO scale : safeList(scaleList)) {
             for (QuestionOptionVO question : safeList(scale.getQuestionList())) {
-                for (CagOption option : safeList(question.getOptionList())) {
+                for (CgaOption option : safeList(question.getOptionList())) {
                     optionMap.put(option.getId(), option);
                 }
             }
@@ -119,7 +120,7 @@ public class CagRecordServiceImpl extends ServiceImpl<CagRecordMapper, CagRecord
      * @param optionMap 选项Map
      * @return 格式化后的答案结构
      */
-    private Map<Long, StoredAnswer> buildStoredAnswers(Map<Long, List<Long>> answers, Map<Long, CagOption> optionMap) {
+    private Map<Long, StoredAnswer> buildStoredAnswers(Map<Long, List<Long>> answers, Map<Long, CgaOption> optionMap) {
         Map<Long, StoredAnswer> storedAnswers = new LinkedHashMap<>();
         for (Map.Entry<Long, List<Long>> entry : answers.entrySet()) {
             List<Long> optionIds = safeList(entry.getValue()).stream()
@@ -127,7 +128,7 @@ public class CagRecordServiceImpl extends ServiceImpl<CagRecordMapper, CagRecord
                     .collect(Collectors.toList());
             int score = optionIds.stream()
                     .map(optionMap::get)
-                    .map(CagOption::getScore)
+                    .map(CgaOption::getScore)
                     .filter(Objects::nonNull)
                     .mapToInt(Integer::intValue)
                     .sum();
@@ -152,8 +153,10 @@ public class CagRecordServiceImpl extends ServiceImpl<CagRecordMapper, CagRecord
      */
     @Data
     public static class StoredAnswer {
+
         /** 选项ID集合 */
         private List<Long> optionIds;
+
         /** 题目得分 */
         private Integer score;
     }

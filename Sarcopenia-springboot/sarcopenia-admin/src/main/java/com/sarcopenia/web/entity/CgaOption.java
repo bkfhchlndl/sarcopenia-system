@@ -6,23 +6,22 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import com.sarcopenia.common.annotation.Excel;
 import com.sarcopenia.common.core.domain.BaseEntity;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 /**
  * 【实体】测评题目选项信息
- * 对应数据库表：cag_option（题目选项表）
+ * 对应数据库表：cga_option（题目选项表）
  */
 @Data
-@TableName("cag_option")
-public class CagOption extends BaseEntity {
-
-    /** 序列化版本ID */
-    private static final long serialVersionUID = 1L;
+@EqualsAndHashCode(callSuper = true)
+@TableName("cga_option")
+public class CgaOption extends BaseEntity {
 
     /** 主键ID（自增） */
     @TableId(type = IdType.AUTO)
     private Long id;
 
-    /** 所属题目ID（关联cag_question表主键） */
+    /** 所属题目ID（关联cga_question表主键） */
     @Excel(name = "所属题目ID", sort = 1)
     private Long questionId;
 

@@ -34,24 +34,23 @@
               @keyup.enter="handleQuery"
           />
         </el-form-item>
-        <el-form-item>
-          <div class="date-range-inline">
-            <el-date-picker
-                v-model="queryParams.beginCreateTime"
-                type="date"
-                value-format="YYYY-MM-DD"
-                placeholder="开始日期"
-                style="width: 160px"
-            />
-            <span class="date-range-separator">-</span>
-            <el-date-picker
-                v-model="queryParams.endCreateTime"
-                type="date"
-                value-format="YYYY-MM-DD"
-                placeholder="结束日期"
-                style="width: 160px"
-            />
-          </div>
+        <el-form-item prop="beginCreateTime">
+          <el-date-picker
+              v-model="queryParams.beginCreateTime"
+              type="date"
+              value-format="YYYY-MM-DD"
+              placeholder="开始日期"
+              style="width: 160px"
+          />
+        </el-form-item>
+        <el-form-item prop="endCreateTime">
+          <el-date-picker
+              v-model="queryParams.endCreateTime"
+              type="date"
+              value-format="YYYY-MM-DD"
+              placeholder="结束日期"
+              style="width: 160px"
+          />
         </el-form-item>
         <el-form-item>
           <el-button type="warning" plain @click="resetQuery">重置</el-button>
@@ -62,29 +61,29 @@
 
     <section class="table-card">
       <el-table v-loading="loading" :data="pagedPatientList" row-key="id" class="patient-table">
-        <el-table-column label="用户ID" prop="caseNo" min-width="110" />
-        <el-table-column label="姓名" prop="name" min-width="110" />
-        <el-table-column label="性别" min-width="88">
+        <el-table-column label="病历号" prop="caseNo" min-width="110" align="center" />
+        <el-table-column label="姓名" prop="name" min-width="110" align="center" />
+        <el-table-column label="性别" align="center"  min-width="88">
           <template #default="{ row }">
             {{ formatGender(row.gender) }}
           </template>
         </el-table-column>
-        <el-table-column label="出生年月" min-width="190">
+        <el-table-column label="出生年月" align="center"  min-width="190">
           <template #default="{ row }">
             {{ formatBirthdayWithAge(row.birthday) }}
           </template>
         </el-table-column>
-        <el-table-column label="手机号" min-width="138">
+        <el-table-column label="手机号" align="center"  min-width="138">
           <template #default="{ row }">
             {{ maskPhone(row.phone) }}
           </template>
         </el-table-column>
-        <el-table-column label="注册日期" min-width="180">
+        <el-table-column label="添加日期" align="center" min-width="180">
           <template #default="{ row }">
             {{ parseTime(row.createTime) || '-' }}
           </template>
         </el-table-column>
-        <el-table-column label="操作" min-width="240" fixed="right">
+        <el-table-column label="操作" align="center" min-width="240" fixed="right">
           <template #default="{ row }">
             <el-button link class="action-enter" @click="handleTest(row)">进入测试</el-button>
             <el-button link class="action-edit" @click="handleEdit(row)">编辑信息</el-button>
@@ -147,6 +146,7 @@
                     value-format="YYYY-MM-DD"
                     placeholder="请选择出生日期"
                     style="width: 100%"
+                    :disabled-date="disabledFutureDate"
                 />
               </el-form-item>
             </el-col>
@@ -163,12 +163,6 @@
               </el-form-item>
             </el-col>
           </el-row>
-          <el-form-item label="身份证号" prop="idCard">
-            <el-input v-model="form.idCard" placeholder="请输入身份证号" />
-          </el-form-item>
-          <el-form-item label="家庭住址" prop="address">
-            <el-input v-model="form.address" type="textarea" :rows="3" placeholder="请输入家庭住址" />
-          </el-form-item>
         </el-form>
       </div>
       <template #footer>
@@ -264,7 +258,7 @@ async function getList() {
   loading.value = true
   try {
     const response = await selectPatientList(buildQueryParams())
-    patientList.value = Array.isArray(response) ? response : []
+    patientList.value = response.data || []
     pageNum.value = 1
   } finally {
     loading.value = false
@@ -353,7 +347,12 @@ function handleTest(row) {
     name: 'DetectionIndex',
     query: {
       patientId: row.id,
-      name: row.name
+      name: row.name,
+      gender: row.gender,
+      birthday: formatBirthday(row.birthday),
+      phone: row.phone,
+      height: row.height,
+      address: row.address
     }
   })
 }
@@ -397,6 +396,11 @@ function formatBirthdayWithAge(value) {
 function maskPhone(phone) {
   if (!phone) return '-'
   return String(phone).replace(/^(\d{3})\d{4}(\d{4})$/, '$1****$2')
+}
+
+/** 禁用未来日期 */
+function disabledFutureDate(time) {
+  return time.getTime() > Date.now()
 }
 
 /** 初始化加载列表 */

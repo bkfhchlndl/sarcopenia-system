@@ -1,10 +1,13 @@
 package com.sarcopenia.web.controller;
 
+import com.sarcopenia.common.annotation.Anonymous;
 import com.sarcopenia.common.core.domain.AjaxResult;
 import com.sarcopenia.web.entity.Patient;
 import com.sarcopenia.web.service.PatientService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * 患者信息 控制层
@@ -65,5 +68,17 @@ public class PatientController {
     @GetMapping("/selectPatientById")
     public AjaxResult selectPatientById(Long patientId) {
         return AjaxResult.success(patientService.selectPatientById(patientId));
+    }
+
+    /**
+     * 查询已完成评估的患者列表
+     * @param patient 查询条件
+     * @return 患者列表
+     */
+    @Anonymous
+    @GetMapping("/selectPatientReportedList")
+    public AjaxResult selectPatientReportedList(Patient patient) {
+        List<Patient> list = patientService.selectPatientReportedList(patient);
+        return AjaxResult.success(list);
     }
 }

@@ -59,4 +59,10 @@ public interface PatientMapper {
      * @return 影响行数
      */
     int updatePatientIsReports(Long id);
+    /**
+     * 查询已完成评估的患者列表
+     * @param patient 查询条件
+     * @return 已评估患者集合
+     */
+    List<Patient> selectPatientReportedList(Patient patient);
 }

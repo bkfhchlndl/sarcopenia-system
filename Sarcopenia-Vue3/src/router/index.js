@@ -84,10 +84,47 @@ export const constantRoutes = [
         meta: { title: '老年综合评估', activeMenu: '/patient/detection/index' }
       },
       {
-        path: 'cag',
-        component: () => import('@/views/patient/detection/cag'),
-        name: 'Cag',
-        meta: { title: 'CAG评估', activeMenu: '/patient/detection/index' }
+        path: 'cga',
+        component: () => import('@/views/patient/detection/cga'),
+        name: 'Cga',
+        meta: { title: 'CGA评估', activeMenu: '/patient/detection/index' }
+      },
+      {
+        path: 'customize',
+        component: () => import('@/views/patient/detection/customize'),
+        name: 'Customize',
+        meta: { title: '自定义检测评估', activeMenu: '/patient/detection/index' }
+      },
+      {
+        path:'dailyLife',
+        component: () => import('@/views/patient/detection/dailyLife'),
+        name: 'DailyLife',
+        meta: { title: '日常生活评估', activeMenu: '/patient/detection/index' }
+      },
+      {
+        path: 'sppb',
+        component: () => import('@/views/patient/detection/sppb.vue'),
+        name: 'Sppb',
+        meta: { title: 'SPPB评估', activeMenu: '/patient/detection/index' }
+      },
+      {
+        path:'visionHearing',
+        component: () => import('@/views/patient/detection/visionHearing'),
+        name: 'VisionHearing',
+        meta: { title: '视觉听觉评估', activeMenu: '/patient/detection/index' }
+      }
+    ]
+  },
+  {
+    path: '/report',
+    component: Layout,
+    hidden: true,
+    children: [
+      {
+        path: 'cgareport',
+        component: () => import('@/views/report/cgareport'),
+        name: 'CgaReport',
+        meta: { title: 'CGA评估报告', activeMenu: '/patient/detection/index' }
       }
     ]
   }

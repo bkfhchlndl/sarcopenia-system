@@ -1,9 +1,9 @@
 <template>
-  <div class="app-container cag-page">
+  <div class="app-container cga-page">
     <section class="page-head">
       <div>
         <p class="eyebrow">Comprehensive Geriatric Assessment</p>
-        <h2>CAG筛查与评估</h2>
+        <h2>CGA筛查与评估</h2>
         <div class="patient-card">
           <div class="patient-main">
             <span class="patient-label">当前用户</span>
@@ -35,7 +35,7 @@
 
     <el-skeleton v-if="loading" :rows="8" animated />
 
-    <el-empty v-else-if="scaleList.length === 0" description="暂无CAG评估题目">
+    <el-empty v-else-if="scaleList.length === 0" description="暂无CGA评估题目">
       <el-button type="primary" @click="loadScaleData">重新加载</el-button>
     </el-empty>
 
@@ -96,6 +96,7 @@
                   :key="option.id"
                   :value="option.id"
                   border
+                  @change="(checked) => handleCheckboxChange(checked, question, option)"
               >
                 <span class="option-label">{{ option.label }}.</span>
                 <span>{{ option.content }}</span>
@@ -124,11 +125,11 @@
   </div>
 </template>
 
-<script setup name="CagAssessment">
+<script setup name="CgaAssessment">
 import { computed, onMounted, reactive, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { insertCagRecord, selectCagScaleList } from '@/api/cag'
+import { insertCgaRecord, selectCgaScaleList } from '@/api/cga'
 import { selectPatientById } from '@/api/patient'
 
 const route = useRoute()
@@ -158,6 +159,12 @@ const patientId = computed(() => {
   return value ? Number(value) : null
 })
 
+/** 从路由获取项目ID */
+const projectId = computed(() => {
+  const value = route.query.projectId
+  return value ? Number(value) : null
+})
+
 /** 所有题目平铺数组 */
 const allQuestions = computed(() => scaleList.value.flatMap(scale => scale.questionList || []))
 /** 总题目数 */
@@ -177,6 +184,40 @@ const answeredCount = computed(() => {
  */
 function isSingle(question) {
   return String(question.type) === '1'
+}
+
+/**
+ * 判断选项是否为"以上均没有"类选项
+ * @param {Object} option 选项对象
+ * @returns {Boolean}
+ */
+function isNoneOption(option) {
+  if (!option || !option.content) return false
+  const content = String(option.content).toLowerCase()
+  return content.includes('以上均没有') || content.includes('以上都没有') || content.includes('以上均无')
+}
+
+/**
+ * 处理复选框变化（互斥逻辑）
+ * @param {Array} selectedValues 当前选中的值数组
+ * @param {Object} question 题目对象
+ */
+function handleCheckboxChange(checked, question, option) {
+  if (!checked) return
+
+  const questionId = question.questionId
+  const optionList = question.optionList || []
+
+  // 找出"以上均没有"选项的ID
+  const noneOptionId = optionList.find(opt => isNoneOption(opt))?.id
+  if (!noneOptionId) return
+
+  if (option.id === noneOptionId) {
+    answers[questionId] = [noneOptionId]
+    return
+  }
+
+  answers[questionId] = (answers[questionId] || []).filter(id => id !== noneOptionId)
 }
 
 /**
@@ -239,7 +280,7 @@ async function loadPatientData() {
 async function loadScaleData() {
   loading.value = true
   try {
-    const response = await selectCagScaleList()
+    const response = await selectCgaScaleList()
     scaleList.value = normalizeScales(response.data || response)
     initAnswers()
   } finally {
@@ -283,11 +324,12 @@ async function submitForm() {
 
   submitting.value = true
   try {
-    await insertCagRecord({
+    await insertCgaRecord({
       patientId: patientId.value,
+      projectId: projectId.value,
       answers: buildOptionAnswers()
     })
-    ElMessage.success('CAG评估已提交')
+    ElMessage.success('CGA评估已提交')
   } finally {
     submitting.value = false
   }
@@ -348,7 +390,7 @@ onMounted(() => {
 </script>
 
 <style scoped lang="scss">
-.cag-page {
+.cga-page {
   min-height: calc(100vh - 84px);
   background: linear-gradient(180deg, #f7fbff 0%, #eef5f8 100%);
 }

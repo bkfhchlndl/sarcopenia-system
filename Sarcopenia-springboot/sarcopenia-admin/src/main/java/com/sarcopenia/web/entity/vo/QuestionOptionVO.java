@@ -2,13 +2,14 @@ package com.sarcopenia.web.entity.vo;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.sarcopenia.common.core.domain.BaseEntity;
-import com.sarcopenia.web.entity.CagOption;
+
+import com.sarcopenia.web.entity.CgaOption;
 import lombok.Data;
 
 import java.util.List;
 
 /**
- * 题目及选项视图对象
+ * 题目、选项
  */
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -27,6 +28,6 @@ public class QuestionOptionVO extends BaseEntity {
     private Integer sort;
 
     /** 题目对应的选项列表 */
-    private List<CagOption> optionList;
+    private List<CgaOption> optionList;
 
 }

@@ -6,18 +6,18 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import com.sarcopenia.common.annotation.Excel;
 import com.sarcopenia.common.core.domain.BaseEntity;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.util.Date;
 
 /**
  * 【实体】评估记录信息
- * 对应数据库表：cag_record（评估记录表）
+ * 对应数据库表：cga_record（评估记录表）
  */
 @Data
-@TableName("cag_record")
-public class CagRecord extends BaseEntity
-{
-    private static final long serialVersionUID = 1L;
+@EqualsAndHashCode(callSuper = true)
+@TableName(value = "cga_record", excludeProperty = "params")
+public class CgaRecord extends BaseEntity {
 
     /** 主键ID（自增） */
     @TableId(type = IdType.AUTO)

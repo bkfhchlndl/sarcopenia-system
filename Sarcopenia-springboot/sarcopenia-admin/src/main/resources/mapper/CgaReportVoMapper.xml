@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 评估报告 Mapper XML -->
+<mapper namespace="com.sarcopenia.web.mapper.CgaReportVoMapper">
+
+    <!-- 评估报告结果集映射 -->
+    <resultMap id="CgaReportMap" type="com.sarcopenia.web.entity.vo.CgaReportVO">
+        <id column="record_id" property="recordId"/>
+        <result column="patient_id" property="patientId"/>
+        <result column="case_no" property="caseNo"/>
+        <result column="name" property="patientName"/>
+        <result column="gender" property="gender"/>
+        <result column="height" property="height"/>
+        <result column="birthday" property="birthday"/>
+        <result column="age" property="age"/>
+        <result column="phone" property="phone"/>
+        <result column="id_card" property="idCard"/>
+        <result column="address" property="address"/>
+        <result column="user_id" property="userId"/>
+        <result column="total_score" property="totalScore"/>
+        <result column="result" property="result"/>
+        <result column="suggest" property="suggest"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+
+        <!-- 评估项明细集合 -->
+        <collection property="assessmentList" ofType="com.sarcopenia.web.entity.vo.CgaReportVO$AssessmentItemVO">
+            <id column="scale_id" property="scaleId"/>
+            <result column="scale_name" property="scaleName"/>
+            <result column="scale_code" property="scaleCode"/>
+            <result column="scale_total_score" property="scaleTotalScore"/>
+            <result column="remark" property="remark"/>
+            <result column="raw_score" property="rawScore"/>
+        </collection>
+    </resultMap>
+
+    <!-- 根据患者ID删除相关评估记录（逻辑删除） -->
+    <update id="deleteReportByPatientId" parameterType="java.lang.Long">
+        update patient set is_del = 1 where id = #{patientId}
+    </update>
+
+    <!-- 根据评估记录ID查询完整评估报告 -->
+    <select id="selectLatestRecordIdByPatientId" resultType="java.lang.Long">
+        select r.id
+        from cga_record r
+        where r.patient_id = #{patientId}
+          and r.del_flag = '0'
+        order by r.create_time desc, r.id desc
+        limit 1
+    </select>
+
+    <!-- 获得完整评估报告 -->
+    <select id="getFullReport" resultMap="CgaReportMap">
+        select
+            report.patient_id,
+            report.case_no,
+            report.name,
+            report.gender,
+            report.height,
+            report.birthday,
+            report.age,
+            report.phone,
+            report.id_card,
+            report.address,
+            report.record_id,
+            report.user_id,
+            report.total_score,
+            report.result,
+            report.suggest,
+            report.create_time,
+            report.update_time,
+            report.scale_id,
+            report.scale_name,
+            report.scale_code,
+            report.scale_total_score,
+            report.remark,
+            report.raw_score
+        from (
+                 select
+                     p.id as patient_id,
+                     p.case_no,
+                     p.name,
+                     p.gender,
+                     p.height,
+                     p.birthday,
+                     timestampdiff(year, p.birthday, curdate()) as age,
+                     p.phone,
+                     p.id_card,
+                     p.address,
+                     p.update_time,
+                     r.id as record_id,
+                     r.user_id,
+                     r.total_score,
+                     r.result,
+                     r.suggest,
+                     r.create_time,
+
+                     s.id as scale_id,
+                     s.scale_name,
+                     s.code as scale_code,
+                     s.total_score as scale_total_score,
+                     s.remark,
+                     coalesce(sum(
+                                      case
+                                          when json_type(json_extract(r.answer_json, concat('$."', q.id, '"'))) = 'OBJECT'
+                                              then cast(json_unquote(json_extract(r.answer_json, concat('$."', q.id, '".score'))) as signed)
+                                          else cast(json_unquote(json_extract(r.answer_json, concat('$."', q.id, '"'))) as signed)
+                                          end
+                              ), 0) as raw_score
+                 from cga_record r
+                          left join patient p on r.patient_id = p.id
+                          left join cga_scale s on s.del_flag = '0'
+                          left join cga_question q on q.scale_id = s.id and q.del_flag = '0'
+                 where r.id = #{recordId}
+                   and r.del_flag = '0'
+                 group by
+                     p.id,
+                     p.case_no,
+                     p.name,
+                     p.gender,
+                     p.height,
+                     p.birthday,
+                     p.phone,
+                     p.id_card,
+                     p.address,
+                     r.id,
+                     r.user_id,
+                     r.total_score,
+                     r.result,
+                     r.suggest,
+                     r.create_time,
+                     s.id,
+                     s.scale_name,
+                     s.code,
+                     s.total_score,
+                     s.remark
+             ) report
+        order by report.scale_id
+    </select>
+
+</mapper>

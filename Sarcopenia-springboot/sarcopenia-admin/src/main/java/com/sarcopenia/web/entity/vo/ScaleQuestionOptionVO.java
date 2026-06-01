@@ -7,7 +7,7 @@ import lombok.Data;
 import java.util.List;
 
 /**
- * 量表题目选项视图对象
+ * 量表、题目、选项
  */
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)

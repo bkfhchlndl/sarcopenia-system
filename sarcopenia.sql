@@ -11,17 +11,17 @@
  Target Server Version : 80044 (8.0.44)
  File Encoding         : 65001
 
- Date: 27/05/2026 16:40:01
+ Date: 01/06/2026 18:13:52
 */
 
 SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
 
 -- ----------------------------
--- Table structure for cag_option
+-- Table structure for cga_option
 -- ----------------------------
-DROP TABLE IF EXISTS `cag_option`;
-CREATE TABLE `cag_option`  (
+DROP TABLE IF EXISTS `cga_option`;
+CREATE TABLE `cga_option`  (
   `id` int NOT NULL AUTO_INCREMENT COMMENT '主键',
   `question_id` bigint NOT NULL COMMENT '题目id',
   `label` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '选项标识(a/b/c/d)',
@@ -29,113 +29,185 @@ CREATE TABLE `cag_option`  (
   `score` int NULL DEFAULT 0 COMMENT '选项得分',
   `sort` int NULL DEFAULT 0 COMMENT '排序',
   `del_flag` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '0',
+  `create_time` datetime NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time` datetime NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `create_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '' COMMENT '创建者',
+  `update_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '' COMMENT '更新者',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 96 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = 'cag-选项表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 164 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = 'cga-选项表' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
--- Records of cag_option
+-- Records of cga_option
 -- ----------------------------
-INSERT INTO `cag_option` VALUES (1, 1, 'A', '否（阴性）', 0, 1, '0');
-INSERT INTO `cag_option` VALUES (2, 1, 'B', '是（阳性）', 1, 2, '0');
-INSERT INTO `cag_option` VALUES (3, 2, 'A', '能看清书报上的标准字体', 4, 1, '0');
-INSERT INTO `cag_option` VALUES (4, 2, 'B', '能看清楚大字体，但看不清书报上的标准字体', 3, 2, '0');
-INSERT INTO `cag_option` VALUES (5, 2, 'C', '视力有限，看不清报纸大标题，但能辨认物体', 2, 3, '0');
-INSERT INTO `cag_option` VALUES (6, 2, 'D', '辨认物体有困难，但眼睛能跟随物体移动，只能看到光、颜色和形状', 1, 4, '0');
-INSERT INTO `cag_option` VALUES (7, 2, 'E', '没有视力，眼睛不能跟随物体移动', 0, 5, '0');
-INSERT INTO `cag_option` VALUES (8, 3, 'A', '阅读、行走和看电视时,觉得吃力', 0, 1, '0');
-INSERT INTO `cag_option` VALUES (9, 3, 'B', '看东西时觉得有东西遮挡或视物有缺损', 0, 2, '0');
-INSERT INTO `cag_option` VALUES (10, 3, 'C', '看东西时实物变形、扭曲', 0, 3, '0');
-INSERT INTO `cag_option` VALUES (11, 3, 'D', '以上均没有', 3, 4, '0');
-INSERT INTO `cag_option` VALUES (12, 4, 'A', '可正常交谈，能听到电视、电话、门铃的声音', 4, 1, '0');
-INSERT INTO `cag_option` VALUES (13, 4, 'B', '在轻声说话或说话距离超过 2 m 时听不清', 3, 2, '0');
-INSERT INTO `cag_option` VALUES (14, 4, 'C', '正常交流有些困难，需在安静的环境或大声说话才能听到', 2, 3, '0');
-INSERT INTO `cag_option` VALUES (15, 4, 'D', '讲话者大声说话或说话很慢，才能部分听见', 1, 4, '0');
-INSERT INTO `cag_option` VALUES (16, 4, 'E', '完全听不见', 0, 5, '0');
-INSERT INTO `cag_option` VALUES (17, 5, 'A', '回忆出 0 个词', 0, 1, '0');
-INSERT INTO `cag_option` VALUES (18, 5, 'B', '回忆出 1 个词', 1, 2, '0');
-INSERT INTO `cag_option` VALUES (19, 5, 'C', '回忆出 2个词', 2, 3, '0');
-INSERT INTO `cag_option` VALUES (20, 5, 'D', '回忆出 3 个词', 3, 4, '0');
-INSERT INTO `cag_option` VALUES (21, 6, 'A', '画钟试验错误', 0, 1, '0');
-INSERT INTO `cag_option` VALUES (22, 6, 'B', '画钟试验正确', 2, 2, '0');
-INSERT INTO `cag_option` VALUES (23, 7, 'A', '否（阴性）', 0, 1, '0');
-INSERT INTO `cag_option` VALUES (24, 7, 'B', '是（阳性）', 1, 2, '0');
-INSERT INTO `cag_option` VALUES (25, 8, 'A', '否（阴性）', 0, 1, '0');
-INSERT INTO `cag_option` VALUES (26, 8, 'B', '是（阳性）', 1, 2, '0');
-INSERT INTO `cag_option` VALUES (27, 9, 'A', '通道是否无杂乱物品', 1, 1, '0');
-INSERT INTO `cag_option` VALUES (28, 9, 'B', '地板状况是否良好', 1, 2, '0');
-INSERT INTO `cag_option` VALUES (29, 9, 'C', '地板是否防滑', 1, 3, '0');
-INSERT INTO `cag_option` VALUES (30, 9, 'D', '地板上是否有固定的防滑垫', 1, 4, '0');
-INSERT INTO `cag_option` VALUES (31, 9, 'E', '灯的亮度是否能够让您看清东西', 1, 5, '0');
-INSERT INTO `cag_option` VALUES (32, 9, 'F', '在床上开关灯是否方便', 1, 6, '0');
-INSERT INTO `cag_option` VALUES (33, 9, 'G', '晚上外边的路灯、楼道的灯照明是否良好', 1, 7, '0');
-INSERT INTO `cag_option` VALUES (34, 9, 'H', '淋浴室和浴池旁是否有扶手', 1, 8, '0');
-INSERT INTO `cag_option` VALUES (35, 9, 'I', '在浴池和浴室是否有固定的防滑垫', 1, 9, '0');
-INSERT INTO `cag_option` VALUES (36, 9, 'J', '厕所是否接近浴室', 1, 10, '0');
-INSERT INTO `cag_option` VALUES (37, 9, 'K', '室内的楼梯旁是否都有可用的扶手', 1, 11, '0');
-INSERT INTO `cag_option` VALUES (38, 9, 'L', '室外的楼梯旁是否都有可用的扶手', 1, 12, '0');
-INSERT INTO `cag_option` VALUES (39, 9, 'M', '楼梯的边缘是否清晰', 1, 13, '0');
-INSERT INTO `cag_option` VALUES (40, 9, 'N', '房屋周围的路况是否良好', 1, 14, '0');
-INSERT INTO `cag_option` VALUES (41, 10, 'A', '否（阴性）', 0, 1, '0');
-INSERT INTO `cag_option` VALUES (42, 10, 'B', '是（阳性）', 1, 2, '0');
-INSERT INTO `cag_option` VALUES (43, 11, 'A', '疲乏：过去 4 周内大部分时间或者所有时间感到疲乏', 1, 1, '0');
-INSERT INTO `cag_option` VALUES (44, 11, 'B', '阻力增加 / 耐力减退：不用辅助工具、他人帮助，中途不休息爬 1 层楼有困难', 1, 2, '0');
-INSERT INTO `cag_option` VALUES (45, 11, 'C', '自由活动下降：不用辅助工具、他人帮助，走完 1 个街区（100m）较困难', 1, 3, '0');
-INSERT INTO `cag_option` VALUES (46, 11, 'D', '疾病情况：存在 5 种以上相关疾病', 1, 4, '0');
-INSERT INTO `cag_option` VALUES (47, 11, 'E', '体重下降：1 年或更短时间内体重下降≥5%', 1, 5, '0');
-INSERT INTO `cag_option` VALUES (48, 11, 'F', '以上均无', 0, 6, '0');
-INSERT INTO `cag_option` VALUES (49, 12, 'A', '否（阴性）', 0, 1, '0');
-INSERT INTO `cag_option` VALUES (50, 12, 'B', '是（阳性）', 1, 2, '0');
-INSERT INTO `cag_option` VALUES (51, 13, 'A', '否（阴性）', 0, 1, '0');
-INSERT INTO `cag_option` VALUES (52, 13, 'B', '是（阳性）', 1, 2, '0');
-INSERT INTO `cag_option` VALUES (53, 14, 'A', '否（阴性）', 0, 1, '0');
-INSERT INTO `cag_option` VALUES (54, 14, 'B', '是（阳性）', 1, 2, '0');
-INSERT INTO `cag_option` VALUES (55, 15, 'A', '否（阴性）', 0, 1, '0');
-INSERT INTO `cag_option` VALUES (56, 15, 'B', '是（阳性）', 1, 2, '0');
-INSERT INTO `cag_option` VALUES (57, 16, 'A', '否（阴性）', 0, 1, '0');
-INSERT INTO `cag_option` VALUES (58, 16, 'B', '是（阳性）', 1, 2, '0');
-INSERT INTO `cag_option` VALUES (59, 17, 'A', '无', 0, 1, '0');
-INSERT INTO `cag_option` VALUES (60, 17, 'B', '轻度（5～9 种）', 1, 2, '0');
-INSERT INTO `cag_option` VALUES (61, 17, 'C', '重度（≥10 种）', 2, 3, '0');
-INSERT INTO `cag_option` VALUES (62, 18, 'A', '否（阴性）', 0, 1, '0');
-INSERT INTO `cag_option` VALUES (63, 18, 'B', '是（阳性）', 1, 2, '0');
-INSERT INTO `cag_option` VALUES (64, 19, 'A', '食量严重减少', 0, 1, '0');
-INSERT INTO `cag_option` VALUES (65, 19, 'B', '食量中度减少', 1, 2, '0');
-INSERT INTO `cag_option` VALUES (66, 19, 'C', '食量没有改变', 2, 3, '0');
-INSERT INTO `cag_option` VALUES (67, 20, 'A', '＞3 kg', 0, 1, '0');
-INSERT INTO `cag_option` VALUES (68, 20, 'B', '不知道', 1, 2, '0');
-INSERT INTO `cag_option` VALUES (69, 20, 'C', '1～3 kg', 2, 3, '0');
-INSERT INTO `cag_option` VALUES (70, 20, 'D', '无', 3, 4, '0');
-INSERT INTO `cag_option` VALUES (71, 21, 'A', '长期卧床或坐轮椅', 0, 1, '0');
-INSERT INTO `cag_option` VALUES (72, 21, 'B', '可以下床或离开轮椅，但不能外出', 1, 2, '0');
-INSERT INTO `cag_option` VALUES (73, 21, 'C', '可以外出', 2, 3, '0');
-INSERT INTO `cag_option` VALUES (74, 22, 'A', '是', 0, 1, '0');
-INSERT INTO `cag_option` VALUES (75, 22, 'B', '否', 2, 2, '0');
-INSERT INTO `cag_option` VALUES (76, 23, 'A', '严重痴呆或抑郁', 0, 1, '0');
-INSERT INTO `cag_option` VALUES (77, 23, 'B', '轻度痴呆', 1, 2, '0');
-INSERT INTO `cag_option` VALUES (78, 23, 'C', '无精神心理问题', 2, 3, '0');
-INSERT INTO `cag_option` VALUES (79, 24, 'A', 'BMI＜19', 0, 1, '0');
-INSERT INTO `cag_option` VALUES (80, 24, 'B', '19≤BMI＜21', 1, 2, '0');
-INSERT INTO `cag_option` VALUES (81, 24, 'C', '21≤BMI＜23', 2, 3, '0');
-INSERT INTO `cag_option` VALUES (82, 24, 'D', 'BMI≥23', 3, 4, '0');
-INSERT INTO `cag_option` VALUES (83, 25, 'A', 'CC＜31 cm', 0, 1, '0');
-INSERT INTO `cag_option` VALUES (84, 25, 'B', 'CC≥31 cm', 3, 2, '0');
-INSERT INTO `cag_option` VALUES (85, 26, 'A', '否（阴性）', 0, 1, '0');
-INSERT INTO `cag_option` VALUES (86, 26, 'B', '是（阳性）', 1, 2, '0');
-INSERT INTO `cag_option` VALUES (87, 27, 'A', '否', 0, 1, '0');
-INSERT INTO `cag_option` VALUES (88, 27, 'B', '是', 1, 2, '0');
-INSERT INTO `cag_option` VALUES (89, 28, 'A', '否', 0, 1, '0');
-INSERT INTO `cag_option` VALUES (90, 28, 'B', '是', 1, 2, '0');
-INSERT INTO `cag_option` VALUES (91, 29, 'A', '否', 0, 1, '0');
-INSERT INTO `cag_option` VALUES (92, 29, 'B', '是', 1, 2, '0');
-INSERT INTO `cag_option` VALUES (93, 30, 'A', '否', 0, 1, '0');
-INSERT INTO `cag_option` VALUES (94, 30, 'B', '是', 1, 2, '0');
+INSERT INTO `cga_option` VALUES (1, 1, 'A', '否', 1, 1, '0', '2026-05-29 10:30:33', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_option` VALUES (2, 1, 'B', '是', 0, 2, '0', '2026-05-29 10:30:33', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_option` VALUES (3, 2, 'A', '能看清书报上的标准字体', 4, 1, '0', '2026-05-29 10:30:33', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_option` VALUES (4, 2, 'B', '能看清楚大字体，但看不清书报上的标准字体', 3, 2, '0', '2026-05-29 10:30:33', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_option` VALUES (5, 2, 'C', '视力有限，看不清报纸大标题，但能辨认物体', 2, 3, '0', '2026-05-29 10:30:33', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_option` VALUES (6, 2, 'D', '辨认物体有困难，但眼睛能跟随物体移动，只能看到光、颜色和形状', 1, 4, '0', '2026-05-29 10:30:33', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_option` VALUES (7, 2, 'E', '没有视力，眼睛不能跟随物体移动', 0, 5, '0', '2026-05-29 10:30:33', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_option` VALUES (8, 3, 'A', '阅读、行走和看电视时,觉得吃力', 0, 1, '0', '2026-05-29 10:30:33', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_option` VALUES (9, 3, 'B', '看东西时觉得有东西遮挡或视物有缺损', 1, 2, '0', '2026-05-29 10:30:33', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_option` VALUES (10, 3, 'C', '看东西时实物变形、扭曲', 1, 3, '0', '2026-05-29 10:30:33', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_option` VALUES (11, 3, 'D', '以上均没有', 3, 4, '0', '2026-05-29 10:30:33', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_option` VALUES (12, 4, 'A', '可正常交谈，能听到电视、电话、门铃的声音', 4, 1, '0', '2026-05-29 10:30:33', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_option` VALUES (13, 4, 'B', '在轻声说话或说话距离超过 2 m 时听不清', 3, 2, '0', '2026-05-29 10:30:33', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_option` VALUES (14, 4, 'C', '正常交流有些困难，需在安静的环境或大声说话才能听到', 2, 3, '0', '2026-05-29 10:30:33', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_option` VALUES (15, 4, 'D', '讲话者大声说话或说话很慢，才能部分听见', 1, 4, '0', '2026-05-29 10:30:33', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_option` VALUES (16, 4, 'E', '完全听不见', 0, 5, '0', '2026-05-29 10:30:33', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_option` VALUES (17, 5, 'A', '回忆出 0 个词', 0, 1, '0', '2026-05-29 10:30:33', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_option` VALUES (18, 5, 'B', '回忆出 1 个词', 1, 2, '0', '2026-05-29 10:30:33', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_option` VALUES (19, 5, 'C', '回忆出 2个词', 2, 3, '0', '2026-05-29 10:30:33', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_option` VALUES (20, 5, 'D', '回忆出 3 个词', 3, 4, '0', '2026-05-29 10:30:33', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_option` VALUES (21, 6, 'A', '画钟试验错误', 0, 1, '0', '2026-05-29 10:30:33', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_option` VALUES (22, 6, 'B', '画钟试验正确', 2, 2, '0', '2026-05-29 10:30:33', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_option` VALUES (23, 7, 'A', '否', 1, 1, '0', '2026-05-29 10:30:33', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_option` VALUES (24, 7, 'B', '是', 0, 2, '0', '2026-05-29 10:30:33', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_option` VALUES (25, 8, 'A', '否', 1, 1, '0', '2026-05-29 10:30:33', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_option` VALUES (26, 8, 'B', '是', 0, 2, '0', '2026-05-29 10:30:33', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_option` VALUES (27, 9, 'A', '通道是否无杂乱物品', 1, 1, '0', '2026-05-29 10:30:33', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_option` VALUES (28, 9, 'B', '地板状况是否良好', 1, 2, '0', '2026-05-29 10:30:33', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_option` VALUES (29, 9, 'C', '地板是否防滑', 1, 3, '0', '2026-05-29 10:30:33', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_option` VALUES (30, 9, 'D', '地板上是否有固定的防滑垫', 1, 4, '0', '2026-05-29 10:30:33', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_option` VALUES (31, 9, 'E', '灯的亮度是否能够让您看清东西', 1, 5, '0', '2026-05-29 10:30:33', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_option` VALUES (32, 9, 'F', '在床上开关灯是否方便', 1, 6, '0', '2026-05-29 10:30:33', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_option` VALUES (33, 9, 'G', '晚上外边的路灯、楼道的灯照明是否良好', 1, 7, '0', '2026-05-29 10:30:33', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_option` VALUES (34, 9, 'H', '淋浴室和浴池旁是否有扶手', 1, 8, '0', '2026-05-29 10:30:33', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_option` VALUES (35, 9, 'I', '在浴池和浴室是否有固定的防滑垫', 1, 9, '0', '2026-05-29 10:30:33', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_option` VALUES (36, 9, 'J', '厕所是否接近浴室', 1, 10, '0', '2026-05-29 10:30:33', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_option` VALUES (37, 9, 'K', '室内的楼梯旁是否都有可用的扶手', 1, 11, '0', '2026-05-29 10:30:33', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_option` VALUES (38, 9, 'L', '室外的楼梯旁是否都有可用的扶手', 1, 12, '0', '2026-05-29 10:30:33', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_option` VALUES (39, 9, 'M', '楼梯的边缘是否清晰', 1, 13, '0', '2026-05-29 10:30:33', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_option` VALUES (40, 9, 'N', '房屋周围的路况是否良好', 1, 14, '0', '2026-05-29 10:30:33', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_option` VALUES (41, 10, 'A', '否', 1, 1, '0', '2026-05-29 10:30:33', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_option` VALUES (42, 10, 'B', '是', 0, 2, '0', '2026-05-29 10:30:33', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_option` VALUES (43, 11, 'A', '疲乏：过去 4 周内大部分时间或者所有时间感到疲乏', 1, 1, '0', '2026-05-29 10:30:33', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_option` VALUES (44, 11, 'B', '阻力增加 / 耐力减退：不用辅助工具、他人帮助，中途不休息爬 1 层楼有困难', 1, 2, '0', '2026-05-29 10:30:33', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_option` VALUES (45, 11, 'C', '自由活动下降：不用辅助工具、他人帮助，走完 1 个街区（100m）较困难', 1, 3, '0', '2026-05-29 10:30:33', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_option` VALUES (46, 11, 'D', '疾病情况：存在 5 种以上相关疾病', 1, 4, '0', '2026-05-29 10:30:33', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_option` VALUES (47, 11, 'E', '体重下降：1 年或更短时间内体重下降≥5%', 1, 5, '0', '2026-05-29 10:30:33', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_option` VALUES (48, 11, 'F', '以上均无', 6, 6, '0', '2026-05-29 10:30:33', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_option` VALUES (49, 12, 'A', '否', 1, 1, '0', '2026-05-29 10:30:33', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_option` VALUES (50, 12, 'B', '是', 0, 2, '0', '2026-05-29 10:30:33', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_option` VALUES (51, 13, 'A', '否', 1, 1, '0', '2026-05-29 10:30:33', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_option` VALUES (52, 13, 'B', '是', 0, 2, '0', '2026-05-29 10:30:33', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_option` VALUES (53, 14, 'A', '否', 1, 1, '0', '2026-05-29 10:30:33', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_option` VALUES (54, 14, 'B', '是', 0, 2, '0', '2026-05-29 10:30:33', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_option` VALUES (55, 15, 'A', '否', 1, 1, '0', '2026-05-29 10:30:33', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_option` VALUES (56, 15, 'B', '是', 0, 2, '0', '2026-05-29 10:30:33', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_option` VALUES (57, 16, 'A', '否', 1, 1, '0', '2026-05-29 10:30:33', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_option` VALUES (58, 16, 'B', '是', 0, 2, '0', '2026-05-29 10:30:33', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_option` VALUES (59, 17, 'A', '无', 2, 1, '0', '2026-05-29 10:30:33', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_option` VALUES (60, 17, 'B', '轻度（5～9 种）', 1, 2, '0', '2026-05-29 10:30:33', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_option` VALUES (61, 17, 'C', '重度（≥10 种）', 0, 3, '0', '2026-05-29 10:30:33', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_option` VALUES (62, 18, 'A', '否', 1, 1, '0', '2026-05-29 10:30:33', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_option` VALUES (63, 18, 'B', '是', 0, 2, '0', '2026-05-29 10:30:33', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_option` VALUES (64, 19, 'A', '食量严重减少', 0, 1, '0', '2026-05-29 10:30:33', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_option` VALUES (65, 19, 'B', '食量中度减少', 1, 2, '0', '2026-05-29 10:30:33', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_option` VALUES (66, 19, 'C', '食量没有改变', 2, 3, '0', '2026-05-29 10:30:33', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_option` VALUES (67, 20, 'A', '＞3 kg', 0, 1, '0', '2026-05-29 10:30:33', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_option` VALUES (68, 20, 'B', '不知道', 1, 2, '0', '2026-05-29 10:30:33', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_option` VALUES (69, 20, 'C', '1～3 kg', 2, 3, '0', '2026-05-29 10:30:33', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_option` VALUES (70, 20, 'D', '无', 3, 4, '0', '2026-05-29 10:30:33', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_option` VALUES (71, 21, 'A', '长期卧床或坐轮椅', 0, 1, '0', '2026-05-29 10:30:33', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_option` VALUES (72, 21, 'B', '可以下床或离开轮椅，但不能外出', 1, 2, '0', '2026-05-29 10:30:33', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_option` VALUES (73, 21, 'C', '可以外出', 2, 3, '0', '2026-05-29 10:30:33', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_option` VALUES (74, 22, 'A', '是', 0, 1, '0', '2026-05-29 10:30:33', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_option` VALUES (75, 22, 'B', '否', 2, 2, '0', '2026-05-29 10:30:33', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_option` VALUES (76, 23, 'A', '严重痴呆或抑郁', 0, 1, '0', '2026-05-29 10:30:33', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_option` VALUES (77, 23, 'B', '轻度痴呆', 1, 2, '0', '2026-05-29 10:30:33', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_option` VALUES (78, 23, 'C', '无精神心理问题', 2, 3, '0', '2026-05-29 10:30:33', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_option` VALUES (79, 24, 'A', 'BMI＜19', 0, 1, '0', '2026-05-29 10:30:33', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_option` VALUES (80, 24, 'B', '19≤BMI＜21', 1, 2, '0', '2026-05-29 10:30:33', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_option` VALUES (81, 24, 'C', '21≤BMI＜23', 2, 3, '0', '2026-05-29 10:30:33', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_option` VALUES (82, 24, 'D', 'BMI≥23', 3, 4, '0', '2026-05-29 10:30:33', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_option` VALUES (83, 25, 'A', 'CC＜31 cm', 0, 1, '0', '2026-05-29 10:30:33', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_option` VALUES (84, 25, 'B', 'CC≥31 cm', 3, 2, '0', '2026-05-29 10:30:33', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_option` VALUES (85, 26, 'A', '否', 1, 1, '0', '2026-05-29 10:30:33', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_option` VALUES (86, 26, 'B', '是', 0, 2, '0', '2026-05-29 10:30:33', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_option` VALUES (87, 27, 'A', '否', 1, 1, '0', '2026-05-29 10:30:33', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_option` VALUES (88, 27, 'B', '是', 0, 2, '0', '2026-05-29 10:30:33', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_option` VALUES (89, 28, 'A', '否', 1, 1, '0', '2026-05-29 10:30:33', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_option` VALUES (90, 28, 'B', '是', 0, 2, '0', '2026-05-29 10:30:33', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_option` VALUES (91, 29, 'A', '否', 1, 1, '0', '2026-05-29 10:30:33', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_option` VALUES (92, 29, 'B', '是', 0, 2, '0', '2026-05-29 10:30:33', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_option` VALUES (93, 30, 'A', '否', 1, 1, '0', '2026-05-29 10:30:33', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_option` VALUES (94, 30, 'B', '是', 0, 2, '0', '2026-05-29 10:30:33', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_option` VALUES (96, 31, 'A', '可独立进食', 10, 1, '0', '2026-06-01 09:36:21', '2026-06-01 09:36:21', '', '');
+INSERT INTO `cga_option` VALUES (97, 31, 'B', '需部分帮助', 5, 2, '0', '2026-06-01 09:36:21', '2026-06-01 09:36:21', '', '');
+INSERT INTO `cga_option` VALUES (98, 31, 'C', '需极大帮助或完全依赖他人，或留置胃管', 0, 3, '0', '2026-06-01 09:36:21', '2026-06-01 09:36:21', '', '');
+INSERT INTO `cga_option` VALUES (99, 32, 'A', '准备好洗澡水后，可自己独立完成洗澡过程', 5, 1, '0', '2026-06-01 09:36:21', '2026-06-01 09:36:21', '', '');
+INSERT INTO `cga_option` VALUES (100, 32, 'B', '在洗澡过程需要他人帮助', 0, 2, '0', '2026-06-01 09:36:21', '2026-06-01 09:36:21', '', '');
+INSERT INTO `cga_option` VALUES (101, 33, 'A', '可自己独立完成', 5, 1, '0', '2026-06-01 09:36:21', '2026-06-01 09:36:21', '', '');
+INSERT INTO `cga_option` VALUES (102, 33, 'B', '需他人帮助', 0, 2, '0', '2026-06-01 09:36:21', '2026-06-01 09:36:21', '', '');
+INSERT INTO `cga_option` VALUES (103, 34, 'A', '可独立完成', 10, 1, '0', '2026-06-01 09:36:21', '2026-06-01 09:36:21', '', '');
+INSERT INTO `cga_option` VALUES (104, 34, 'B', '需部分帮助', 5, 2, '0', '2026-06-01 09:36:21', '2026-06-01 09:36:21', '', '');
+INSERT INTO `cga_option` VALUES (105, 34, 'C', '需极大帮助或完全依赖他人', 0, 3, '0', '2026-06-01 09:36:21', '2026-06-01 09:36:21', '', '');
+INSERT INTO `cga_option` VALUES (106, 35, 'A', '可控制大便', 10, 1, '0', '2026-06-01 09:36:21', '2026-06-01 09:36:21', '', '');
+INSERT INTO `cga_option` VALUES (107, 35, 'B', '偶尔失控，或需要他人提示', 5, 2, '0', '2026-06-01 09:36:21', '2026-06-01 09:36:21', '', '');
+INSERT INTO `cga_option` VALUES (108, 35, 'C', '完全失控', 0, 3, '0', '2026-06-01 09:36:21', '2026-06-01 09:36:21', '', '');
+INSERT INTO `cga_option` VALUES (109, 36, 'A', '可控制小便', 10, 1, '0', '2026-06-01 09:36:21', '2026-06-01 09:36:21', '', '');
+INSERT INTO `cga_option` VALUES (110, 36, 'B', '偶尔失控，或需要他人提示', 5, 2, '0', '2026-06-01 09:36:21', '2026-06-01 09:36:21', '', '');
+INSERT INTO `cga_option` VALUES (111, 36, 'C', '完全失控，或留置导尿管', 0, 3, '0', '2026-06-01 09:36:21', '2026-06-01 09:36:21', '', '');
+INSERT INTO `cga_option` VALUES (112, 37, 'A', '可独立完成', 10, 1, '0', '2026-06-01 09:36:21', '2026-06-01 09:36:21', '', '');
+INSERT INTO `cga_option` VALUES (113, 37, 'B', '需部分帮助', 5, 2, '0', '2026-06-01 09:36:21', '2026-06-01 09:36:21', '', '');
+INSERT INTO `cga_option` VALUES (114, 37, 'C', '需极大帮助或完全依赖他人', 0, 3, '0', '2026-06-01 09:36:21', '2026-06-01 09:36:21', '', '');
+INSERT INTO `cga_option` VALUES (115, 38, 'A', '可独立完成', 15, 1, '0', '2026-06-01 09:36:21', '2026-06-01 09:36:21', '', '');
+INSERT INTO `cga_option` VALUES (116, 38, 'B', '需部分帮助', 10, 2, '0', '2026-06-01 09:36:21', '2026-06-01 09:36:21', '', '');
+INSERT INTO `cga_option` VALUES (117, 38, 'C', '需极大帮助', 5, 3, '0', '2026-06-01 09:36:21', '2026-06-01 09:36:21', '', '');
+INSERT INTO `cga_option` VALUES (118, 38, 'D', '完全依赖他人', 0, 4, '0', '2026-06-01 09:36:21', '2026-06-01 09:36:21', '', '');
+INSERT INTO `cga_option` VALUES (119, 39, 'A', '可独立在平地上行走45m', 15, 1, '0', '2026-06-01 09:36:21', '2026-06-01 09:36:21', '', '');
+INSERT INTO `cga_option` VALUES (120, 39, 'B', '需部分帮助', 10, 2, '0', '2026-06-01 09:36:21', '2026-06-01 09:36:21', '', '');
+INSERT INTO `cga_option` VALUES (121, 39, 'C', '需极大帮助', 5, 3, '0', '2026-06-01 09:36:21', '2026-06-01 09:36:21', '', '');
+INSERT INTO `cga_option` VALUES (122, 39, 'D', '完全依赖他人', 0, 4, '0', '2026-06-01 09:36:21', '2026-06-01 09:36:21', '', '');
+INSERT INTO `cga_option` VALUES (123, 40, 'A', '可独立上下楼梯', 10, 1, '0', '2026-06-01 09:36:21', '2026-06-01 09:36:21', '', '');
+INSERT INTO `cga_option` VALUES (124, 40, 'B', '需部分帮助', 5, 2, '0', '2026-06-01 09:36:21', '2026-06-01 09:36:21', '', '');
+INSERT INTO `cga_option` VALUES (125, 40, 'C', '需极大帮助或完全依赖他人', 0, 3, '0', '2026-06-01 09:36:21', '2026-06-01 09:36:21', '', '');
+INSERT INTO `cga_option` VALUES (126, 41, 'A', '保持10s', 1, 1, '0', '2026-06-01 15:04:02', '2026-06-01 15:04:02', '', '');
+INSERT INTO `cga_option` VALUES (127, 41, 'B', '未保持10s', 0, 2, '0', '2026-06-01 15:04:02', '2026-06-01 15:04:02', '', '');
+INSERT INTO `cga_option` VALUES (128, 41, 'C', '不尝试（结束平衡测试）', 0, 3, '0', '2026-06-01 15:04:02', '2026-06-01 15:04:02', '', '');
+INSERT INTO `cga_option` VALUES (129, 42, 'A', '保持10s', 1, 1, '0', '2026-06-01 15:04:02', '2026-06-01 15:04:02', '', '');
+INSERT INTO `cga_option` VALUES (130, 42, 'B', '未保持10s', 0, 2, '0', '2026-06-01 15:04:02', '2026-06-01 15:04:02', '', '');
+INSERT INTO `cga_option` VALUES (131, 42, 'C', '不尝试（结束平衡测试）', 0, 3, '0', '2026-06-01 15:04:02', '2026-06-01 15:04:02', '', '');
+INSERT INTO `cga_option` VALUES (132, 43, 'A', '保持10s', 2, 1, '0', '2026-06-01 15:04:02', '2026-06-01 15:04:02', '', '');
+INSERT INTO `cga_option` VALUES (133, 43, 'B', '保持3~9.99s', 1, 2, '0', '2026-06-01 15:04:02', '2026-06-01 15:04:02', '', '');
+INSERT INTO `cga_option` VALUES (134, 43, 'C', '保持<3s', 0, 3, '0', '2026-06-01 15:04:02', '2026-06-01 15:04:02', '', '');
+INSERT INTO `cga_option` VALUES (135, 43, 'D', '不尝试', 0, 4, '0', '2026-06-01 15:04:02', '2026-06-01 15:04:02', '', '');
+INSERT INTO `cga_option` VALUES (136, 44, 'A', '<4.82s', 4, 1, '0', '2026-06-01 15:04:02', '2026-06-01 15:04:02', '', '');
+INSERT INTO `cga_option` VALUES (137, 44, 'B', '4.82~6.20s', 3, 2, '0', '2026-06-01 15:04:02', '2026-06-01 15:04:02', '', '');
+INSERT INTO `cga_option` VALUES (138, 44, 'C', '6.21~8.70s', 2, 3, '0', '2026-06-01 15:04:02', '2026-06-01 15:04:02', '', '');
+INSERT INTO `cga_option` VALUES (139, 44, 'D', '>8.70s', 1, 4, '0', '2026-06-01 15:04:02', '2026-06-01 15:04:02', '', '');
+INSERT INTO `cga_option` VALUES (140, 44, 'E', '不能完成', 0, 5, '0', '2026-06-01 15:04:02', '2026-06-01 15:04:02', '', '');
+INSERT INTO `cga_option` VALUES (141, 45, 'A', '≤11.19s', 4, 1, '0', '2026-06-01 15:04:02', '2026-06-01 15:04:02', '', '');
+INSERT INTO `cga_option` VALUES (142, 45, 'B', '11.20~13.69s', 3, 2, '0', '2026-06-01 15:04:02', '2026-06-01 15:04:02', '', '');
+INSERT INTO `cga_option` VALUES (143, 45, 'C', '13.70~16.69s', 2, 3, '0', '2026-06-01 15:04:02', '2026-06-01 15:04:02', '', '');
+INSERT INTO `cga_option` VALUES (144, 45, 'D', '16.70~60s', 1, 4, '0', '2026-06-01 15:04:02', '2026-06-01 15:04:02', '', '');
+INSERT INTO `cga_option` VALUES (145, 45, 'E', '>60s或不能完成', 0, 5, '0', '2026-06-01 15:04:02', '2026-06-01 15:04:02', '', '');
+INSERT INTO `cga_option` VALUES (146, 46, 'A', '能看清书报上的标准字体', 4, 1, '0', '2026-06-01 15:43:34', '2026-06-01 15:43:34', 'admin', 'admin');
+INSERT INTO `cga_option` VALUES (147, 46, 'B', '能看清楚大字体,但看不清书报上的标准字体', 3, 2, '0', '2026-06-01 15:43:34', '2026-06-01 15:43:34', 'admin', 'admin');
+INSERT INTO `cga_option` VALUES (148, 46, 'C', '视力有限,看不清报纸大标题,但能辨认物体', 2, 3, '0', '2026-06-01 15:43:34', '2026-06-01 15:43:34', 'admin', 'admin');
+INSERT INTO `cga_option` VALUES (149, 46, 'D', '辨认物体有困难,但眼睛能跟随物体移动,只能看到光、颜色和形状', 1, 4, '0', '2026-06-01 15:43:34', '2026-06-01 15:43:34', 'admin', 'admin');
+INSERT INTO `cga_option` VALUES (150, 46, 'E', '没有视力,眼睛不能跟随物体移动', 0, 5, '0', '2026-06-01 15:43:34', '2026-06-01 15:43:34', 'admin', 'admin');
+INSERT INTO `cga_option` VALUES (151, 47, 'A', '是', 0, 1, '0', '2026-06-01 15:43:34', '2026-06-01 15:43:34', 'admin', 'admin');
+INSERT INTO `cga_option` VALUES (152, 47, 'B', '否', 1, 2, '0', '2026-06-01 15:43:34', '2026-06-01 15:43:34', 'admin', 'admin');
+INSERT INTO `cga_option` VALUES (153, 48, 'A', '是', 0, 1, '0', '2026-06-01 15:43:34', '2026-06-01 15:43:34', 'admin', 'admin');
+INSERT INTO `cga_option` VALUES (154, 48, 'B', '否', 1, 2, '0', '2026-06-01 15:43:34', '2026-06-01 15:43:34', 'admin', 'admin');
+INSERT INTO `cga_option` VALUES (155, 49, 'A', '是', 0, 1, '0', '2026-06-01 15:43:34', '2026-06-01 15:43:34', 'admin', 'admin');
+INSERT INTO `cga_option` VALUES (156, 49, 'B', '否', 1, 2, '0', '2026-06-01 15:43:34', '2026-06-01 15:43:34', 'admin', 'admin');
+INSERT INTO `cga_option` VALUES (157, 50, 'A', '可正常交谈,能听到电视、电话、门铃的声音', 4, 1, '0', '2026-06-01 15:43:34', '2026-06-01 15:43:34', 'admin', 'admin');
+INSERT INTO `cga_option` VALUES (158, 50, 'B', '在轻声说话或说话距离超过2m时听不清', 3, 2, '0', '2026-06-01 15:43:34', '2026-06-01 15:43:34', 'admin', 'admin');
+INSERT INTO `cga_option` VALUES (159, 50, 'C', '正常交流有些困难,需在安静的环境或大声说话才能听到', 2, 3, '0', '2026-06-01 15:43:34', '2026-06-01 15:43:34', 'admin', 'admin');
+INSERT INTO `cga_option` VALUES (160, 50, 'D', '讲话者大声说话或说话很慢,才能部分听见', 1, 4, '0', '2026-06-01 15:43:34', '2026-06-01 15:43:34', 'admin', 'admin');
+INSERT INTO `cga_option` VALUES (161, 50, 'E', '完全听不见', 0, 5, '0', '2026-06-01 15:43:34', '2026-06-01 15:43:34', 'admin', 'admin');
+INSERT INTO `cga_option` VALUES (162, 51, 'A', '通过（能正确重复3个及以上词语）', 0, 1, '0', '2026-06-01 15:43:34', '2026-06-01 15:43:34', 'admin', 'admin');
+INSERT INTO `cga_option` VALUES (163, 51, 'B', '阳性（无法正确重复3个及以上词语）', 1, 2, '0', '2026-06-01 15:43:34', '2026-06-01 15:43:34', 'admin', 'admin');
 
 -- ----------------------------
--- Table structure for cag_question
+-- Table structure for cga_question
 -- ----------------------------
-DROP TABLE IF EXISTS `cag_question`;
-CREATE TABLE `cag_question`  (
-  `id` int NOT NULL AUTO_INCREMENT COMMENT '主键',
+DROP TABLE IF EXISTS `cga_question`;
+CREATE TABLE `cga_question`  (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键',
   `scale_id` bigint NOT NULL COMMENT '所属量表 / 模块id',
   `title` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '题干',
   `type` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '1' COMMENT '题型 1=单选 2=多选 3=判断 4=填空',
@@ -143,48 +215,72 @@ CREATE TABLE `cag_question`  (
   `remark` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '备注',
   `create_time` datetime NULL DEFAULT CURRENT_TIMESTAMP,
   `del_flag` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '0',
+  `update_time` datetime NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `create_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '' COMMENT '创建者',
+  `update_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '' COMMENT '更新者',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 31 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = 'cag_题目表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 52 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = 'cga_题目表' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
--- Records of cag_question
+-- Records of cga_question
 -- ----------------------------
-INSERT INTO `cag_question` VALUES (1, 1, '步行 400 m 或登上 10 阶楼梯是否有困难？', '1', 1, NULL, '2026-05-26 11:50:07', '0');
-INSERT INTO `cag_question` VALUES (2, 2, '若平日佩戴老花镜或近视镜，应在佩戴眼镜的情况下评估。', '1', 1, NULL, '2026-05-26 14:39:24', '0');
-INSERT INTO `cag_question` VALUES (3, 3, '视觉功能简易评估（多选）', '2', 1, '', '2026-05-26 14:47:14', '0');
-INSERT INTO `cag_question` VALUES (4, 4, '若平日佩戴助听器，应在佩戴助听器的情况下评估。', '1', 1, '', '2026-05-26 14:53:11', '0');
-INSERT INTO `cag_question` VALUES (5, 5, '词语回忆：请记住并复述「皮球、国旗、树木」（测试结束后再次复述）', '1', 1, NULL, '2026-05-26 15:00:19', '0');
-INSERT INTO `cag_question` VALUES (6, 5, '画钟试验：请画出 11:10 的时钟', '1', 2, NULL, '2026-05-26 15:05:00', '0');
-INSERT INTO `cag_question` VALUES (7, 6, '过去的两周内做事时是否提不起劲或没有兴趣？或是否感到心情低落、沮丧或绝望？', '1', 1, NULL, '2026-05-26 15:10:55', '0');
-INSERT INTO `cag_question` VALUES (8, 7, '过去两周内是否感觉紧张、担忧或急切？或是否不能够停止或控制担忧？', '1', 1, '', '2026-05-26 15:13:05', '0');
-INSERT INTO `cag_question` VALUES (9, 8, '请选择以下符合条件的选项', '2', 1, NULL, '2026-05-26 15:17:34', '0');
-INSERT INTO `cag_question` VALUES (10, 9, '“过去一年内是否发生过跌倒？”或“是否经常在走路/站立时感到不稳？”或“是否因害怕跌倒影响日常行为？”', '1', 1, NULL, '2026-05-26 15:29:59', '0');
-INSERT INTO `cag_question` VALUES (11, 10, '衰弱评估（可多选）', '2', 1, NULL, '2026-05-26 15:29:59', '0');
-INSERT INTO `cag_question` VALUES (12, 11, '“是否有漏尿？”或“是否有憋不住尿？”', '1', 1, NULL, '2026-05-26 15:29:59', '0');
-INSERT INTO `cag_question` VALUES (13, 12, '“是否受便秘困扰？”', '1', 1, NULL, '2026-05-26 15:29:59', '0');
-INSERT INTO `cag_question` VALUES (14, 13, '“是否受失眠困扰？”', '1', 1, NULL, '2026-05-26 15:29:59', '0');
-INSERT INTO `cag_question` VALUES (15, 14, '“是否有持续时间超过 3个月的疼痛？”', '1', 1, NULL, '2026-05-26 15:29:59', '0');
-INSERT INTO `cag_question` VALUES (16, 15, '“是否长期卧床？” 或通过查看/触摸评估对象皮肤进行筛查。问题回答“是”或通过查看/触摸发现皮肤异常为压力性损伤风险筛查阳性。', '1', 1, NULL, '2026-05-26 15:29:59', '0');
-INSERT INTO `cag_question` VALUES (17, 16, '请选择以下符合条件的选项', '1', 1, NULL, '2026-05-26 15:29:59', '0');
-INSERT INTO `cag_question` VALUES (18, 17, '吃东西或喝水的时候出现咳嗽或呛咳', '1', 1, NULL, '2026-05-26 15:29:59', '0');
-INSERT INTO `cag_question` VALUES (19, 18, '过去3个月是否有因食欲减 退、消化不良、咀嚼或吞咽困难而减少食量', '1', 1, NULL, '2026-05-26 15:29:59', '0');
-INSERT INTO `cag_question` VALUES (20, 18, '过去3个月体质量丢失', '1', 2, NULL, '2026-05-26 15:29:59', '0');
-INSERT INTO `cag_question` VALUES (21, 18, '活动能力', '1', 3, NULL, '2026-05-26 15:29:59', '0');
-INSERT INTO `cag_question` VALUES (22, 18, '过去3个月是否受到心理创伤或有急性疾病', '1', 4, NULL, '2026-05-26 15:29:59', '0');
-INSERT INTO `cag_question` VALUES (23, 18, '精神心理问题', '1', 5, NULL, '2026-05-26 15:29:59', '0');
-INSERT INTO `cag_question` VALUES (24, 18, '营养不良：体质指数（BMI）（kg/m 2）', '1', 6, NULL, '2026-05-26 16:25:22', '0');
-INSERT INTO `cag_question` VALUES (25, 18, '如果无法得到BMI，用小腿围 CC', '1', 7, NULL, '2026-05-26 16:28:08', '0');
-INSERT INTO `cag_question` VALUES (26, 19, '男性＜34 cm，女性＜33 cm 为肌少症筛查阳性', '1', 1, NULL, '2026-05-26 16:29:38', '0');
-INSERT INTO `cag_question` VALUES (27, 20, '急性起病和病 情波动性变化 \r\n问题 1：与患者基础水平相比，是否有证据表明患者存在精神状态的急性变化 \r\n问题 2：在 1 天中，患者的（异常）行为是否存在波动性（症状时有时无或时轻时重）', '1', 1, NULL, '2026-05-26 16:33:20', '0');
-INSERT INTO `cag_question` VALUES (28, 20, '注意力不集中：患者的注意力是否难以集中，如注意力容易被分散或不能跟上正在谈论的话题', '1', 2, NULL, '2026-05-26 16:34:21', '0');
-INSERT INTO `cag_question` VALUES (29, 20, '思维混乱：患者的思维是否混乱或不连贯，如谈话主题分散或与谈话内容无关，思维不清晰或不合 \r\n逻辑，或毫无征兆地从一个话题突然转到另一话题', '1', 3, NULL, '2026-05-26 16:36:31', '0');
-INSERT INTO `cag_question` VALUES (30, 20, '意识水平的改变 ：患者当前意识水平是否存在异常？如过度警觉（对环境刺激过度敏感，易惊吓）、嗜睡 \r\n（瞌睡，易叫醒）或昏睡（不易叫醒）', '1', 4, NULL, '2026-05-26 16:37:36', '0');
+INSERT INTO `cga_question` VALUES (1, 1, '步行 400 m 或登上 10 阶楼梯是否有困难？', '1', 1, NULL, '2026-05-26 11:50:07', '0', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_question` VALUES (2, 2, '若平日佩戴老花镜或近视镜，应在佩戴眼镜的情况下评估。', '1', 1, NULL, '2026-05-26 14:39:24', '0', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_question` VALUES (3, 3, '视觉功能简易评估（多选）', '2', 1, '', '2026-05-26 14:47:14', '0', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_question` VALUES (4, 4, '若平日佩戴助听器，应在佩戴助听器的情况下评估。', '1', 1, '', '2026-05-26 14:53:11', '0', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_question` VALUES (5, 5, '词语回忆：请记住并复述「皮球、国旗、树木」（测试结束后再次复述）', '1', 1, NULL, '2026-05-26 15:00:19', '0', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_question` VALUES (6, 5, '画钟试验：请画出 11:10 的时钟', '1', 2, NULL, '2026-05-26 15:05:00', '0', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_question` VALUES (7, 6, '过去的两周内做事时是否提不起劲或没有兴趣？或是否感到心情低落、沮丧或绝望？', '1', 1, NULL, '2026-05-26 15:10:55', '0', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_question` VALUES (8, 7, '过去两周内是否感觉紧张、担忧或急切？或是否不能够停止或控制担忧？', '1', 1, '', '2026-05-26 15:13:05', '0', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_question` VALUES (9, 8, '请选择以下符合条件的选项', '2', 1, NULL, '2026-05-26 15:17:34', '0', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_question` VALUES (10, 9, '“过去一年内是否发生过跌倒？”或“是否经常在走路/站立时感到不稳？”或“是否因害怕跌倒影响日常行为？”', '1', 1, NULL, '2026-05-26 15:29:59', '0', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_question` VALUES (11, 10, '衰弱评估（可多选）', '2', 1, NULL, '2026-05-26 15:29:59', '0', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_question` VALUES (12, 11, '“是否有漏尿？”或“是否有憋不住尿？”', '1', 1, NULL, '2026-05-26 15:29:59', '0', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_question` VALUES (13, 12, '“是否受便秘困扰？”', '1', 1, NULL, '2026-05-26 15:29:59', '0', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_question` VALUES (14, 13, '“是否受失眠困扰？”', '1', 1, NULL, '2026-05-26 15:29:59', '0', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_question` VALUES (15, 14, '“是否有持续时间超过 3个月的疼痛？”', '1', 1, NULL, '2026-05-26 15:29:59', '0', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_question` VALUES (16, 15, '“是否长期卧床？” 或通过查看/触摸评估对象皮肤进行筛查。问题回答“是”或通过查看/触摸发现皮肤异常为压力性损伤风险筛查阳性。', '1', 1, NULL, '2026-05-26 15:29:59', '0', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_question` VALUES (17, 16, '请选择以下符合条件的选项', '1', 1, NULL, '2026-05-26 15:29:59', '0', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_question` VALUES (18, 17, '吃东西或喝水的时候出现咳嗽或呛咳', '1', 1, NULL, '2026-05-26 15:29:59', '0', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_question` VALUES (19, 18, '过去3个月是否有因食欲减 退、消化不良、咀嚼或吞咽困难而减少食量', '1', 1, NULL, '2026-05-26 15:29:59', '0', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_question` VALUES (20, 18, '过去3个月体质量丢失', '1', 2, NULL, '2026-05-26 15:29:59', '0', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_question` VALUES (21, 18, '活动能力', '1', 3, NULL, '2026-05-26 15:29:59', '0', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_question` VALUES (22, 18, '过去3个月是否受到心理创伤或有急性疾病', '1', 4, NULL, '2026-05-26 15:29:59', '0', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_question` VALUES (23, 18, '精神心理问题', '1', 5, NULL, '2026-05-26 15:29:59', '0', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_question` VALUES (24, 18, '营养不良：体质指数（BMI）（kg/m 2）', '1', 6, NULL, '2026-05-26 16:25:22', '0', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_question` VALUES (25, 18, '如果无法得到BMI，用小腿围 CC', '1', 7, NULL, '2026-05-26 16:28:08', '0', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_question` VALUES (26, 19, '男性＜34 cm，女性＜33 cm 为肌少症筛查阳性', '1', 1, NULL, '2026-05-26 16:29:38', '0', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_question` VALUES (27, 20, '急性起病和病 情波动性变化 \r\n问题 1：与患者基础水平相比，是否有证据表明患者存在精神状态的急性变化 \r\n问题 2：在 1 天中，患者的（异常）行为是否存在波动性（症状时有时无或时轻时重）', '1', 1, NULL, '2026-05-26 16:33:20', '0', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_question` VALUES (28, 20, '注意力不集中：患者的注意力是否难以集中，如注意力容易被分散或不能跟上正在谈论的话题', '1', 2, NULL, '2026-05-26 16:34:21', '0', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_question` VALUES (29, 20, '思维混乱：患者的思维是否混乱或不连贯，如谈话主题分散或与谈话内容无关，思维不清晰或不合 \r\n逻辑，或毫无征兆地从一个话题突然转到另一话题', '1', 3, NULL, '2026-05-26 16:36:31', '0', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_question` VALUES (30, 20, '意识水平的改变 ：患者当前意识水平是否存在异常？如过度警觉（对环境刺激过度敏感，易惊吓）、嗜睡 \r\n（瞌睡，易叫醒）或昏睡（不易叫醒）', '1', 4, NULL, '2026-05-26 16:37:36', '0', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_question` VALUES (31, 21, '进食：指用合适的餐具将食物由容器送到口中，包括筷子（勺子或叉子）取食物、对碗（碟）的把持、咀嚼、吞咽等过程', '1', 1, NULL, '2026-06-01 09:36:21', '0', '2026-06-01 09:36:21', '', '');
+INSERT INTO `cga_question` VALUES (32, 21, '洗澡：包括进出浴室、穿脱衣裤、洗浴全身等', '1', 2, NULL, '2026-06-01 09:36:21', '0', '2026-06-01 09:36:21', '', '');
+INSERT INTO `cga_question` VALUES (33, 21, '修饰：包括洗脸、刷牙、梳头、刮脸等', '1', 3, NULL, '2026-06-01 09:36:21', '0', '2026-06-01 09:36:21', '', '');
+INSERT INTO `cga_question` VALUES (34, 21, '穿（脱）衣：包括穿（脱）衣服、系扣子、拉拉链、穿（脱）鞋袜、系鞋带等', '1', 4, NULL, '2026-06-01 09:36:21', '0', '2026-06-01 09:36:21', '', '');
+INSERT INTO `cga_question` VALUES (35, 21, '控制大便：指受意识控制，可自主排便', '1', 5, NULL, '2026-06-01 09:36:21', '0', '2026-06-01 09:36:21', '', '');
+INSERT INTO `cga_question` VALUES (36, 21, '控制小便：指受意识控制，可自主排尿', '1', 6, NULL, '2026-06-01 09:36:21', '0', '2026-06-01 09:36:21', '', '');
+INSERT INTO `cga_question` VALUES (37, 21, '如厕：包括去厕所、解开衣裤、擦净、整理衣裤、冲水等过程', '1', 7, NULL, '2026-06-01 09:36:21', '0', '2026-06-01 09:36:21', '', '');
+INSERT INTO `cga_question` VALUES (38, 21, '床椅转移：包括从下床到坐在床旁椅，以及从坐在床旁椅到上床转移的所有动作', '1', 8, NULL, '2026-06-01 09:36:21', '0', '2026-06-01 09:36:21', '', '');
+INSERT INTO `cga_question` VALUES (39, 21, '平地行走：指从双脚站立位，在平地行走45m的过程', '1', 9, NULL, '2026-06-01 09:36:21', '0', '2026-06-01 09:36:21', '', '');
+INSERT INTO `cga_question` VALUES (40, 21, '上下楼梯：指从双脚站立位，连续上、下10-15个台阶的过程', '1', 10, NULL, '2026-06-01 09:36:21', '0', '2026-06-01 09:36:21', '', '');
+INSERT INTO `cga_question` VALUES (41, 22, 'A. 并排站立', '1', 1, NULL, '2026-06-01 15:04:02', '0', '2026-06-01 15:12:13', '', '');
+INSERT INTO `cga_question` VALUES (42, 22, 'B. 半足距站立', '1', 2, NULL, '2026-06-01 15:04:02', '0', '2026-06-01 15:12:04', '', '');
+INSERT INTO `cga_question` VALUES (43, 22, 'C. 全足距站立', '1', 3, NULL, '2026-06-01 15:04:02', '0', '2026-06-01 15:12:00', '', '');
+INSERT INTO `cga_question` VALUES (44, 22, '步速测试（测量并记录步行4m的时间，测量两次，取最佳值）', '1', 4, NULL, '2026-06-01 15:04:02', '0', '2026-06-01 15:11:57', '', '');
+INSERT INTO `cga_question` VALUES (45, 22, '5次起坐试验（测试并记录5次起-坐的试验时间，要求双手交叉胸前，尽可能快地起立坐下）', '1', 5, NULL, '2026-06-01 15:04:02', '0', '2026-06-01 15:11:53', '', '');
+INSERT INTO `cga_question` VALUES (46, 24, '视力简易评估', '1', 1, '单选', '2026-06-01 15:43:04', '0', '2026-06-01 15:43:04', '', '');
+INSERT INTO `cga_question` VALUES (47, 24, '阅读、行走和看电视时,觉得吃力', '1', 2, '是/否', '2026-06-01 15:43:04', '0', '2026-06-01 15:43:04', '', '');
+INSERT INTO `cga_question` VALUES (48, 24, '看东西时觉得有东西遮挡或视物有缺损', '1', 3, '是/否', '2026-06-01 15:43:04', '0', '2026-06-01 15:43:04', '', '');
+INSERT INTO `cga_question` VALUES (49, 24, '看东西时实物变形、扭曲', '1', 4, '是/否', '2026-06-01 15:43:04', '0', '2026-06-01 15:43:04', '', '');
+INSERT INTO `cga_question` VALUES (50, 24, '听力简易评估', '1', 5, '单选', '2026-06-01 15:43:04', '0', '2026-06-01 15:43:04', '', '');
+INSERT INTO `cga_question` VALUES (51, 24, '耳语试验', '1', 6, '结果判定', '2026-06-01 15:43:04', '0', '2026-06-01 15:43:04', '', '');
 
 -- ----------------------------
--- Table structure for cag_record
+-- Table structure for cga_record
 -- ----------------------------
-DROP TABLE IF EXISTS `cag_record`;
-CREATE TABLE `cag_record`  (
+DROP TABLE IF EXISTS `cga_record`;
+CREATE TABLE `cga_record`  (
   `id` int NOT NULL AUTO_INCREMENT COMMENT '主键',
   `patient_id` bigint NOT NULL COMMENT '病人id',
   `user_id` bigint NULL DEFAULT NULL COMMENT '操作医生id',
@@ -194,55 +290,63 @@ CREATE TABLE `cag_record`  (
   `suggest` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '建议',
   `answer_json` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL COMMENT '答案json',
   `create_time` datetime NULL DEFAULT CURRENT_TIMESTAMP,
+  `update_time` datetime NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `del_flag` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '0',
+  `create_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '' COMMENT '创建者',
+  `update_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '' COMMENT '更新者',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 4 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = 'cag-评估记录表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 14 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = 'cga-评估记录表' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
--- Records of cag_record
+-- Records of cga_record
 -- ----------------------------
-INSERT INTO `cag_record` VALUES (1, 2, 1, NULL, 39, NULL, NULL, '{\"1\":2,\"2\":4,\"3\":0,\"4\":4,\"5\":0,\"6\":0,\"7\":0,\"8\":0,\"9\":2,\"10\":0,\"11\":1,\"12\":2,\"13\":2,\"14\":2,\"15\":2,\"16\":2,\"17\":2,\"18\":2,\"19\":0,\"20\":2,\"21\":0,\"22\":0,\"23\":0,\"24\":0,\"25\":0,\"26\":2,\"27\":2,\"28\":2,\"29\":2,\"30\":2}', NULL, '0');
-INSERT INTO `cag_record` VALUES (2, 1, 1, NULL, 38, NULL, NULL, '{\"1\":2,\"2\":4,\"3\":0,\"4\":2,\"5\":2,\"6\":0,\"7\":0,\"8\":0,\"9\":2,\"10\":0,\"11\":2,\"12\":2,\"13\":2,\"14\":2,\"15\":2,\"16\":2,\"17\":0,\"18\":2,\"19\":0,\"20\":0,\"21\":2,\"22\":0,\"23\":0,\"24\":0,\"25\":0,\"26\":2,\"27\":2,\"28\":2,\"29\":2,\"30\":2}', NULL, '0');
-INSERT INTO `cag_record` VALUES (3, 2, 1, NULL, 38, NULL, NULL, '{\"1\":2,\"2\":2,\"3\":0,\"4\":4,\"5\":0,\"6\":0,\"7\":0,\"8\":0,\"9\":2,\"10\":0,\"11\":2,\"12\":2,\"13\":2,\"14\":2,\"15\":2,\"16\":2,\"17\":2,\"18\":2,\"19\":0,\"20\":0,\"21\":2,\"22\":0,\"23\":0,\"24\":0,\"25\":0,\"26\":2,\"27\":2,\"28\":2,\"29\":2,\"30\":2}', NULL, '0');
+INSERT INTO `cga_record` VALUES (12, 7, 1, NULL, 31, NULL, NULL, '{\"1\":{\"optionIds\":[1],\"score\":1},\"2\":{\"optionIds\":[5],\"score\":2},\"3\":{\"optionIds\":[10],\"score\":1},\"4\":{\"optionIds\":[14],\"score\":2},\"5\":{\"optionIds\":[17],\"score\":0},\"6\":{\"optionIds\":[21],\"score\":0},\"7\":{\"optionIds\":[23],\"score\":1},\"8\":{\"optionIds\":[25],\"score\":1},\"9\":{\"optionIds\":[29,31],\"score\":2},\"10\":{\"optionIds\":[41],\"score\":1},\"11\":{\"optionIds\":[45],\"score\":1},\"12\":{\"optionIds\":[49],\"score\":1},\"13\":{\"optionIds\":[51],\"score\":1},\"14\":{\"optionIds\":[53],\"score\":1},\"15\":{\"optionIds\":[55],\"score\":1},\"16\":{\"optionIds\":[57],\"score\":1},\"17\":{\"optionIds\":[59],\"score\":2},\"18\":{\"optionIds\":[62],\"score\":1},\"19\":{\"optionIds\":[66],\"score\":2},\"20\":{\"optionIds\":[69],\"score\":2},\"21\":{\"optionIds\":[73],\"score\":2},\"22\":{\"optionIds\":[74],\"score\":0},\"23\":{\"optionIds\":[76],\"score\":0},\"24\":{\"optionIds\":[79],\"score\":0},\"25\":{\"optionIds\":[83],\"score\":0},\"26\":{\"optionIds\":[85],\"score\":1},\"27\":{\"optionIds\":[87],\"score\":1},\"28\":{\"optionIds\":[89],\"score\":1},\"29\":{\"optionIds\":[91],\"score\":1},\"30\":{\"optionIds\":[93],\"score\":1}}', '2026-05-29 15:23:11', '2026-05-29 15:23:11', '0', '', '');
+INSERT INTO `cga_record` VALUES (13, 7, 1, NULL, 0, NULL, NULL, '{\"31\":{\"optionIds\":[],\"score\":0},\"32\":{\"optionIds\":[],\"score\":0},\"33\":{\"optionIds\":[],\"score\":0},\"34\":{\"optionIds\":[],\"score\":0},\"35\":{\"optionIds\":[],\"score\":0},\"36\":{\"optionIds\":[],\"score\":0},\"37\":{\"optionIds\":[],\"score\":0},\"38\":{\"optionIds\":[],\"score\":0},\"39\":{\"optionIds\":[],\"score\":0},\"40\":{\"optionIds\":[],\"score\":0}}', '2026-06-01 12:06:20', '2026-06-01 12:06:20', '0', '', '');
 
 -- ----------------------------
--- Table structure for cag_scale
+-- Table structure for cga_scale
 -- ----------------------------
-DROP TABLE IF EXISTS `cag_scale`;
-CREATE TABLE `cag_scale`  (
-  `id` int NOT NULL AUTO_INCREMENT COMMENT '主键',
+DROP TABLE IF EXISTS `cga_scale`;
+CREATE TABLE `cga_scale`  (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键',
   `scale_name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '量表名称',
   `code` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '编码(cga/gds15/gad7...)',
   `total_score` int NULL DEFAULT 0 COMMENT '总分',
   `remark` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '说明',
   `create_time` datetime NULL DEFAULT CURRENT_TIMESTAMP,
   `del_flag` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '0',
+  `update_time` datetime NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `create_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '' COMMENT '创建者',
+  `update_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '' COMMENT '更新者',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 21 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = 'cag-量表表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 25 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = 'cga-量表表' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
--- Records of cag_scale
+-- Records of cga_scale
 -- ----------------------------
-INSERT INTO `cag_scale` VALUES (1, '运动功能筛查', 'exercise', 2, NULL, '2026-05-26 11:44:21', '0');
-INSERT INTO `cag_scale` VALUES (2, '视力简易评估', 'vision', 4, '评判标准：4 分，视力正常；3 分，低视力；1～2 分，盲；0 分，完全失明。≤3 分应进一步到眼科评估。', '2026-05-26 11:45:47', '0');
-INSERT INTO `cag_scale` VALUES (3, '视觉功能简易评估', 'visual_function', 3, '注 1：评判方法：0 分=是，1 分=否；最终得分为以上 3 项得分的总和。 \r\n注 2：评判标准：3 分，视功能良好；2 分，视功能较差；≤1 分，视功能差；如第 1 项回答为“是”，说明视力有问题', '2026-05-26 14:46:13', '0');
-INSERT INTO `cag_scale` VALUES (4, '听力简易评估', 'listening', 4, '评判标准：4 分，听力正常；3 分，听力下降；1～2 分，听力障碍；0 分，完全失聪。≤3 分应进一步到耳鼻喉科评估。', '2026-05-26 14:54:22', '0');
-INSERT INTO `cag_scale` VALUES (5, '认知功能筛查', 'cognition', 5, '注 1：评判方法：画钟试验的数字标注正确且指针显示时间正确，判断为正确。 \r\n注 2：评判标准：每回忆 1 个词得 1 分；画钟试验正确为 2 分，错误为 0 分。将名词回忆和画钟试验的总分相加为简易智力评估得分。0～2 分，认知功能障碍筛查阳性；3～5 分，认知功能障碍筛查阴性。', '2026-05-26 14:59:18', '0');
-INSERT INTO `cag_scale` VALUES (6, '抑郁筛查', 'depression', 1, '过去两周内做事时是否提不起劲或没有兴趣，或是否感到心情低落、沮丧或绝望；阳性建议进行抑郁评估 WS/T802 B4。', '2026-05-26 15:09:24', '0');
-INSERT INTO `cag_scale` VALUES (7, '焦虑筛查', 'anxiety', 1, '过去两周内是否感觉紧张、担忧或急切，或是否不能够停止或控制担忧；阳性建议进行焦虑评估 WS/T802 B3。', '2026-05-26 15:12:25', '0');
-INSERT INTO `cag_scale` VALUES (8, '居家环境筛查', 'stay_at_home', 14, NULL, '2026-05-26 15:15:47', '0');
-INSERT INTO `cag_scale` VALUES (9, '跌倒筛查', 'fall', 1, '阳性建议进行跌倒风险评估 MZT 185 A1。', '2026-05-26 15:35:12', '0');
-INSERT INTO `cag_scale` VALUES (10, '衰弱评估', 'frailty', 5, '≥3 分 = 衰弱，1-2 分 = 衰弱前期，0 分 = 无衰弱', '2026-05-26 15:40:12', '0');
-INSERT INTO `cag_scale` VALUES (11, '尿失禁筛查', 'incontinence', 1, '阳性建议进行尿失禁评估 B11。', '2026-05-26 15:47:58', '0');
-INSERT INTO `cag_scale` VALUES (12, '便秘筛查', 'constipation', 1, '阳性建议进行便秘评估 B12。', '2026-05-26 15:49:56', '0');
-INSERT INTO `cag_scale` VALUES (13, '睡眠障碍筛查', 'sleep', 1, '阳性建议进行睡眠障碍评估 B13。', '2026-05-26 15:51:20', '0');
-INSERT INTO `cag_scale` VALUES (14, '慢性疼痛筛查', 'chronic', 1, '阳性建议进行慢性疼痛评估 B14。', '2026-05-26 15:55:25', '0');
-INSERT INTO `cag_scale` VALUES (15, '压力性损伤风险筛查', 'pressure', 1, '阳性建议进行压力性损伤风险评估 B16。', '2026-05-26 15:58:30', '0');
-INSERT INTO `cag_scale` VALUES (16, '多重用药状态', 'medication', 2, '<5 种：无；5～9 种：轻度；≥10 种：重度。\r\n· 医疗机构操作规范：WS/T 888—2026《医疗机构老年综合评估技术操作标准》\r\n· 国内指南：《中国老年多重用药管理指南（2025）》', '2026-05-26 15:59:56', '0');
-INSERT INTO `cag_scale` VALUES (17, '吞咽障碍筛查', 'swallow', 1, '吃东西或喝水时出现咳嗽或呛咳为阳性，建议进行吞咽障碍评估 B17。', '2026-05-26 16:03:13', '0');
-INSERT INTO `cag_scale` VALUES (18, '营养风险筛查', 'nutrition', 14, '总分≤11分为营养不良风险，建议进行营养不良评估及诊断 B18/B19。', '2026-05-26 16:05:09', '0');
-INSERT INTO `cag_scale` VALUES (19, '肌少症筛查', 'sarcopenia', 1, '男性＜34 cm，女性＜33 cm 为肌少症筛查阳性；阳性建议进行肌肉力量和躯体功能评估。', '2026-05-26 16:29:17', '0');
-INSERT INTO `cag_scale` VALUES (20, '谵妄评估', 'delirium', 8, '注 1：评估方法：条目 1 中 1 或 2 任意一个问题答案为“是”，条目 1 结果判断均为阳性；条目 2、3 的问题，回答为 \r\n“是”，相应条目结果判断为阳性；存在条目 4 中任何一种临床表现异常，条目 4 结果判断为阳性。 \r\n注 2：评判标准：条目 1 和条目 2 均为阳性，且满足条目 3 或条目 4，诊断为谵妄。', '2026-05-26 16:31:07', '0');
+INSERT INTO `cga_scale` VALUES (1, '运动功能筛查', 'exercise', 2, NULL, '2026-05-26 11:44:21', '0', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_scale` VALUES (2, '视力简易评估', 'vision', 4, '评判标准：4 分，视力正常；3 分，低视力；1～2 分，盲；0 分，完全失明。≤3 分应进一步到眼科评估。', '2026-05-26 11:45:47', '0', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_scale` VALUES (3, '视觉功能简易评估', 'visual_function', 3, '注 1：评判方法：0 分=是，1 分=否；最终得分为以上 3 项得分的总和。 \r\n注 2：评判标准：3 分，视功能良好；2 分，视功能较差；≤1 分，视功能差；如第 1 项回答为“是”，说明视力有问题', '2026-05-26 14:46:13', '0', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_scale` VALUES (4, '听力简易评估', 'listening', 4, '评判标准：4 分，听力正常；3 分，听力下降；1～2 分，听力障碍；0 分，完全失聪。≤3 分应进一步到耳鼻喉科评估。', '2026-05-26 14:54:22', '0', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_scale` VALUES (5, '认知功能筛查', 'cognition', 5, '注 1：评判方法：画钟试验的数字标注正确且指针显示时间正确，判断为正确。 \r\n注 2：评判标准：每回忆 1 个词得 1 分；画钟试验正确为 2 分，错误为 0 分。将名词回忆和画钟试验的总分相加为简易智力评估得分。0～2 分，认知功能障碍筛查阳性；3～5 分，认知功能障碍筛查阴性。', '2026-05-26 14:59:18', '0', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_scale` VALUES (6, '抑郁筛查', 'depression', 1, '过去两周内做事时是否提不起劲或没有兴趣，或是否感到心情低落、沮丧或绝望；阳性建议进行抑郁评估 WS/T802 B4。', '2026-05-26 15:09:24', '0', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_scale` VALUES (7, '焦虑筛查', 'anxiety', 1, '过去两周内是否感觉紧张、担忧或急切，或是否不能够停止或控制担忧；阳性建议进行焦虑评估 WS/T802 B3。', '2026-05-26 15:12:25', '0', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_scale` VALUES (8, '居家环境筛查', 'stay_at_home', 14, NULL, '2026-05-26 15:15:47', '0', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_scale` VALUES (9, '跌倒筛查', 'fall', 1, '阳性建议进行跌倒风险评估 MZT 185 A1。', '2026-05-26 15:35:12', '0', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_scale` VALUES (10, '衰弱评估', 'frailty', 5, '≥3 分 = 衰弱，1-2 分 = 衰弱前期，0 分 = 无衰弱', '2026-05-26 15:40:12', '0', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_scale` VALUES (11, '尿失禁筛查', 'incontinence', 1, '阳性建议进行尿失禁评估 B11。', '2026-05-26 15:47:58', '0', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_scale` VALUES (12, '便秘筛查', 'constipation', 1, '阳性建议进行便秘评估 B12。', '2026-05-26 15:49:56', '0', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_scale` VALUES (13, '睡眠障碍筛查', 'sleep', 1, '阳性建议进行睡眠障碍评估 B13。', '2026-05-26 15:51:20', '0', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_scale` VALUES (14, '慢性疼痛筛查', 'chronic', 1, '阳性建议进行慢性疼痛评估 B14。', '2026-05-26 15:55:25', '0', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_scale` VALUES (15, '压力性损伤风险筛查', 'pressure', 1, '阳性建议进行压力性损伤风险评估 B16。', '2026-05-26 15:58:30', '0', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_scale` VALUES (16, '多重用药状态', 'medication', 2, '<5 种：无；5～9 种：轻度；≥10 种：重度。\r\n· 医疗机构操作规范：WS/T 888—2026《医疗机构老年综合评估技术操作标准》\r\n· 国内指南：《中国老年多重用药管理指南（2025）》', '2026-05-26 15:59:56', '0', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_scale` VALUES (17, '吞咽障碍筛查', 'swallow', 1, '吃东西或喝水时出现咳嗽或呛咳为阳性，建议进行吞咽障碍评估 B17。', '2026-05-26 16:03:13', '0', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_scale` VALUES (18, '营养风险筛查', 'nutrition', 14, '总分≤11分为营养不良风险，建议进行营养不良评估及诊断 B18/B19。', '2026-05-26 16:05:09', '0', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_scale` VALUES (19, '肌少症筛查', 'sarcopenia', 1, '男性＜34 cm，女性＜33 cm 为肌少症筛查阳性；阳性建议进行肌肉力量和躯体功能评估。', '2026-05-26 16:29:17', '0', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_scale` VALUES (20, '谵妄评估', 'delirium', 8, '注 1：评估方法：条目 1 中 1 或 2 任意一个问题答案为“是”，条目 1 结果判断均为阳性；条目 2、3 的问题，回答为 \r\n“是”，相应条目结果判断为阳性；存在条目 4 中任何一种临床表现异常，条目 4 结果判断为阳性。 \r\n注 2：评判标准：条目 1 和条目 2 均为阳性，且满足条目 3 或条目 4，诊断为谵妄。', '2026-05-26 16:31:07', '0', '2026-05-29 10:30:33', '', '');
+INSERT INTO `cga_scale` VALUES (21, '日常生活活动能力', 'daily_life', 100, 'Barthel ADL评定量表，满分100分，≤40重度依赖；41-60中度依赖；61-99轻度依赖；100分无依赖', '2026-06-01 09:36:21', '0', '2026-06-01 16:49:40', '', '');
+INSERT INTO `cga_scale` VALUES (22, '简易体能状况量表', 'sppb', 12, '评估老年人身体功能状况，包含平衡测试、步速测试、5次起坐试验三项', '2026-06-01 15:01:11', '0', '2026-06-01 15:33:03', '', '');
+INSERT INTO `cga_scale` VALUES (24, '视听力简易评估', 'vision_hearing', 12, '视力、视功能、听力综合评估量表', '2026-06-01 15:41:24', '0', '2026-06-01 15:45:03', 'admin', 'admin');
 
 -- ----------------------------
 -- Table structure for gen_table
@@ -321,7 +425,7 @@ CREATE TABLE `patient`  (
   `case_no` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '病历号',
   `name` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '姓名',
   `gender` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '性别 1=男 2=女',
-  `height` decimal(5, 1) NULL DEFAULT NULL COMMENT '身高(cm)',
+  `height` decimal(6, 1) NULL DEFAULT NULL COMMENT '身高(cm)',
   `birthday` date NULL DEFAULT NULL COMMENT '出生年月日',
   `phone` varchar(11) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '手机号',
   `id_card` varchar(18) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '身份证号',
@@ -331,17 +435,60 @@ CREATE TABLE `patient`  (
   `create_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '' COMMENT '创建者',
   `update_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '' COMMENT '更新者',
   `remark` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '' COMMENT '备注',
-  `is_del` tinyint NULL DEFAULT 0 COMMENT '逻辑删除 0正常 1删除',
+  `del_flag` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '0' COMMENT '逻辑删除 0正常 1删除',
   `is_report` tinyint NULL DEFAULT 0 COMMENT '0未报告 1已检查 2已报告',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 4 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '病人信息表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 8 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '病人信息表' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of patient
 -- ----------------------------
-INSERT INTO `patient` VALUES (1, '1122222', '11', '1', 1.0, '2026-05-05', '1111', NULL, '11', '2026-05-25 17:06:40', '2026-05-27 11:11:59', NULL, '', '', 0, 0);
-INSERT INTO `patient` VALUES (2, '111', '111', '1', 159.0, '2026-05-06', '18837727538', NULL, '我我', '2026-05-26 10:52:39', '2026-05-27 14:48:50', NULL, '', '', 0, 1);
-INSERT INTO `patient` VALUES (3, '11', '11', '1', 11.0, NULL, NULL, NULL, NULL, '2026-05-27 10:53:33', '2026-05-27 10:53:33', '', '', '', 0, 0);
+INSERT INTO `patient` VALUES (7, '0529', '张锦锡', '1', 170.0, '2001-05-05', '18837727538', NULL, '', '2026-05-29 10:56:04', '2026-06-01 15:14:17', NULL, '', '', '0', 0);
+
+-- ----------------------------
+-- Table structure for patient_project
+-- ----------------------------
+DROP TABLE IF EXISTS `patient_project`;
+CREATE TABLE `patient_project`  (
+  `id` int NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `patient_id` bigint NOT NULL COMMENT '病人id',
+  `project_id` int NOT NULL COMMENT '项目id',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `del_flag` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '0' COMMENT '逻辑删除 0正常 1删除',
+  `create_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '' COMMENT '创建者',
+  `update_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '' COMMENT '更新者',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 3 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '项目病人表' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of patient_project
+-- ----------------------------
+INSERT INTO `patient_project` VALUES (1, 7, 1, '2026-05-29 15:23:11', '2026-05-29 15:23:11', '0', '', '');
+INSERT INTO `patient_project` VALUES (2, 7, 2, '2026-06-01 12:06:20', '2026-06-01 12:06:20', '0', '', '');
+
+-- ----------------------------
+-- Table structure for project
+-- ----------------------------
+DROP TABLE IF EXISTS `project`;
+CREATE TABLE `project`  (
+  `id` int NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `name` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '项目名称',
+  `code` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '项目编码',
+  `remark` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '备注',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `create_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '' COMMENT '创建者',
+  `update_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '' COMMENT '更新者',
+  `del_flag` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '0' COMMENT '删除标志（0代表存在 2代表删除）',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 3 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '项目表' ROW_FORMAT = DYNAMIC;
+
+-- ----------------------------
+-- Records of project
+-- ----------------------------
+INSERT INTO `project` VALUES (1, 'cag', 'Cga', '老年综合评估项目', '2026-05-29 10:32:54', '2026-06-01 12:07:01', 'admin', '', '0');
+INSERT INTO `project` VALUES (2, '日常生活', 'daily_life', '日常基本生活', '2026-06-01 11:28:10', '2026-06-01 11:28:19', '', '', '0');
 
 -- ----------------------------
 -- Table structure for qrtz_blob_triggers
@@ -559,6 +706,182 @@ CREATE TABLE `qrtz_triggers`  (
 -- ----------------------------
 -- Records of qrtz_triggers
 -- ----------------------------
+
+-- ----------------------------
+-- Table structure for sarc_option
+-- ----------------------------
+DROP TABLE IF EXISTS `sarc_option`;
+CREATE TABLE `sarc_option`  (
+  `id` int NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `question_id` bigint NOT NULL COMMENT '题目id',
+  `label` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '选项标识(a/b/c/d)',
+  `content` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '选项内容',
+  `score` int NULL DEFAULT 0 COMMENT '选项得分',
+  `sort` int NULL DEFAULT 0 COMMENT '排序',
+  `del_flag` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '0',
+  `create_time` datetime NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time` datetime NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `create_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '' COMMENT '创建者',
+  `update_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '' COMMENT '更新者',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 70 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = 'sarc_选项表' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of sarc_option
+-- ----------------------------
+INSERT INTO `sarc_option` VALUES (1, 1, 'A', '没困难', 0, 1, '0', '2026-05-29 10:30:34', '2026-05-29 10:30:34', '', '');
+INSERT INTO `sarc_option` VALUES (2, 1, 'B', '轻度困难', 1, 2, '0', '2026-05-29 10:30:34', '2026-05-29 10:30:34', '', '');
+INSERT INTO `sarc_option` VALUES (3, 1, 'C', '非常困难或无法完成', 2, 3, '0', '2026-05-29 10:30:34', '2026-05-29 10:30:34', '', '');
+INSERT INTO `sarc_option` VALUES (4, 2, 'A', '没困难', 0, 1, '0', '2026-05-29 10:30:34', '2026-05-29 10:30:34', '', '');
+INSERT INTO `sarc_option` VALUES (5, 2, 'B', '轻度困难', 1, 2, '0', '2026-05-29 10:30:34', '2026-05-29 10:30:34', '', '');
+INSERT INTO `sarc_option` VALUES (6, 2, 'C', '非常困难或无法完成', 2, 3, '0', '2026-05-29 10:30:34', '2026-05-29 10:30:34', '', '');
+INSERT INTO `sarc_option` VALUES (7, 3, 'A', '没困难', 0, 1, '0', '2026-05-29 10:30:34', '2026-05-29 10:30:34', '', '');
+INSERT INTO `sarc_option` VALUES (8, 3, 'B', '轻度困难', 1, 2, '0', '2026-05-29 10:30:34', '2026-05-29 10:30:34', '', '');
+INSERT INTO `sarc_option` VALUES (9, 3, 'C', '非常困难或无法完成', 2, 3, '0', '2026-05-29 10:30:34', '2026-05-29 10:30:34', '', '');
+INSERT INTO `sarc_option` VALUES (10, 4, 'A', '没困难', 0, 1, '0', '2026-05-29 10:30:34', '2026-05-29 10:30:34', '', '');
+INSERT INTO `sarc_option` VALUES (11, 4, 'B', '轻度困难', 1, 2, '0', '2026-05-29 10:30:34', '2026-05-29 10:30:34', '', '');
+INSERT INTO `sarc_option` VALUES (12, 4, 'C', '非常困难或无法完成', 2, 3, '0', '2026-05-29 10:30:34', '2026-05-29 10:30:34', '', '');
+INSERT INTO `sarc_option` VALUES (13, 5, 'A', '无跌倒', 0, 1, '0', '2026-05-29 10:30:34', '2026-05-29 10:30:34', '', '');
+INSERT INTO `sarc_option` VALUES (14, 5, 'B', '跌倒1-3次', 1, 2, '0', '2026-05-29 10:30:34', '2026-05-29 10:30:34', '', '');
+INSERT INTO `sarc_option` VALUES (15, 5, 'C', '跌倒4次及以上', 2, 3, '0', '2026-05-29 10:30:34', '2026-05-29 10:30:34', '', '');
+INSERT INTO `sarc_option` VALUES (16, 12, 'A', '无困难', 0, 1, '0', '2026-05-29 10:30:34', '2026-05-29 10:30:34', '', '');
+INSERT INTO `sarc_option` VALUES (17, 12, 'B', '有困难', 1, 2, '0', '2026-05-29 10:30:34', '2026-05-29 10:30:34', '', '');
+INSERT INTO `sarc_option` VALUES (18, 13, 'A', '无困难', 0, 1, '0', '2026-05-29 10:30:34', '2026-05-29 10:30:34', '', '');
+INSERT INTO `sarc_option` VALUES (19, 13, 'B', '有困难', 1, 2, '0', '2026-05-29 10:30:34', '2026-05-29 10:30:34', '', '');
+INSERT INTO `sarc_option` VALUES (20, 14, 'A', '无困难', 0, 1, '0', '2026-05-29 10:30:34', '2026-05-29 10:30:34', '', '');
+INSERT INTO `sarc_option` VALUES (21, 14, 'B', '有困难', 1, 2, '0', '2026-05-29 10:30:34', '2026-05-29 10:30:34', '', '');
+INSERT INTO `sarc_option` VALUES (22, 15, 'A', '无困难', 0, 1, '0', '2026-05-29 10:30:34', '2026-05-29 10:30:34', '', '');
+INSERT INTO `sarc_option` VALUES (23, 15, 'B', '有困难', 1, 2, '0', '2026-05-29 10:30:34', '2026-05-29 10:30:34', '', '');
+INSERT INTO `sarc_option` VALUES (24, 16, 'A', '无跌倒', 0, 1, '0', '2026-05-29 10:30:34', '2026-05-29 10:30:34', '', '');
+INSERT INTO `sarc_option` VALUES (25, 16, 'B', '跌倒过', 1, 2, '0', '2026-05-29 10:30:34', '2026-05-29 10:30:34', '', '');
+INSERT INTO `sarc_option` VALUES (26, 17, 'A', '无法完成30秒', 0, 1, '0', '2026-05-29 10:30:34', '2026-05-29 10:30:34', '', '');
+INSERT INTO `sarc_option` VALUES (27, 17, 'B', '能完成30秒', 2, 2, '0', '2026-05-29 10:30:34', '2026-05-29 10:30:34', '', '');
+INSERT INTO `sarc_option` VALUES (28, 18, 'A', '无法完成30秒', 0, 1, '0', '2026-05-29 10:30:34', '2026-05-29 10:30:34', '', '');
+INSERT INTO `sarc_option` VALUES (29, 18, 'B', '能完成30秒', 2, 2, '0', '2026-05-29 10:30:34', '2026-05-29 10:30:34', '', '');
+INSERT INTO `sarc_option` VALUES (30, 19, 'A', '无法完成30秒', 0, 1, '0', '2026-05-29 10:30:34', '2026-05-29 10:30:34', '', '');
+INSERT INTO `sarc_option` VALUES (31, 19, 'B', '能完成30秒', 2, 2, '0', '2026-05-29 10:30:34', '2026-05-29 10:30:34', '', '');
+INSERT INTO `sarc_option` VALUES (32, 20, 'A', '无减少，进食正常', 2, 1, '0', '2026-05-29 10:30:34', '2026-05-29 10:30:34', '', '');
+INSERT INTO `sarc_option` VALUES (33, 20, 'B', '轻度减少', 1, 2, '0', '2026-05-29 10:30:34', '2026-05-29 10:30:34', '', '');
+INSERT INTO `sarc_option` VALUES (34, 20, 'C', '严重减少/进食困难', 0, 3, '0', '2026-05-29 10:30:34', '2026-05-29 10:30:34', '', '');
+INSERT INTO `sarc_option` VALUES (35, 21, 'A', '无下降', 3, 1, '0', '2026-05-29 10:30:34', '2026-05-29 10:30:34', '', '');
+INSERT INTO `sarc_option` VALUES (36, 21, 'B', '下降1-3kg', 2, 2, '0', '2026-05-29 10:30:34', '2026-05-29 10:30:34', '', '');
+INSERT INTO `sarc_option` VALUES (37, 21, 'C', '不知道/无法判断', 1, 3, '0', '2026-05-29 10:30:34', '2026-05-29 10:30:34', '', '');
+INSERT INTO `sarc_option` VALUES (38, 21, 'D', '下降＞3kg', 0, 4, '0', '2026-05-29 10:30:34', '2026-05-29 10:30:34', '', '');
+INSERT INTO `sarc_option` VALUES (39, 22, 'A', '可外出活动', 2, 1, '0', '2026-05-29 10:30:34', '2026-05-29 10:30:34', '', '');
+INSERT INTO `sarc_option` VALUES (40, 22, 'B', '只能室内活动', 1, 2, '0', '2026-05-29 10:30:34', '2026-05-29 10:30:34', '', '');
+INSERT INTO `sarc_option` VALUES (41, 22, 'C', '卧床/坐轮椅', 0, 3, '0', '2026-05-29 10:30:34', '2026-05-29 10:30:34', '', '');
+INSERT INTO `sarc_option` VALUES (42, 23, 'A', '无', 2, 1, '0', '2026-05-29 10:30:34', '2026-05-29 10:30:34', '', '');
+INSERT INTO `sarc_option` VALUES (43, 23, 'B', '有', 0, 2, '0', '2026-05-29 10:30:34', '2026-05-29 10:30:34', '', '');
+INSERT INTO `sarc_option` VALUES (44, 24, 'A', '正常', 2, 1, '0', '2026-05-29 10:30:34', '2026-05-29 10:30:34', '', '');
+INSERT INTO `sarc_option` VALUES (45, 24, 'B', '轻度痴呆/抑郁', 1, 2, '0', '2026-05-29 10:30:34', '2026-05-29 10:30:34', '', '');
+INSERT INTO `sarc_option` VALUES (46, 24, 'C', '严重痴呆/抑郁', 0, 3, '0', '2026-05-29 10:30:34', '2026-05-29 10:30:34', '', '');
+INSERT INTO `sarc_option` VALUES (47, 25, 'A', 'BMI≥23 或 小腿围＞31cm', 3, 1, '0', '2026-05-29 10:30:34', '2026-05-29 10:30:34', '', '');
+INSERT INTO `sarc_option` VALUES (48, 25, 'B', 'BMI 21-22.9', 2, 2, '0', '2026-05-29 10:30:34', '2026-05-29 10:30:34', '', '');
+INSERT INTO `sarc_option` VALUES (49, 25, 'C', 'BMI 19-20.9 或 小腿围26-31cm', 1, 3, '0', '2026-05-29 10:30:34', '2026-05-29 10:30:34', '', '');
+INSERT INTO `sarc_option` VALUES (50, 25, 'D', 'BMI＜19 或 小腿围＜26cm', 0, 4, '0', '2026-05-29 10:30:34', '2026-05-29 10:30:34', '', '');
+
+-- ----------------------------
+-- Table structure for sarc_question
+-- ----------------------------
+DROP TABLE IF EXISTS `sarc_question`;
+CREATE TABLE `sarc_question`  (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `scale_id` bigint NOT NULL COMMENT '所属量表 / 模块id',
+  `title` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '标题',
+  `stem` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '题干',
+  `type` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '1' COMMENT '题型 1=单选 2=多选 3=判断 4=填空',
+  `sort` int NULL DEFAULT 0 COMMENT '排序',
+  `create_time` datetime NULL DEFAULT CURRENT_TIMESTAMP,
+  `del_flag` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '0',
+  `update_time` datetime NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `create_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '' COMMENT '创建者',
+  `update_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '' COMMENT '更新者',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 36 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = 'sarc_题目表' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of sarc_question
+-- ----------------------------
+INSERT INTO `sarc_question` VALUES (1, 1, '力量', '您举起或搬运约 4.5kg （9斤）的物品有无困难？', '1', 1, '2026-05-29 09:46:47', '0', '2026-05-29 10:30:34', '', '');
+INSERT INTO `sarc_question` VALUES (2, 1, '协助步行', '您步行穿过整个房间有无困难？', '1', 2, '2026-05-29 09:48:41', '0', '2026-05-29 10:30:34', '', '');
+INSERT INTO `sarc_question` VALUES (3, 1, '座椅起身', '您从椅子或床上起身有无困难？', '1', 3, '2026-05-29 09:48:41', '0', '2026-05-29 10:30:34', '', '');
+INSERT INTO `sarc_question` VALUES (4, 1, '爬楼梯', '您爬10个台阶（大约一层楼）有无困难？', '1', 4, '2026-05-29 09:48:41', '0', '2026-05-29 10:30:34', '', '');
+INSERT INTO `sarc_question` VALUES (5, 1, '跌倒', '在过去的一年里，您跌倒了多少次？', '1', 5, '2026-05-29 09:48:41', '0', '2026-05-29 10:30:34', '', '');
+INSERT INTO `sarc_question` VALUES (6, 2, '四肢骨骼肌量(DXA)', '四肢骨骼肌量[双能X线吸收法(DXA)]（kg/m²）', '4', 1, '2026-05-29 10:05:28', '0', '2026-05-29 10:30:34', '', '');
+INSERT INTO `sarc_question` VALUES (7, 2, '四肢骨骼肌量(BIA)', '四肢骨骼肌量[生物电阻抗分析法(BIA)]（kg/m²）', '4', 2, '2026-05-29 10:05:28', '0', '2026-05-29 10:30:34', '', '');
+INSERT INTO `sarc_question` VALUES (8, 2, '握力', '优势手握力最大值（kg）', '4', 3, '2026-05-29 10:05:28', '0', '2026-05-29 10:30:34', '', '');
+INSERT INTO `sarc_question` VALUES (9, 2, '5次起坐时间', '5次椅子起坐完成时间（秒）', '4', 4, '2026-05-29 10:05:28', '0', '2026-05-29 10:30:34', '', '');
+INSERT INTO `sarc_question` VALUES (10, 2, '6米步行速度', '6米步行速度（m/s）', '4', 5, '2026-05-29 10:05:28', '0', '2026-05-29 10:30:34', '', '');
+INSERT INTO `sarc_question` VALUES (11, 2, 'SPPB总分', '简易体能状况量表（SPPB）总分（分）', '4', 6, '2026-05-29 10:05:28', '0', '2026-05-29 10:30:34', '', '');
+INSERT INTO `sarc_question` VALUES (12, 3, 'SARC-F-力量', '您举起或搬运10斤重物有困难吗？', '1', 1, '2026-05-29 10:10:35', '0', '2026-05-29 10:30:34', '', '');
+INSERT INTO `sarc_question` VALUES (13, 3, 'SARC-F-辅助步行', '您步行穿过房间有困难吗？', '1', 2, '2026-05-29 10:10:35', '0', '2026-05-29 10:30:34', '', '');
+INSERT INTO `sarc_question` VALUES (14, 3, 'SARC-F-座椅起身', '您从椅子上站起来有困难吗？', '1', 3, '2026-05-29 10:10:35', '0', '2026-05-29 10:30:34', '', '');
+INSERT INTO `sarc_question` VALUES (15, 3, 'SARC-F-爬楼梯', '您爬10级台阶有困难吗？', '1', 4, '2026-05-29 10:10:35', '0', '2026-05-29 10:30:34', '', '');
+INSERT INTO `sarc_question` VALUES (16, 3, 'SARC-F-跌倒', '过去1年您跌倒过吗？', '1', 5, '2026-05-29 10:10:35', '0', '2026-05-29 10:30:34', '', '');
+INSERT INTO `sarc_question` VALUES (17, 3, '小腿围', '小腿最大围度（cm）', '4', 6, '2026-05-29 10:10:35', '0', '2026-05-29 10:30:34', '', '');
+INSERT INTO `sarc_question` VALUES (18, 3, '优势手握力', '优势手握力最大值（kg），测3次取最大', '4', 7, '2026-05-29 10:10:35', '0', '2026-05-29 10:30:34', '', '');
+INSERT INTO `sarc_question` VALUES (19, 3, '平衡-双脚并立', '双脚并立站立30秒能否完成？', '1', 8, '2026-05-29 10:10:35', '0', '2026-05-29 10:30:34', '', '');
+INSERT INTO `sarc_question` VALUES (20, 3, '平衡-半脚错开', '半脚错开站立30秒能否完成？', '1', 9, '2026-05-29 10:10:35', '0', '2026-05-29 10:30:34', '', '');
+INSERT INTO `sarc_question` VALUES (21, 3, '平衡-前后脚站立', '前后脚站立30秒能否完成？', '1', 10, '2026-05-29 10:10:35', '0', '2026-05-29 10:30:34', '', '');
+INSERT INTO `sarc_question` VALUES (22, 3, '3米步速', '3米距离步行速度（m/s），测2次取平均', '4', 11, '2026-05-29 10:10:35', '0', '2026-05-29 10:30:34', '', '');
+INSERT INTO `sarc_question` VALUES (23, 3, '1分钟椅子起坐', '1分钟内从椅子坐下-起身次数（双手交叉胸前）', '4', 12, '2026-05-29 10:10:35', '0', '2026-05-29 10:30:34', '', '');
+INSERT INTO `sarc_question` VALUES (24, 4, '进食情况', '近3个月内，您是否因食欲下降、消化问题、咀嚼或吞咽困难导致进食减少？', '1', 1, '2026-05-29 10:17:38', '0', '2026-05-29 10:30:34', '', '');
+INSERT INTO `sarc_question` VALUES (25, 4, '体重变化', '近3个月内您的体重变化情况？', '1', 2, '2026-05-29 10:17:38', '0', '2026-05-29 10:30:34', '', '');
+INSERT INTO `sarc_question` VALUES (26, 4, '活动能力', '您的日常活动状态？', '1', 3, '2026-05-29 10:17:38', '0', '2026-05-29 10:30:34', '', '');
+INSERT INTO `sarc_question` VALUES (27, 4, '急性疾病/心理应激', '近3个月内是否有急性疾病发作或严重心理应激事件？', '1', 4, '2026-05-29 10:17:38', '0', '2026-05-29 10:30:34', '', '');
+INSERT INTO `sarc_question` VALUES (28, 4, '神经心理状态', '您的认知功能和情绪状态？', '1', 5, '2026-05-29 10:17:38', '0', '2026-05-29 10:30:34', '', '');
+INSERT INTO `sarc_question` VALUES (29, 4, 'BMI/小腿围', '您的BMI或小腿围情况？', '1', 6, '2026-05-29 10:17:38', '0', '2026-05-29 10:30:34', '', '');
+
+-- ----------------------------
+-- Table structure for sarc_record
+-- ----------------------------
+DROP TABLE IF EXISTS `sarc_record`;
+CREATE TABLE `sarc_record`  (
+  `id` int NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `patient_id` bigint NOT NULL COMMENT '病人id',
+  `user_id` bigint NULL DEFAULT NULL COMMENT '操作医生id',
+  `scale_id` bigint NOT NULL COMMENT '量表id',
+  `total_score` int NULL DEFAULT 0 COMMENT '总分',
+  `result` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '评估结果',
+  `suggest` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '建议',
+  `answer_json` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL COMMENT '答案json',
+  `create_time` datetime NULL DEFAULT CURRENT_TIMESTAMP,
+  `del_flag` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '0',
+  `update_time` datetime NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `create_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '' COMMENT '创建者',
+  `update_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '' COMMENT '更新者',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = 'sarc_评估记录表' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of sarc_record
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for sarc_scale
+-- ----------------------------
+DROP TABLE IF EXISTS `sarc_scale`;
+CREATE TABLE `sarc_scale`  (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `scale_name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '量表名称',
+  `code` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '编码(sarc...)',
+  `total_score` int NULL DEFAULT 0 COMMENT '总分',
+  `remark` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '说明',
+  `create_time` datetime NULL DEFAULT CURRENT_TIMESTAMP,
+  `del_flag` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '0',
+  `update_time` datetime NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `create_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '' COMMENT '创建者',
+  `update_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '' COMMENT '更新者',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 8 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = 'sarc_量表表' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of sarc_scale
+-- ----------------------------
+INSERT INTO `sarc_scale` VALUES (1, '肌少症风险筛查', 'sarc-f', 10, 'SARC-F 是国际通用的老年人肌少症快速筛查工具，通过 5 个维度评估肌肉功能与跌倒风险，总分≥4 分，表示有肌少症风险。', '2026-05-29 09:42:34', '0', '2026-05-29 10:30:34', '', '');
+INSERT INTO `sarc_scale` VALUES (2, '肌少症确诊指标', 'sarco-diagnosis', 0, '肌少症确诊用指标，按T/CNSS 039-2025标准判定', '2026-05-29 10:04:39', '0', '2026-05-29 10:30:34', '', '');
+INSERT INTO `sarc_scale` VALUES (4, '肌少症与跌倒风险综合评估表', 'sarc_fall_comprehensive', 40, '含SARC-F、小腿围、握力、平衡、步速、椅子起坐', '2026-05-29 10:09:45', '0', '2026-05-29 10:30:34', '', '');
+INSERT INTO `sarc_scale` VALUES (6, 'MNA-SF 微型营养评估简表', 'mna-sf', 14, '用于筛查老年人营养状况，0-14分，配合肌少症评估使用', '2026-05-29 10:17:38', '0', '2026-05-29 10:30:34', '', '');
 
 -- ----------------------------
 -- Table structure for sys_config
@@ -780,7 +1103,7 @@ CREATE TABLE `sys_logininfor`  (
   PRIMARY KEY (`info_id`) USING BTREE,
   INDEX `idx_sys_logininfor_s`(`status` ASC) USING BTREE,
   INDEX `idx_sys_logininfor_lt`(`login_time` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 173 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '系统访问记录' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 205 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '系统访问记录' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of sys_logininfor
@@ -858,6 +1181,38 @@ INSERT INTO `sys_logininfor` VALUES (169, 'admin', '127.0.0.1', '内网IP', 'Edg
 INSERT INTO `sys_logininfor` VALUES (170, 'admin', '127.0.0.1', '内网IP', 'Edge 148', 'Windows >=10', '0', '登录成功', '2026-05-27 15:23:46');
 INSERT INTO `sys_logininfor` VALUES (171, 'admin', '127.0.0.1', '内网IP', 'Edge 148', 'Windows >=10', '0', '退出成功', '2026-05-27 15:37:23');
 INSERT INTO `sys_logininfor` VALUES (172, 'admin', '127.0.0.1', '内网IP', 'Edge 148', 'Windows >=10', '0', '登录成功', '2026-05-27 15:37:26');
+INSERT INTO `sys_logininfor` VALUES (173, 'admin', '127.0.0.1', '内网IP', 'Edge 148', 'Windows >=10', '0', '登录成功', '2026-05-27 16:50:37');
+INSERT INTO `sys_logininfor` VALUES (174, 'admin', '127.0.0.1', '内网IP', 'Codex 26.519.81530', 'Windows 10.0', '0', '登录成功', '2026-05-27 16:51:51');
+INSERT INTO `sys_logininfor` VALUES (175, 'admin', '127.0.0.1', '内网IP', 'Edge 148', 'Windows >=10', '0', '登录成功', '2026-05-27 17:02:57');
+INSERT INTO `sys_logininfor` VALUES (176, 'admin', '127.0.0.1', '内网IP', 'Edge 148', 'Windows >=10', '0', '登录成功', '2026-05-27 18:10:39');
+INSERT INTO `sys_logininfor` VALUES (177, 'admin', '127.0.0.1', '内网IP', 'Edge 148', 'Windows >=10', '0', '登录成功', '2026-05-27 18:36:36');
+INSERT INTO `sys_logininfor` VALUES (178, 'admin', '127.0.0.1', '内网IP', 'Edge 148', 'Windows >=10', '0', '登录成功', '2026-05-27 18:36:41');
+INSERT INTO `sys_logininfor` VALUES (179, 'admin', '127.0.0.1', '内网IP', 'Edge 148', 'Windows >=10', '0', '登录成功', '2026-05-27 18:36:44');
+INSERT INTO `sys_logininfor` VALUES (180, 'admin', '127.0.0.1', '内网IP', 'Edge 148', 'Windows >=10', '0', '登录成功', '2026-05-27 19:05:53');
+INSERT INTO `sys_logininfor` VALUES (181, 'admin', '127.0.0.1', '内网IP', 'Edge 148', 'Windows >=10', '0', '登录成功', '2026-05-27 19:18:41');
+INSERT INTO `sys_logininfor` VALUES (182, 'admin', '127.0.0.1', '内网IP', 'Edge 148', 'Windows >=10', '0', '登录成功', '2026-05-28 08:53:53');
+INSERT INTO `sys_logininfor` VALUES (183, 'admin', '127.0.0.1', '内网IP', 'Edge 148', 'Windows >=10', '0', '登录成功', '2026-05-28 08:57:22');
+INSERT INTO `sys_logininfor` VALUES (184, 'admin', '127.0.0.1', '内网IP', 'Edge 148', 'Windows >=10', '0', '登录成功', '2026-05-28 09:15:57');
+INSERT INTO `sys_logininfor` VALUES (185, 'admin', '127.0.0.1', '内网IP', 'Edge 148', 'Windows >=10', '0', '登录成功', '2026-05-28 10:17:30');
+INSERT INTO `sys_logininfor` VALUES (186, 'admin', '127.0.0.1', '内网IP', 'Edge 148', 'Windows >=10', '0', '登录成功', '2026-05-28 11:14:52');
+INSERT INTO `sys_logininfor` VALUES (187, 'admin', '127.0.0.1', '内网IP', 'Edge 148', 'Windows >=10', '0', '登录成功', '2026-05-28 15:08:10');
+INSERT INTO `sys_logininfor` VALUES (188, 'admin', '127.0.0.1', '内网IP', 'Edge 148', 'Windows >=10', '0', '登录成功', '2026-05-28 18:19:26');
+INSERT INTO `sys_logininfor` VALUES (189, 'admin', '127.0.0.1', '内网IP', 'Edge 148', 'Windows >=10', '0', '登录成功', '2026-05-29 08:41:06');
+INSERT INTO `sys_logininfor` VALUES (190, 'admin', '127.0.0.1', '内网IP', 'Edge 148', 'Windows >=10', '0', '登录成功', '2026-05-29 10:55:37');
+INSERT INTO `sys_logininfor` VALUES (191, 'admin', '127.0.0.1', '内网IP', 'Edge 148', 'Windows >=10', '0', '退出成功', '2026-05-29 11:47:21');
+INSERT INTO `sys_logininfor` VALUES (192, 'admin', '127.0.0.1', '内网IP', 'Edge 148', 'Windows >=10', '0', '登录成功', '2026-05-29 11:47:21');
+INSERT INTO `sys_logininfor` VALUES (193, 'admin', '127.0.0.1', '内网IP', 'Edge 148', 'Windows >=10', '0', '登录成功', '2026-05-29 12:02:05');
+INSERT INTO `sys_logininfor` VALUES (194, 'admin', '127.0.0.1', '内网IP', 'Edge 148', 'Windows >=10', '0', '登录成功', '2026-05-29 15:18:14');
+INSERT INTO `sys_logininfor` VALUES (195, 'admin', '127.0.0.1', '内网IP', 'Edge 148', 'Windows >=10', '0', '退出成功', '2026-05-29 15:19:54');
+INSERT INTO `sys_logininfor` VALUES (196, 'admin', '127.0.0.1', '内网IP', 'Edge 148', 'Windows >=10', '0', '登录成功', '2026-05-29 15:19:55');
+INSERT INTO `sys_logininfor` VALUES (197, 'admin', '127.0.0.1', '内网IP', 'Edge 148', 'Windows >=10', '0', '登录成功', '2026-05-29 15:57:56');
+INSERT INTO `sys_logininfor` VALUES (198, 'admin', '127.0.0.1', '内网IP', 'Edge 148', 'Windows >=10', '0', '退出成功', '2026-05-29 16:05:28');
+INSERT INTO `sys_logininfor` VALUES (199, 'admin', '127.0.0.1', '内网IP', 'Edge 148', 'Windows >=10', '0', '登录成功', '2026-05-29 16:05:29');
+INSERT INTO `sys_logininfor` VALUES (200, 'admin', '127.0.0.1', '内网IP', 'Edge 148', 'Windows >=10', '0', '登录成功', '2026-05-29 17:13:43');
+INSERT INTO `sys_logininfor` VALUES (201, 'admin', '127.0.0.1', '内网IP', 'Edge 148', 'Windows >=10', '0', '登录成功', '2026-06-01 08:41:56');
+INSERT INTO `sys_logininfor` VALUES (202, 'admin', '127.0.0.1', '内网IP', 'Edge 148', 'Windows >=10', '0', '登录成功', '2026-06-01 10:18:40');
+INSERT INTO `sys_logininfor` VALUES (203, 'admin', '127.0.0.1', '内网IP', 'Edge 148', 'Windows >=10', '0', '登录成功', '2026-06-01 14:47:06');
+INSERT INTO `sys_logininfor` VALUES (204, 'admin', '127.0.0.1', '内网IP', 'Edge 148', 'Windows >=10', '0', '登录成功', '2026-06-01 16:43:40');
 
 -- ----------------------------
 -- Table structure for sys_menu
@@ -979,7 +1334,7 @@ INSERT INTO `sys_menu` VALUES (2000, '新建用户', 0, 5, 'newCase', 'patient/n
 INSERT INTO `sys_menu` VALUES (2001, '检测评估', 0, 7, 'detection', 'patient/detection/index', NULL, '', 1, 0, 'C', '0', '0', 'patient:detection:list', 'swagger', 'admin', '2026-05-25 17:11:57', 'admin', '2026-05-25 17:12:48', '');
 INSERT INTO `sys_menu` VALUES (2002, '用户管理', 0, 6, 'caseList', 'patient/caseList/index', NULL, '', 1, 0, 'C', '0', '0', 'patient:caseList:list', 'edit', 'admin', '2026-05-25 17:15:58', '', NULL, '');
 INSERT INTO `sys_menu` VALUES (2003, '报告管理', 0, 8, 'report', NULL, NULL, '', 1, 0, 'M', '0', '0', '', 'skill', 'admin', '2026-05-27 15:09:34', 'admin', '2026-05-27 15:16:12', '');
-INSERT INTO `sys_menu` VALUES (2004, '老年综合评估报告', 2003, 1, 'cagreport', 'report/cagreport/index', NULL, '', 1, 0, 'C', '0', '0', 'report:cagreport:list', '#', 'admin', '2026-05-27 15:17:08', 'admin', '2026-05-27 15:37:09', '');
+INSERT INTO `sys_menu` VALUES (2004, '老年综合评估报告', 2003, 1, 'cgareport', 'report/cgareport/index', NULL, '', 1, 0, 'C', '0', '0', 'report:cgareport:list', '#', 'admin', '2026-05-27 15:17:08', 'admin', '2026-05-29 11:46:49', '');
 
 -- ----------------------------
 -- Table structure for sys_notice
@@ -1052,7 +1407,7 @@ CREATE TABLE `sys_oper_log`  (
   INDEX `idx_sys_oper_log_bt`(`business_type` ASC) USING BTREE,
   INDEX `idx_sys_oper_log_s`(`status` ASC) USING BTREE,
   INDEX `idx_sys_oper_log_ot`(`oper_time` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 124 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '操作日志记录' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 125 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '操作日志记录' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of sys_oper_log
@@ -1081,6 +1436,7 @@ INSERT INTO `sys_oper_log` VALUES (120, '菜单管理', 2, 'com.sarcopenia.web.c
 INSERT INTO `sys_oper_log` VALUES (121, '菜单管理', 2, 'com.sarcopenia.web.controller.system.SysMenuController.edit()', 'PUT', 1, 'admin', '研发部门', '/system/menu', '127.0.0.1', '内网IP', '{\"children\":[],\"component\":\"report/cag/index\",\"createTime\":\"2026-05-27 15:17:08\",\"icon\":\"#\",\"isCache\":\"0\",\"isFrame\":\"1\",\"menuId\":2004,\"menuName\":\"老年综合评估报告\",\"menuType\":\"C\",\"orderNum\":0,\"params\":{},\"parentId\":2003,\"path\":\"cag\",\"perms\":\"report:cag:list\",\"routeName\":\"\",\"status\":\"0\",\"updateBy\":\"admin\",\"visible\":\"0\"} ', '{\"msg\":\"操作成功\",\"code\":200}', 0, NULL, '2026-05-27 15:18:58', 17);
 INSERT INTO `sys_oper_log` VALUES (122, '菜单管理', 2, 'com.sarcopenia.web.controller.system.SysMenuController.edit()', 'PUT', 1, 'admin', '研发部门', '/system/menu', '127.0.0.1', '内网IP', '{\"children\":[],\"component\":\"report/cag/index\",\"createTime\":\"2026-05-27 15:17:08\",\"icon\":\"#\",\"isCache\":\"0\",\"isFrame\":\"1\",\"menuId\":2004,\"menuName\":\"老年综合评估报告\",\"menuType\":\"C\",\"orderNum\":1,\"params\":{},\"parentId\":2003,\"path\":\"cag\",\"perms\":\"report:cag:list\",\"routeName\":\"\",\"status\":\"0\",\"updateBy\":\"admin\",\"visible\":\"0\"} ', '{\"msg\":\"操作成功\",\"code\":200}', 0, NULL, '2026-05-27 15:20:34', 17);
 INSERT INTO `sys_oper_log` VALUES (123, '菜单管理', 2, 'com.sarcopenia.web.controller.system.SysMenuController.edit()', 'PUT', 1, 'admin', '研发部门', '/system/menu', '127.0.0.1', '内网IP', '{\"children\":[],\"component\":\"report/cagreport/index\",\"createTime\":\"2026-05-27 15:17:08\",\"icon\":\"#\",\"isCache\":\"0\",\"isFrame\":\"1\",\"menuId\":2004,\"menuName\":\"老年综合评估报告\",\"menuType\":\"C\",\"orderNum\":1,\"params\":{},\"parentId\":2003,\"path\":\"cagreport\",\"perms\":\"report:cagreport:list\",\"routeName\":\"\",\"status\":\"0\",\"updateBy\":\"admin\",\"visible\":\"0\"} ', '{\"msg\":\"操作成功\",\"code\":200}', 0, NULL, '2026-05-27 15:37:09', 26);
+INSERT INTO `sys_oper_log` VALUES (124, '菜单管理', 2, 'com.sarcopenia.web.controller.system.SysMenuController.edit()', 'PUT', 1, 'admin', '研发部门', '/system/menu', '127.0.0.1', '内网IP', '{\"children\":[],\"component\":\"report/cgareport/index\",\"createTime\":\"2026-05-27 15:17:08\",\"icon\":\"#\",\"isCache\":\"0\",\"isFrame\":\"1\",\"menuId\":2004,\"menuName\":\"老年综合评估报告\",\"menuType\":\"C\",\"orderNum\":1,\"params\":{},\"parentId\":2003,\"path\":\"cgareport\",\"perms\":\"report:cgareport:list\",\"routeName\":\"\",\"status\":\"0\",\"updateBy\":\"admin\",\"visible\":\"0\"} ', '{\"msg\":\"操作成功\",\"code\":200}', 0, NULL, '2026-05-29 11:46:49', 87);
 
 -- ----------------------------
 -- Table structure for sys_post
@@ -1283,7 +1639,7 @@ CREATE TABLE `sys_user`  (
 -- ----------------------------
 -- Records of sys_user
 -- ----------------------------
-INSERT INTO `sys_user` VALUES (1, 103, 'admin', '管理员', '00', 'ry@163.com', '15888888888', '1', '/profile/avatar/2026/05/26/f4b07b4feb6b458da7450a7cbc9f7332.png', '$2a$10$7JB720yubVSZvUI0rEqK/.VqGOZTH.ulu33dHOiBE8ByOhJIrdAu2', '0', '0', '127.0.0.1', '2026-05-27 15:37:26', '2026-05-25 10:29:04', 'admin', '2026-05-25 10:29:04', '', '2026-05-26 10:52:09', '管理员');
+INSERT INTO `sys_user` VALUES (1, 103, 'admin', '管理员', '00', 'ry@163.com', '15888888888', '1', '/profile/avatar/2026/05/26/f4b07b4feb6b458da7450a7cbc9f7332.png', '$2a$10$7JB720yubVSZvUI0rEqK/.VqGOZTH.ulu33dHOiBE8ByOhJIrdAu2', '0', '0', '127.0.0.1', '2026-06-01 16:43:38', '2026-05-25 10:29:04', 'admin', '2026-05-25 10:29:04', '', '2026-05-26 10:52:09', '管理员');
 INSERT INTO `sys_user` VALUES (2, 105, 'ry', '若依', '00', 'ry@qq.com', '15666666666', '1', '', '$2a$10$7JB720yubVSZvUI0rEqK/.VqGOZTH.ulu33dHOiBE8ByOhJIrdAu2', '0', '0', '127.0.0.1', '2026-05-25 10:29:04', '2026-05-25 10:29:04', 'admin', '2026-05-25 10:29:04', '', NULL, '测试员');
 
 -- ----------------------------

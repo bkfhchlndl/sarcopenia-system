@@ -1,22 +1,31 @@
 <template>
   <div class="full-page">
     <!-- 返回按钮 -->
-    <div class="back-btn" @click="goBack">
-      <span>&lt;</span> 返回
-    </div>
+    <el-button class="back-btn" @click="goBack">
+      <el-icon><ArrowLeft /></el-icon>
+      返回
+    </el-button>
 
     <!-- 评估类型选择卡片 -->
     <div class="card-wrapper">
       <!-- CGA综合评估 -->
-      <div class="card card-dark">
-        <div class="title">CGA筛查与评估</div>
-        <el-button class="eval-btn" @click="goCga">去评估</el-button>
+      <div class="entry-card cga-card">
+        <div class="card-icon">
+          <el-icon><Document /></el-icon>
+        </div>
+        <h3 class="card-title">CGA筛查与评估</h3>
+        <p class="card-subtitle">COMPREHENSIVE GERIATRIC ASSESSMENT</p>
+        <el-button class="card-btn" @click="goCga">去评估</el-button>
       </div>
 
       <!-- 自定义单项评估 -->
-      <div class="card card-light">
-        <div class="title">自定义单项评估</div>
-        <el-button class="eval-btn btn-border" @click="goCustom">去评估</el-button>
+      <div class="entry-card custom-card">
+        <div class="card-icon">
+          <el-icon><EditPen /></el-icon>
+        </div>
+        <h3 class="card-title">自定义单项评估</h3>
+        <p class="card-subtitle">CUSTOM SINGLE ASSESSMENT</p>
+        <el-button class="card-btn" @click="goCustom">去评估</el-button>
       </div>
     </div>
   </div>
@@ -24,6 +33,7 @@
 
 <script setup>
 import { useRouter } from 'vue-router'
+import { Document, EditPen, ArrowLeft } from '@element-plus/icons-vue'
 
 const router = useRouter()
 
@@ -36,11 +46,11 @@ const goBack = () => {
 
 /**
  * 跳转到CGA综合评估页面
- * 携带当前路由的患者参数
+ * 携带当前路由的患者参数和项目ID
  */
 const goCga = () => {
   router.push({
-    name: 'Cag',
+    name: 'Cga',
     query: router.currentRoute.value.query
   })
 }
@@ -50,79 +60,106 @@ const goCga = () => {
  */
 const goCustom = () => {
   console.log('进入自定义单项评估')
+  router.push({
+    name: 'Customize',
+    query: router.currentRoute.value.query
+  })
 }
 </script>
 
-<style scoped>
-/* 全屏页面容器 */
+<style scoped lang="scss">
 .full-page {
-  width: 100vw;
-  height: 100vh;
-  background-color: #ffffff;
-  padding: 30px;
+  min-height: calc(100vh - 84px);
+  padding-bottom: 30px;
+  background: linear-gradient(180deg, #f7fbff 0%, #eef4fb 100%);
   box-sizing: border-box;
 }
 
-/* 返回按钮样式 */
 .back-btn {
-  width: fit-content;
-  background-color: #ffe799;
-  font-size: 18px;
-  padding: 12px 30px;
-  border-radius: 4px;
+  margin: 30px 0 60px;
+  font-size: 15px;
+  padding: 10px 20px;
+  border-radius: 8px;
+  background: #fff;
+  color: #29465f;
+  border: 1px solid #d0d7de;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   cursor: pointer;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-  margin-bottom: 80px;
+  transition: all 0.2s;
+
+  &:hover {
+    color: #2f9a75;
+    border-color: #2f9a75;
+    background: #f0faf5;
+  }
 }
 
-/* 卡片布局容器 */
 .card-wrapper {
-  display: flex;
-  justify-content: center;
-  gap: 50px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(280px, 1fr));
+  gap: 22px;
+  max-width: 900px;
+  margin: 0 auto;
 }
 
-/* 公共卡片样式 */
-.card {
-  width: 480px;
-  height: 320px;
+.entry-card {
+  min-height: 260px;
+  border-radius: 8px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  border-radius: 4px;
+  padding: 34px;
+  color: #fff;
 }
 
-/* 深色卡片（CGA评估） */
-.card-dark {
-  background-color: #8dd460;
+.cga-card {
+  background: #2f9a75;
 }
 
-/* 浅色卡片（自定义评估） */
-.card-light {
-  background-color: #c9e9b6;
-  border: 1px solid #8dd460;
+.custom-card {
+  background: #7964d7;
 }
 
-/* 卡片标题 */
-.title {
-  font-size: 28px;
-  margin-bottom: 45px;
+.card-icon {
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 22px;
 }
 
-/* 评估按钮 */
-.eval-btn {
-  background-color: #ffe799;
+.card-icon .el-icon {
+  font-size: 36px;
+  color: #fff;
+}
+
+.card-title {
+  font-size: 24px;
+  font-weight: 600;
+  margin: 0 0 10px;
+}
+
+.card-subtitle {
+  font-size: 13px;
+  opacity: 0.9;
+  margin: 0 0 28px;
+}
+
+.card-btn {
+  background: #fff;
+  color: #29465f;
   border: none;
-  padding: 12px 45px;
-  font-size: 20px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-  cursor: pointer;
+  border-radius: 6px;
+  padding: 10px 28px;
 }
 
-/* 边框按钮样式 */
-.btn-border {
-  border: 1px solid #333 !important;
-  box-shadow: none;
+@media (max-width: 820px) {
+  .card-wrapper {
+    grid-template-columns: 1fr;
+  }
 }
 </style>

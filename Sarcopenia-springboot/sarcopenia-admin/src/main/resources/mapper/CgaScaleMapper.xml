@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 评估量表 Mapper XML -->
+<mapper namespace="com.sarcopenia.web.mapper.CgaScaleMapper">
+
+    <!-- 量表题目选项结果集映射 -->
+    <resultMap id="selectScaleList" type="com.sarcopenia.web.entity.vo.ScaleQuestionOptionVO">
+        <id column="scale_id" property="scaleId"/>
+        <result column="scale_name" property="scaleName"/>
+        <result column="code" property="code"/>
+        <result column="total_score" property="totalScore"/>
+        <result column="remark" property="remark"/>
+        <result column="del_flag" property="delFlag"/>
+
+        <!-- 题目列表 -->
+        <collection property="questionList" ofType="com.sarcopenia.web.entity.vo.QuestionOptionVO">
+            <id column="question_id" property="questionId"/>
+            <result column="title" property="title"/>
+            <result column="type" property="type"/>
+            <result column="sort" property="sort"/>
+
+            <!-- 选项列表 -->
+            <collection property="optionList" ofType="com.sarcopenia.web.entity.CgaOption">
+                <id column="option_id" property="id"/>
+                <result column="label" property="label"/>
+                <result column="content" property="content"/>
+                <result column="score" property="score"/>
+                <result column="sort" property="sort"/>
+            </collection>
+        </collection>
+    </resultMap>
+
+    <!-- 查询所有量表及题目选项信息 -->
+    <!-- 查询CGA综合评估量表（20个） -->
+    <select id="selectScaleList" resultMap="selectScaleList">
+        select
+            s.id as scale_id,
+            s.scale_name,
+            s.code,
+            s.total_score,
+            s.remark,
+            s.del_flag,
+            q.id as question_id,
+            q.title,
+            q.type,
+            q.sort,
+            o.id as option_id,
+            o.label,
+            o.content,
+            o.score,
+            o.sort
+        from cga_scale s
+                 left join cga_question q
+                           on s.id = q.scale_id and q.del_flag = '0'
+                 left join cga_option o
+                           on q.id = o.question_id and o.del_flag = '0'
+        where s.del_flag = '0'
+            and s.id in (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20)
+        order by s.id, q.sort, q.id, o.sort, o.id
+    </select>
+
+    <!-- 查询日常基本生活 -->
+    <select id="selectDailyLifeScale" resultMap="selectScaleList">
+        select
+            s.id as scale_id,
+            s.scale_name,
+            s.code,
+            s.total_score,
+            s.remark,
+            s.del_flag,
+            q.id as question_id,
+            q.title,
+            q.type,
+            q.sort,
+            o.id as option_id,
+            o.label,
+            o.content,
+            o.score,
+            o.sort
+        from cga_scale s
+                 left join cga_question q
+                           on s.id = q.scale_id and q.del_flag = '0'
+                 left join cga_option o
+                           on q.id = o.question_id and o.del_flag = '0'
+        where s.del_flag = '0'
+            and s.id = 21
+        order by s.id, q.sort, q.id, o.sort, o.id
+    </select>
+
+    <!-- 查询简易体能 -->
+    <select id="selectSppbScale" resultMap="selectScaleList">
+        select
+            s.id as scale_id,
+            s.scale_name,
+            s.code,
+            s.total_score,
+            s.remark,
+            s.del_flag,
+            q.id as question_id,
+            q.title,
+            q.type,
+            q.sort,
+            o.id as option_id,
+            o.label,
+            o.content,
+            o.score,
+            o.sort
+        from cga_scale s
+                 left join cga_question q
+                           on s.id = q.scale_id and q.del_flag = '0'
+                 left join cga_option o
+                           on q.id = o.question_id and o.del_flag = '0'
+        where s.del_flag = '0'
+            and s.id = 22
+        order by s.id, q.sort, q.id, o.sort, o.id
+    </select>
+
+    <!-- 查询简易体能 -->
+    <select id="selectVisionHearingScale" resultMap="selectScaleList">
+        select
+            s.id as scale_id,
+            s.scale_name,
+            s.code,
+            s.total_score,
+            s.remark,
+            s.del_flag,
+            q.id as question_id,
+            q.title,
+            q.type,
+            q.sort,
+            o.id as option_id,
+            o.label,
+            o.content,
+            o.score,
+            o.sort
+        from cga_scale s
+                 left join cga_question q
+                           on s.id = q.scale_id and q.del_flag = '0'
+                 left join cga_option o
+                           on q.id = o.question_id and o.del_flag = '0'
+        where s.del_flag = '0'
+            and s.id = 24
+        order by s.id, q.sort, q.id, o.sort, o.id
+    </select>
+</mapper>

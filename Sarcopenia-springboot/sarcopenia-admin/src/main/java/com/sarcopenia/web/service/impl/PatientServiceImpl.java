@@ -67,4 +67,14 @@ public class PatientServiceImpl implements PatientService {
     public Patient selectPatientById(Long patientId) {
         return patientMapper.selectPatientById(patientId);
     }
+
+    /**
+     * 获取已评估患者列表
+     * @param patient 患者查询条件
+     * @return 患者信息集合
+     */
+    @Override
+    public List<Patient> selectPatientReportedList(Patient patient) {
+        return patientMapper.selectPatientReportedList(patient);
+    }
 }

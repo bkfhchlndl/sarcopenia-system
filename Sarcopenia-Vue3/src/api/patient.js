@@ -59,3 +59,15 @@ export function selectPatientById(params) {
     params
   })
 }
+
+/**
+ * 查询已完成评估的患者列表
+ * @param {Object} params 查询条件
+ */
+export function selectReportedPatientList(params) {
+  return request({
+    url: '/patient/selectPatientReportedList',
+    method: 'get',
+    params
+  })
+}

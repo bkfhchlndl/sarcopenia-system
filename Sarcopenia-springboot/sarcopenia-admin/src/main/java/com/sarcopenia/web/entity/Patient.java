@@ -1,9 +1,11 @@
 package com.sarcopenia.web.entity;
 
+import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.sarcopenia.common.annotation.Excel;
 import com.sarcopenia.common.core.domain.BaseEntity;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -13,9 +15,9 @@ import java.util.Date;
  * 对应数据库表：patient（病人信息表）
  */
 @Data
-public class Patient extends BaseEntity
-{
-    private static final long serialVersionUID = 1L;
+@EqualsAndHashCode(callSuper = true)
+@TableName("patient")
+public class Patient extends BaseEntity {
 
     /** 主键ID */
     private Long id;

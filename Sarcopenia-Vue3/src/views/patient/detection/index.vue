@@ -196,11 +196,15 @@ function goSarcopenia() {
 
 /**
  * 进入老年综合评估页面
+ * 携带患者参数和项目ID（CGA项目ID=1）
  */
 function goGeriatric() {
   router.push({
     name: 'GeriatricSyndrome',
-    query: router.currentRoute.value.query
+    query: {
+      ...router.currentRoute.value.query,
+      projectId: 1
+    }
   })
 }
 

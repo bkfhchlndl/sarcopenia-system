@@ -72,15 +72,6 @@
           </el-col>
         </el-row>
 
-        <el-form-item label="家庭住址" prop="address">
-          <el-input
-              v-model="patientForm.address"
-              type="textarea"
-              :rows="4"
-              placeholder="请输入家庭住址"
-          />
-        </el-form-item>
-
         <!-- 表单操作按钮 -->
         <div class="action-bar">
           <el-button type="primary" class="primary-btn" @click="submitForm">提交保存</el-button>

@@ -6,18 +6,18 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import com.sarcopenia.common.annotation.Excel;
 import com.sarcopenia.common.core.domain.BaseEntity;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+
 import java.util.Date;
 
 /**
  * 【实体】评估量表信息
- * 对应数据库表：cag_scale（量表信息表）
+ * 对应数据库表：cga_scale（量表信息表）
  */
 @Data
-@TableName("cag_scale")
-public class CagScale extends BaseEntity {
-
-    /** 序列化版本ID */
-    private static final long serialVersionUID = 1L;
+@EqualsAndHashCode(callSuper = true)
+@TableName("cga_scale")
+public class CgaScale extends BaseEntity {
 
     /** 主键ID（自增） */
     @TableId(type = IdType.AUTO)

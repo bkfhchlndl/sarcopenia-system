@@ -1,6 +1,6 @@
 package com.sarcopenia.web.rule;
 
-public interface CagRule {
+public interface CgaRule {
 
     /**
      * 获取正常范围
