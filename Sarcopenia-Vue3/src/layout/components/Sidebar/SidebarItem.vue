@@ -4,7 +4,7 @@
       <app-link v-if="onlyOneChild.meta" :to="resolvePath(onlyOneChild.path, onlyOneChild.query)">
         <el-menu-item :index="resolvePath(onlyOneChild.path)" :class="{ 'submenu-title-noDropdown': !isNest }">
           <svg-icon :icon-class="onlyOneChild.meta.icon || (item.meta && item.meta.icon)"/>
-          <template #title><span class="menu-title" :title="hasTitle(onlyOneChild.meta.title)">{{ onlyOneChild.meta.title }}</span></template>
+          <template #title><span class="menu-title" :title="hasTitle(menuTitle)">{{ menuTitle }}</span></template>
         </el-menu-item>
       </app-link>
     </template>
@@ -49,6 +49,13 @@ const props = defineProps({
 })
 
 const onlyOneChild = ref({})
+
+const menuTitle = computed(() => {
+  if (!props.isNest && props.item.meta && props.item.meta.single) {
+    return props.item.meta.title
+  }
+  return onlyOneChild.value.meta ? onlyOneChild.value.meta.title : ''
+})
 
 function hasOneShowingChild(children = [], parent) {
   if (!children) {

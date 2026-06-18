@@ -1,37 +1,37 @@
 package com.sarcopenia.web.controller;
 
-import com.sarcopenia.common.annotation.Anonymous;
 import com.sarcopenia.common.core.domain.AjaxResult;
 import com.sarcopenia.web.entity.vo.CgaReportVO;
 import com.sarcopenia.web.service.CgaReportVoService;
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * 评估报告 控制层
+ * 评估报告控制层
+ * 对外提供报告查询、生成、删除等接口
  */
 @RestController
 @RequestMapping("/cgaReportVo")
 public class CgaReportVoController {
 
-    /** 评估报告服务 */
-    @Autowired
+    /** 评估报告业务服务 */
+    @Resource
     private CgaReportVoService cgaReportVoService;
 
     /**
-     * 获取完整评估报告
+     * 根据记录ID获取完整评估报告
      * @param id 评估记录ID
      * @return 评估报告详情
      */
-//    @Anonymous
     @GetMapping("/getFullReport/{id}")
     public AjaxResult getFullReport(@PathVariable Long id) {
         CgaReportVO report = cgaReportVoService.getFullReport(id);
-        return report != null ? AjaxResult.success(report) : AjaxResult.error("query failed");
+        return AjaxResult.success(report);
     }
 
     /**
@@ -39,11 +39,22 @@ public class CgaReportVoController {
      * @param patientId 患者ID
      * @return 评估报告详情
      */
-//    @Anonymous
     @GetMapping("/getFullReportByPatient/{patientId}")
     public AjaxResult getFullReportByPatient(@PathVariable Long patientId) {
         CgaReportVO report = cgaReportVoService.getFullReportByPatient(patientId);
-        return report != null ? AjaxResult.success(report) : AjaxResult.error("query failed");
+        return AjaxResult.success(report);
+    }
+
+    /**
+     * 生成患者评估报告
+     * @param patientId 患者ID
+     * @return 操作结果
+     */
+    @PostMapping("/generateReport/{patientId}")
+    public AjaxResult generateReport(@PathVariable Long patientId) {
+        return cgaReportVoService.generateReport(patientId) > 0
+                ? AjaxResult.success()
+                : AjaxResult.error("生成报告失败");
     }
 
     /**
@@ -51,11 +62,10 @@ public class CgaReportVoController {
      * @param patientId 患者ID
      * @return 操作结果
      */
-//    @Anonymous
     @DeleteMapping("/deleteReportByPatientId/{patientId}")
     public AjaxResult deleteReport(@PathVariable Long patientId) {
         return cgaReportVoService.deleteReportByPatientId(patientId) > 0
                 ? AjaxResult.success()
-                : AjaxResult.error("delete failed");
+                : AjaxResult.error("删除失败");
     }
 }

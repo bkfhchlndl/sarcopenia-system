@@ -66,52 +66,209 @@ export const constantRoutes = [
       }
     ]
   },
+  // 检测评估主路由 single:true 无下拉箭头
   {
     path: '/patient/detection',
     component: Layout,
     hidden: true,
+    redirect: '/patient/detection/index',
+    meta: { title: '检测评估', icon: 'search', single: true },
     children: [
       {
         path: 'index',
         component: () => import('@/views/patient/detection/index'),
         name: 'DetectionIndex',
-        meta: { title: '检测评估', activeMenu: '/patient/detection/index' }
+        meta: { title: '检测评估' }
       },
+      // 所有子页面全部放在children内部，加 hidden:true 侧边不显示菜单
       {
         path: 'geriatricsyndrome',
         component: () => import('@/views/patient/detection/geriatricsyndrome'),
         name: 'GeriatricSyndrome',
+        hidden: true,
         meta: { title: '老年综合评估', activeMenu: '/patient/detection/index' }
       },
       {
         path: 'cga',
         component: () => import('@/views/patient/detection/cga'),
         name: 'Cga',
+        hidden: true,
         meta: { title: 'CGA评估', activeMenu: '/patient/detection/index' }
+      },
+      {
+        path: 'comprehensive',
+        component: () => import('@/views/patient/detection/comprehensive'),
+        name: 'Comprehensive',
+        hidden: true,
+        meta: { title: '综合评估', activeMenu: '/patient/detection/index' }
       },
       {
         path: 'customize',
         component: () => import('@/views/patient/detection/customize'),
         name: 'Customize',
+        hidden: true,
         meta: { title: '自定义检测评估', activeMenu: '/patient/detection/index' }
       },
       {
-        path:'dailyLife',
-        component: () => import('@/views/patient/detection/dailyLife'),
+        path: 'basicInformation',
+        component: () => import('@/views/patient/detection/customize/basicInformation.vue'),
+        name: 'BasicInformationEntry',
+        hidden: true,
+        meta: { title: '基本情况', activeMenu: '/patient/detection/index' }
+      },
+      {
+        path: 'customize/dailyLife',
+        component: () => import('@/views/patient/detection/customize/dailyLife.vue'),
         name: 'DailyLife',
+        hidden: true,
         meta: { title: '日常生活评估', activeMenu: '/patient/detection/index' }
       },
       {
-        path: 'sppb',
-        component: () => import('@/views/patient/detection/sppb.vue'),
-        name: 'Sppb',
-        meta: { title: 'SPPB评估', activeMenu: '/patient/detection/index' }
+        path: 'customize/instrumentalityLife',
+        component: () => import('@/views/patient/detection/customize/instrumentalityLife.vue'),
+        name: 'InstrumentalityLife',
+        hidden: true,
+        meta: { title: '工具生活评估', activeMenu: '/patient/detection/index' }
       },
       {
-        path:'visionHearing',
-        component: () => import('@/views/patient/detection/visionHearing'),
-        name: 'VisionHearing',
-        meta: { title: '视觉听觉评估', activeMenu: '/patient/detection/index' }
+        path: 'customize/sppb',
+        component: () => import('@/views/patient/detection/customize/sppb.vue'),
+        name: 'Sppb',
+        hidden: true,
+        meta: { title: '简易体能评估', activeMenu: '/patient/detection/index' }
+      },
+      {
+        path:'customize/visualAcuity',
+        component: () => import('@/views/patient/detection/customize/visualAcuity.vue'),
+        name: 'VisualAcuity',
+        hidden: true,
+        meta: { title: '视力视觉评估', activeMenu: '/patient/detection/index' }
+      },
+      {
+        path:'customize/listening',
+        component: () => import('@/views/patient/detection/customize/listening.vue'),
+        name: 'Listening',
+        hidden: true,
+        meta: { title: '听力评估', activeMenu: '/patient/detection/index' }
+      },
+      {
+        path:'customize/homeEnvironment',
+        component: () => import('@/views/patient/detection/customize/homeEnvironment.vue'),
+        name: 'HomeEnvironment',
+        hidden: true,
+        meta: { title: '居家环境评估', activeMenu: '/patient/detection/index' }
+      },
+      {
+        path: 'customize/cognition',
+        component: () => import('@/views/patient/detection/customize/cognition.vue'),
+        name: 'Cognition',
+        hidden: true,
+        meta: { title: '认知评估', activeMenu: '/patient/detection/index' }
+      },
+      {
+        path: 'customize/frail',
+        component: () => import('@/views/patient/detection/customize/frail.vue'),
+        name: 'Frail',
+        hidden: true,
+        meta: { title: '衰弱评估', activeMenu: '/patient/detection/index' }
+      },
+      {
+        path: 'customize/urinaryIncontinence',
+        component: () => import('@/views/patient/detection/customize/urinaryIncontinence.vue'),
+        name: 'UrinaryIncontinence',
+        hidden: true,
+        meta: { title: '尿失禁评估', activeMenu: '/patient/detection/index' }
+      },
+      {
+        path: 'customize/constipation',
+        component: () => import('@/views/patient/detection/customize/constipation'),
+        name: 'Constipation',
+        hidden: true,
+        meta: { title: '便秘评估', activeMenu: '/patient/detection/index' }
+      },
+      {
+        path: 'customize/insomnia',
+        component: () => import('@/views/patient/detection/customize/insomnia.vue'),
+        name: 'Insomnia',
+        hidden: true,
+        meta: { title: '失眠评估', activeMenu: '/patient/detection/index' }
+      },
+      {
+        path: 'customize/chronicPain',
+        component: () => import('@/views/patient/detection/customize/chronicPain.vue'),
+        name: 'ChronicPain',
+        hidden: true,
+        meta: { title: '慢性疼痛评估', activeMenu: '/patient/detection/index' }
+      },
+      {
+        path: 'customize/pressureInjury',
+        component: () => import('@/views/patient/detection/customize/pressureInjury.vue'),
+        name: 'PressureInjury',
+        hidden: true,
+        meta: { title: '压力性损伤评估', activeMenu: '/patient/detection/index' }
+      },
+      {
+        path: 'customize/swallow',
+        component: () => import('@/views/patient/detection/customize/swallow.vue'),
+        name: 'Swallowing',
+        hidden: true,
+        meta: { title: '吞咽评估', activeMenu: '/patient/detection/index' }
+      },
+      {
+        path: 'customize/nutrition',
+        component: () => import('@/views/patient/detection/customize/nutrition.vue'),
+        name: 'Nutrition',
+        hidden: true,
+        meta: { title: '营养评估', activeMenu: '/patient/detection/index' }
+      },
+      {
+        path: 'customize/microNutrition',
+        component: () => import('@/views/patient/detection/customize/microNutrition.vue'),
+        name: 'MicroNutrition',
+        hidden: true,
+        meta: { title: '微营养评估', activeMenu: '/patient/detection/index' }
+      },
+      {
+        path: 'customize/delirium',
+        component: () => import('@/views/patient/detection/customize/delirium.vue'),
+        name: 'Delirium',
+        hidden: true,
+        meta: { title: '谵妄评估', activeMenu: '/patient/detection/index' }
+      },
+      {
+        path: 'customize/depression',
+        component: () => import('@/views/patient/detection/customize/depression.vue'),
+        name: 'Depression',
+        hidden: true,
+        meta: { title: '抑郁评估', activeMenu: '/patient/detection/index' }
+      },
+      {
+        path: 'customize/fall',
+        component: () => import('@/views/patient/detection/customize/fall.vue'),
+        name: 'Fall',
+        hidden: true,
+        meta: { title: '跌倒评估', activeMenu: '/patient/detection/index' }
+      },
+      {
+        path: 'customize/medication',
+        component: () => import('@/views/patient/detection/customize/medication.vue'),
+        name: 'Medication',
+        hidden: true,
+        meta: { title: '多重用药评估', activeMenu: '/patient/detection/index' }
+      },
+      {
+        path: 'customize/anxiety',
+        component: () => import('@/views/patient/detection/customize/anxiety.vue'),
+        name: 'Anxiety',
+        hidden: true,
+        meta: { title: '焦虑评估', activeMenu: '/patient/detection/index' }
+      },
+      {
+        path: 'customize/basicInformation',
+        component: () => import('@/views/patient/detection/customize/basicInformation.vue'),
+        name: 'BasicInformation',
+        hidden: true,
+        meta: { title: '基本情况评估', activeMenu: '/patient/detection/index' }
       }
     ]
   },
@@ -205,7 +362,6 @@ export const dynamicRoutes = [
 
 const router = createRouter({
   history: createWebHistory(),
-  // routes: constantRoutes,
   routes: [...constantRoutes, ...dynamicRoutes],
   scrollBehavior(to, from, savedPosition) {
     if (savedPosition) {

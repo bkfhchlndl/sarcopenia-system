@@ -1,17 +1,15 @@
 package com.sarcopenia.web.service;
 
-import com.sarcopenia.web.entity.Patient;
 import com.sarcopenia.web.entity.vo.CgaReportVO;
 
-import java.util.List;
-
 /**
- * 评估报告 业务服务层
+ * 评估报告业务接口
+ * 负责评估报告查询、生成、删除等业务处理
  */
 public interface CgaReportVoService {
 
     /**
-     * 获取完整评估报告
+     * 根据记录ID获取完整评估报告
      * @param id 评估记录ID
      * @return 评估报告详情
      */
@@ -23,6 +21,13 @@ public interface CgaReportVoService {
      * @return 评估报告详情
      */
     CgaReportVO getFullReportByPatient(Long patientId);
+
+    /**
+     * 生成患者评估报告
+     * @param patientId 患者ID
+     * @return 操作影响行数
+     */
+    int generateReport(Long patientId);
 
     /**
      * 根据患者ID删除评估记录

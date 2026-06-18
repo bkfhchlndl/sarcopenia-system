@@ -1,8 +1,12 @@
 import request from '@/utils/request'
 
 /**
- * 新增患者信息
- * @param {Object} data 患者信息
+ * 患者信息管理 - 相关API接口
+ */
+
+/**
+ * 新增患者基础信息
+ * @param {Object} data 患者信息对象
  */
 export function insertPatient(data) {
   return request({
@@ -13,8 +17,8 @@ export function insertPatient(data) {
 }
 
 /**
- * 根据ID删除患者信息
- * @param {Object} params 请求参数
+ * 根据ID删除患者信息（逻辑删除）
+ * @param {Object} params 请求参数（含患者ID）
  */
 export function deletePatientById(params) {
   return request({
@@ -25,8 +29,8 @@ export function deletePatientById(params) {
 }
 
 /**
- * 修改患者信息
- * @param {Object} data 患者信息
+ * 修改患者基础信息
+ * @param {Object} data 患者信息对象
  */
 export function updatePatient(data) {
   return request({
@@ -37,8 +41,20 @@ export function updatePatient(data) {
 }
 
 /**
- * 查询患者信息列表
- * @param {Object} params 查询条件
+ * 保存老年综合评估基本情况信息
+ * @param {Object} data 患者基本情况信息
+ */
+export function saveBasicInformation(data) {
+  return request({
+    url: '/patient/saveBasicInformation',
+    method: 'put',
+    data
+  })
+}
+
+/**
+ * 条件查询患者信息列表
+ * @param {Object} params 查询筛选条件
  */
 export function selectPatientList(params) {
   return request({
@@ -49,8 +65,8 @@ export function selectPatientList(params) {
 }
 
 /**
- * 根据ID查询患者信息
- * @param {Object} params 请求参数
+ * 根据ID查询患者详情信息
+ * @param {Object} params 请求参数（含患者ID）
  */
 export function selectPatientById(params) {
   return request({
@@ -62,7 +78,7 @@ export function selectPatientById(params) {
 
 /**
  * 查询已完成评估的患者列表
- * @param {Object} params 查询条件
+ * @param {Object} params 查询筛选条件
  */
 export function selectReportedPatientList(params) {
   return request({

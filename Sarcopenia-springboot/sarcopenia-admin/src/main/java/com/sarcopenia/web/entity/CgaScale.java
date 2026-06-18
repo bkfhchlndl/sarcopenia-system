@@ -3,48 +3,40 @@ package com.sarcopenia.web.entity;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.sarcopenia.common.annotation.Excel;
 import com.sarcopenia.common.core.domain.BaseEntity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
-import java.util.Date;
+import java.io.Serial;
 
 /**
- * 【实体】评估量表信息
- * 对应数据库表：cga_scale（量表信息表）
+ * 评估量表实体
+ * 对应数据库表：cga_scale，存储CGA评估量表基础配置
  */
 @Data
+@NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @TableName("cga_scale")
 public class CgaScale extends BaseEntity {
 
-    /** 主键ID（自增） */
+    @Serial
+    private static final long serialVersionUID = 1L;
+
+    /** 主键ID，数据库自增 */
     @TableId(type = IdType.AUTO)
     private Long id;
 
     /** 量表名称 */
-    @Excel(name = "量表名称", sort = 1)
     private String scaleName;
 
-    /** 量表编码 */
-    @Excel(name = "量表编码", sort = 2)
+    /** 量表编码，全局唯一标识 */
     private String code;
 
     /** 量表满分值 */
-    @Excel(name = "量表总分", sort = 3)
     private Integer totalScore;
 
-    /** 备注信息 */
-    @Excel(name = "备注说明", sort = 4)
-    private String remark;
-
-    /** 创建时间 */
-    @Excel(name = "创建时间", dateFormat = "yyyy-MM-dd HH:mm:ss", sort = 5)
-    private Date createTime;
-
-    /** 删除标记（0-未删除 1-已删除） */
-    @Excel(name = "删除标记", sort = 6)
+    /** 删除标记：0-未删除 1-已删除 */
     private String delFlag;
 
 }

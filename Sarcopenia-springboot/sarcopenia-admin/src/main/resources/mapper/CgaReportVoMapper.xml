@@ -2,10 +2,10 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<!-- 评估报告 Mapper XML -->
+<!-- 评估报告数据访问层XML -->
 <mapper namespace="com.sarcopenia.web.mapper.CgaReportVoMapper">
 
-    <!-- 评估报告结果集映射 -->
+    <!-- 评估报告完整结果集映射 -->
     <resultMap id="CgaReportMap" type="com.sarcopenia.web.entity.vo.CgaReportVO">
         <id column="record_id" property="recordId"/>
         <result column="patient_id" property="patientId"/>
@@ -17,43 +17,51 @@
         <result column="age" property="age"/>
         <result column="phone" property="phone"/>
         <result column="id_card" property="idCard"/>
-        <result column="address" property="address"/>
+        <result column="live_situation" property="liveSituation"/>
+        <result column="care_situation" property="careSituation"/>
+        <result column="pay_type" property="payType"/>
+        <result column="income_source" property="incomeSource"/>
         <result column="user_id" property="userId"/>
         <result column="total_score" property="totalScore"/>
         <result column="result" property="result"/>
         <result column="suggest" property="suggest"/>
+        <result column="answer_json" property="answerJson"/>
         <result column="create_time" property="createTime"/>
-        <result column="update_time" property="updateTime"/>
 
-        <!-- 评估项明细集合 -->
+        <!-- 评估项明细集合：关联各量表的得分数据 -->
         <collection property="assessmentList" ofType="com.sarcopenia.web.entity.vo.CgaReportVO$AssessmentItemVO">
             <id column="scale_id" property="scaleId"/>
             <result column="scale_name" property="scaleName"/>
             <result column="scale_code" property="scaleCode"/>
             <result column="scale_total_score" property="scaleTotalScore"/>
-            <result column="remark" property="remark"/>
             <result column="raw_score" property="rawScore"/>
+            <result column="remark" property="remark"/>
+            <!-- 注：VO中itemScore、normalRange、tip字段当前SQL未查询，如需展示请补充对应字段 -->
         </collection>
     </resultMap>
 
-    <!-- 根据患者ID删除相关评估记录（逻辑删除） -->
-    <update id="deleteReportByPatientId" parameterType="java.lang.Long">
-        update patient set is_del = 1 where id = #{patientId}
+    <!-- 根据患者ID删除关联的评估记录（逻辑删除） -->
+    <update id="deleteReportByPatientId">
+        UPDATE cga_record
+        SET del_flag = '1'
+        WHERE patient_id = #{patientId}
     </update>
 
-    <!-- 根据评估记录ID查询完整评估报告 -->
+    <!-- 根据患者ID查询最新的评估记录ID -->
     <select id="selectLatestRecordIdByPatientId" resultType="java.lang.Long">
-        select r.id
-        from cga_record r
-        where r.patient_id = #{patientId}
-          and r.del_flag = '0'
-        order by r.create_time desc, r.id desc
-        limit 1
+        SELECT r.id
+        FROM cga_record r
+        WHERE r.patient_id = #{patientId}
+          AND r.del_flag = '0'
+          AND r.scale_id IN (0, 1)
+        -- 排序规则：优先展示scale_id=0的记录，再按创建时间、ID倒序取最新
+        ORDER BY CASE WHEN r.scale_id = 0 THEN 0 ELSE 1 END, r.create_time DESC, r.id DESC
+            LIMIT 1
     </select>
 
-    <!-- 获得完整评估报告 -->
+    <!-- 根据评估记录ID查询完整的评估报告详情 -->
     <select id="getFullReport" resultMap="CgaReportMap">
-        select
+        SELECT
             report.patient_id,
             report.case_no,
             report.name,
@@ -63,12 +71,16 @@
             report.age,
             report.phone,
             report.id_card,
-            report.address,
+            report.live_situation,
+            report.care_situation,
+            report.pay_type,
+            report.income_source,
             report.record_id,
             report.user_id,
             report.total_score,
             report.result,
             report.suggest,
+            report.answer_json,
             report.create_time,
             report.update_time,
             report.scale_id,
@@ -77,59 +89,70 @@
             report.scale_total_score,
             report.remark,
             report.raw_score
-        from (
-                 select
-                     p.id as patient_id,
-                     p.case_no,
+        FROM (
+                 SELECT
+                     p.id AS patient_id,
+                     p.medical_case_no AS case_no,
                      p.name,
                      p.gender,
                      p.height,
                      p.birthday,
-                     timestampdiff(year, p.birthday, curdate()) as age,
+                     TIMESTAMPDIFF(YEAR, p.birthday, CURDATE()) AS age,
                      p.phone,
                      p.id_card,
-                     p.address,
+                     p.live_situation,
+                     p.care_situation,
+                     p.pay_type,
+                     p.income_source,
                      p.update_time,
-                     r.id as record_id,
+                     r.id AS record_id,
                      r.user_id,
                      r.total_score,
                      r.result,
                      r.suggest,
+                     r.answer_json,
                      r.create_time,
-
-                     s.id as scale_id,
+                     s.id AS scale_id,
                      s.scale_name,
-                     s.code as scale_code,
-                     s.total_score as scale_total_score,
+                     s.code AS scale_code,
+                     s.total_score AS scale_total_score,
                      s.remark,
-                     coalesce(sum(
-                                      case
-                                          when json_type(json_extract(r.answer_json, concat('$."', q.id, '"'))) = 'OBJECT'
-                                              then cast(json_unquote(json_extract(r.answer_json, concat('$."', q.id, '".score'))) as signed)
-                                          else cast(json_unquote(json_extract(r.answer_json, concat('$."', q.id, '"'))) as signed)
-                                          end
-                              ), 0) as raw_score
-                 from cga_record r
-                          left join patient p on r.patient_id = p.id
-                          left join cga_scale s on s.del_flag = '0'
-                          left join cga_question q on q.scale_id = s.id and q.del_flag = '0'
-                 where r.id = #{recordId}
-                   and r.del_flag = '0'
-                 group by
+                     -- 计算各量表原始得分：从答案JSON中提取每题分数并求和，无得分则默认0
+                     COALESCE(SUM(
+                                      CASE
+                                          -- 题目答案为对象格式时，提取对象中的score字段
+                                          WHEN JSON_TYPE(JSON_EXTRACT(r.answer_json, CONCAT('$."', q.id, '"'))) = 'OBJECT'
+                                              THEN CAST(JSON_UNQUOTE(JSON_EXTRACT(r.answer_json, CONCAT('$."', q.id, '".score'))) AS SIGNED)
+                                          -- 题目答案为直接数值格式时，直接提取值
+                                          ELSE CAST(JSON_UNQUOTE(JSON_EXTRACT(r.answer_json, CONCAT('$."', q.id, '"'))) AS SIGNED)
+                                          END
+                              ), 0) AS raw_score
+                 FROM cga_record r
+                          LEFT JOIN patient p ON r.patient_id = p.id
+                          LEFT JOIN cga_scale s ON s.del_flag = '0'
+                          LEFT JOIN cga_question q ON q.scale_id = s.id AND q.del_flag = '0'
+                 WHERE r.id = #{id}
+                   AND r.del_flag = '0'
+                 GROUP BY
                      p.id,
-                     p.case_no,
+                     p.medical_case_no,
                      p.name,
                      p.gender,
                      p.height,
                      p.birthday,
                      p.phone,
                      p.id_card,
-                     p.address,
+                     p.live_situation,
+                     p.care_situation,
+                     p.pay_type,
+                     p.income_source,
+                     p.update_time,
                      r.id,
                      r.user_id,
                      r.total_score,
                      r.result,
                      r.suggest,
+                     r.answer_json,
                      r.create_time,
                      s.id,
                      s.scale_name,
@@ -137,7 +160,7 @@
                      s.total_score,
                      s.remark
              ) report
-        order by report.scale_id
+        ORDER BY report.scale_id
     </select>
 
 </mapper>

@@ -2,50 +2,46 @@ package com.sarcopenia.web.rule.impl;
 
 import com.sarcopenia.web.rule.CgaRule;
 
+/**
+ * 阴阳型评估规则实现
+ * 适用于仅区分阳性/阴性结果的量表，判定规则：0分为阳性，非0分为阴性
+ */
 public class YinYangRule implements CgaRule {
 
-    /** 正常参考范围 */
-    private static final String NORMAL_RANGE = "-";
+    /** 正常参考范围描述 */
+    private final String normalRange;
 
-    /** 阳性提示信息 */
+    /** 阳性结果提示信息 */
     private final String positiveTip;
 
-    /** 阴性提示信息（可为空） */
+    /** 阴性结果提示信息 */
     private final String negativeTip;
 
     /**
-     * 构造阴阳型规则
-     *
-     * @param positiveTip 阳性提示（如：建议进行体能状况评估 B3）
-     * @param negativeTip 阴性提示（可为null）
+     * 构造阴阳型量表规则
+     * @param normalRange 正常参考范围描述
+     * @param positiveTip 阳性结果提示信息
+     * @param negativeTip 阴性结果提示信息
      */
-    public YinYangRule(String positiveTip, String negativeTip) {
+    public YinYangRule(String normalRange, String positiveTip, String negativeTip) {
+        this.normalRange = normalRange;
         this.positiveTip = positiveTip;
         this.negativeTip = negativeTip;
     }
-    /**
-     * 获取正常范围
-     */
+
     @Override
     public String getNormalRange() {
-        return NORMAL_RANGE;
+        return normalRange != null ? normalRange : "";
     }
 
-    /**
-     * 获得得分展示值
-     * 阴阳型返回"阳性"/"阴性"，评分型返回"X分"
-     */
     @Override
     public String formatScore(int itemScore) {
         return itemScore == 0 ? "阳性" : "阴性";
     }
 
-    /**
-     * 获取评估提示信息
-     */
     @Override
     public String getTip(int itemScore) {
-        if(itemScore == 0){
+        if (itemScore == 0) {
             return positiveTip != null ? positiveTip : "";
         }
         return negativeTip != null ? negativeTip : "";

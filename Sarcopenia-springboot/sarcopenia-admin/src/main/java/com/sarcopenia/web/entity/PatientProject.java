@@ -6,42 +6,34 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import com.sarcopenia.common.core.domain.BaseEntity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
-import java.util.Date;
+import java.io.Serial;
 
 /**
- * 【实体】项目病人关联信息
- * 对应数据库表：patient_project（项目病人表）
- *
- * 多对多关联表：一个病人可以做多个检查项目
+ * 项目患者关联实体
+ * 对应数据库表：patient_project，患者与检查项目多对多关联
  */
 @Data
+@NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @TableName("patient_project")
 public class PatientProject extends BaseEntity {
 
-    /** 主键ID（自增） */
-    @TableId(type = IdType.AUTO)
-    private Integer id;
+    @Serial
+    private static final long serialVersionUID = 1L;
 
-    /** 病人ID */
+    /** 主键ID，数据库自增 */
+    @TableId(type = IdType.AUTO)
+    private Long id;
+
+    /** 患者ID */
     private Long patientId;
 
     /** 项目ID */
     private Long projectId;
 
-    /** 创建时间 */
-    private Date createTime;
-
-    /** 更新时间 */
-    private Date updateTime;
-
-    /** 删除标志（0=正常 1=已删除） */
+    /** 删除标记：0-正常 1-已删除 */
     private String delFlag;
 
-    /** 创建者 */
-    private String createBy;
-
-    /** 更新者 */
-    private String updateBy;
 }

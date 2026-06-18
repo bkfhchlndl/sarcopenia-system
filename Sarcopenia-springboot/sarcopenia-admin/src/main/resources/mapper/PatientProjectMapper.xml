@@ -2,10 +2,10 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<!-- 项目病人关联 Mapper XML -->
+<!-- 患者项目关联 Mapper XML -->
 <mapper namespace="com.sarcopenia.web.mapper.PatientProjectMapper">
 
-    <!-- 查询项目病人关联数量 -->
+    <!-- 查询患者与项目关联记录数量 -->
     <select id="selectCount" resultType="int">
         select count(1)
         from patient_project
@@ -14,7 +14,7 @@
           and del_flag = '0'
     </select>
 
-    <!-- 新增项目病人关联 -->
+    <!-- 新增患者项目关联记录 -->
     <insert id="insertPatientProject" useGeneratedKeys="true" keyProperty="id">
         insert into patient_project (patient_id, project_id, del_flag)
         values (#{patientId}, #{projectId}, #{delFlag})

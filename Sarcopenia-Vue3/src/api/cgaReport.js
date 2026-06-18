@@ -1,7 +1,11 @@
 import request from '@/utils/request'
 
 /**
- * 根据评估记录ID获取完整报告
+ * CGA老年综合评估 - 评估报告相关API接口
+ */
+
+/**
+ * 根据评估记录ID获取完整评估报告
  * @param {Number} id 评估记录ID
  */
 export function getFullCgaReport(id) {
@@ -12,13 +16,24 @@ export function getFullCgaReport(id) {
 }
 
 /**
- * 根据患者ID获取完整报告
+ * 根据患者ID获取最新完整评估报告
  * @param {Number} patientId 患者ID
  */
 export function getFullCgaReportByPatient(patientId) {
   return request({
     url: `/cgaReportVo/getFullReportByPatient/${patientId}`,
     method: 'get'
+  })
+}
+
+/**
+ * 生成患者评估报告
+ * @param {Number} patientId 患者ID
+ */
+export function generateCgaReport(patientId) {
+  return request({
+    url: `/cgaReportVo/generateReport/${patientId}`,
+    method: 'post'
   })
 }
 

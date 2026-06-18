@@ -1,15 +1,16 @@
 package com.sarcopenia.web.service;
 
 /**
- * 项目病人关联 业务服务层
+ * 患者项目关联业务接口
+ * 处理患者与检查项目关联关系的业务逻辑
  */
 public interface PatientProjectService {
 
     /**
-     * 插入项目病人关联（如果不存在则插入，已存在则跳过）
-     * @param patientId 病人ID
+     * 不存在则新增患者项目关联记录，已存在直接跳过
+     * @param patientId 患者ID
      * @param projectId 项目ID
-     * @return 操作结果
+     * @return 新增成功返回true，已存在/失败返回false
      */
     boolean insertIfNotExists(Long patientId, Long projectId);
 }

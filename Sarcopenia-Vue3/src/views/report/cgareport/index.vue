@@ -1,161 +1,239 @@
 <template>
-  <div class="app-container report-page">
-    <el-form :model="queryParams" inline class="query-form">
-      <el-form-item label="用户ID">
-        <el-input
-            v-model="queryParams.caseNo"
-            clearable
-            placeholder="请输入用户ID"
-            @keyup.enter="getList"
-        />
-      </el-form-item>
-      <el-form-item label="姓名">
-        <el-input
-            v-model="queryParams.name"
-            clearable
-            placeholder="请输入姓名"
-            @keyup.enter="getList"
-        />
-      </el-form-item>
-      <el-form-item label="手机号">
-        <el-input
-            v-model="queryParams.phone"
-            clearable
-            placeholder="请输入手机号"
-            @keyup.enter="getList"
-        />
-      </el-form-item>
-      <el-form-item>
-        <el-button type="primary" :icon="Search" :loading="loading" @click="getList">搜索</el-button>
-        <el-button :icon="Refresh" @click="resetQuery">重置</el-button>
-      </el-form-item>
-    </el-form>
+  <div class="report-page">
+    <!-- 顶部标题栏 -->
+    <div class="hero-bar">
+      <div class="hero-left">
+        <div class="hero-icon">
+          <el-icon :size="26"><Document /></el-icon>
+        </div>
+        <div>
+          <h1>老年综合评估报告</h1>
+          <p>共 <b>{{ patientList.length }}</b> 份报告 · 支持查看、打印和 PDF 导出</p>
+        </div>
+      </div>
+    </div>
 
-    <el-table v-loading="loading" :data="patientList" border>
-      <el-table-column type="index" label="序号" width="70" align="center" />
-      <el-table-column prop="caseNo" label="用户ID" min-width="130" />
-      <el-table-column prop="name" label="姓名" min-width="110" />
-      <el-table-column label="性别" width="90" align="center">
-        <template #default="{ row }">{{ formatGender(row.gender) }}</template>
-      </el-table-column>
-      <el-table-column label="出生日期" width="130" align="center">
-        <template #default="{ row }">{{ formatDate(row.birthday) }}</template>
-      </el-table-column>
-      <el-table-column prop="phone" label="手机号" min-width="130" />
-      <el-table-column prop="address" label="家庭住址" min-width="180" show-overflow-tooltip />
-      <el-table-column label="操作" width="210" fixed="right" align="center">
-        <template #default="{ row }">
-          <el-button type="primary" link :icon="View" @click="handleView(row)">查看报告</el-button>
-          <el-button type="danger" link :icon="Delete" @click="handleDelete(row)">删除报告</el-button>
-        </template>
-      </el-table-column>
-    </el-table>
+    <!-- 搜索筛选区 -->
+    <div class="filter-card">
+      <el-form :model="queryParams" inline label-width="68px" class="filter-form">
+        <el-form-item label="姓名">
+          <el-input
+              v-model="queryParams.name"
+              placeholder="请输入姓名"
+              clearable
+              style="width: 160px"
+              @keyup.enter="getList"
+          />
+        </el-form-item>
+        <el-form-item label="手机号">
+          <el-input
+              v-model="queryParams.phone"
+              placeholder="请输入手机号"
+              clearable
+              style="width: 180px"
+              @keyup.enter="getList"
+          />
+        </el-form-item>
+        <el-form-item>
+          <el-button plain @click="resetQuery">
+            <el-icon><Refresh /></el-icon>
+            <span>重置</span>
+          </el-button>
+          <el-button type="primary" :loading="loading" @click="getList">
+            <el-icon><Search /></el-icon>
+            <span>搜索</span>
+          </el-button>
+        </el-form-item>
+      </el-form>
+    </div>
 
+    <!-- 报告列表表格 -->
+    <div class="table-card">
+      <div v-loading="loading" class="table-shell">
+        <el-table
+            :data="patientList"
+            stripe
+            border
+            row-key="id"
+            :header-cell-style="headerStyle"
+            :cell-style="cellStyle"
+            class="report-list-table"
+        >
+          <el-table-column type="index" label="序号" width="70" align="center" />
+          <el-table-column label="姓名" min-width="110" align="center">
+            <template #default="{ row }">
+              <div class="name-cell">{{ row.name || '-' }}</div>
+            </template>
+          </el-table-column>
+          <el-table-column label="性别" width="80" align="center">
+            <template #default="{ row }">
+              <el-tag :type="String(row.gender) === '2' ? 'danger' : 'primary'" effect="light" size="small">
+                {{ formatGender(row.gender) }}
+              </el-tag>
+            </template>
+          </el-table-column>
+          <el-table-column label="出生日期" min-width="145" align="center">
+            <template #default="{ row }">{{ formatDate(row.birthday) }}</template>
+          </el-table-column>
+          <el-table-column label="身份证" min-width="190" align="center" show-overflow-tooltip>
+            <template #default="{ row }">{{ row.idCard || '-' }}</template>
+          </el-table-column>
+          <el-table-column label="手机号" min-width="135" align="center">
+            <template #default="{ row }">{{ row.phone || '-' }}</template>
+          </el-table-column>
+          <el-table-column label="评估时间" min-width="170" align="center">
+            <template #default="{ row }">{{ formatDateTime(row.updateTime || row.createTime) }}</template>
+          </el-table-column>
+          <el-table-column label="操作" fixed="right" align="center" min-width="210">
+            <template #default="{ row }">
+              <el-button link type="primary" @click="handleView(row)">
+                <el-icon><View /></el-icon>
+                <span>查看报告</span>
+              </el-button>
+              <el-button link type="danger" @click="handleDelete(row)">
+                <el-icon><Delete /></el-icon>
+                <span>删除报告</span>
+              </el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+
+        <el-empty v-if="!loading && patientList.length === 0" description="暂无报告数据" />
+      </div>
+    </div>
+
+    <!-- 报告详情弹窗 -->
     <el-dialog
-      v-model="reportVisible"
-      title="老年综合评估报告"
-      width="1200px"
-      top="5vh"
-      :close-on-click-modal="false"
-      class="report-dialog"
-      append-to-body
+        v-model="reportVisible"
+        title="老年综合评估报告"
+        width="1120px"
+        top="3vh"
+        :close-on-click-modal="false"
+        class="report-dialog"
+        append-to-body
+        destroy-on-close
     >
       <div class="dialog-content">
         <el-skeleton v-if="reportLoading" :rows="10" animated />
         <el-empty v-else-if="!report" description="暂无报告数据" />
 
-        <main v-else ref="reportContentRef" class="paper">
-          <!-- 加个外层容器，统一控制边距 -->
-          <div class="report-inner">
-            <header class="report-header">
-              <div>
-                <h2>老年综合评估报告</h2>
-              </div>
-            </header>
+        <!-- A4 报告内容 -->
+        <main v-else ref="reportContentRef" class="report-paper">
+          <header class="paper-header">
+            <div class="hospital-line">
+              <span>老年综合评估中心</span>
+              <span>{{ reportDate }}</span>
+            </div>
+            <h1>老年综合评估报告单</h1>
+            <p>Comprehensive Geriatric Assessment Report</p>
+          </header>
 
-            <section class="identity-grid">
-              <div>
-                <label>病历号</label>
-                <strong>{{ report.caseNo || report.patientId || '-' }}</strong>
-              </div>
-              <div>
-                <label>姓名</label>
-                <strong>{{ report.patientName || '-' }}</strong>
-              </div>
-              <div>
-                <label>性别</label>
-                <strong>{{ formatGender(report.gender) }}</strong>
-              </div>
-              <div>
-                <label>年龄</label>
-                <strong>{{ report.age || '-' }}岁</strong>
-              </div>
-              <div>
-                <label>身高</label>
-                <strong>{{ formatHeight(report.height) }}</strong>
-              </div>
-              <div>
-                <label>评估时间</label>
-                <strong>{{ formatDate(report.updateTime) }}</strong>
-              </div>
-            </section>
+          <section class="identity-strip">
+            <div class="identity-cell">
+              <span>姓名</span>
+              <strong>{{ report.patientName || report.name || '-' }}</strong>
+            </div>
+            <div class="identity-cell">
+              <span>性别</span>
+              <strong>{{ formatGender(report.gender) }}</strong>
+            </div>
+            <div class="identity-cell">
+              <span>年龄</span>
+              <strong>{{ displayAge }}</strong>
+            </div>
+            <div class="identity-cell">
+              <span>身高</span>
+              <strong>{{ formatHeight(report.height) }}</strong>
+            </div>
+            <div class="identity-cell">
+              <span>体重</span>
+              <strong>{{ formatWeight(report.weight) }}</strong>
+            </div>
+            <div class="identity-cell wide">
+              <span>评估时间</span>
+              <strong>{{ reportDate }}</strong>
+            </div>
+          </section>
 
-            <section class="overview">
-              <div class="basic-info">
-                <h3>基本情况</h3>
-                <dl>
-                  <dt>病史记录</dt>
-                  <dd>{{ report.result || '-' }}</dd>
-                  <dt>用药评估</dt>
-                  <dd>{{ report.suggest || '-' }}</dd>
-                  <dt>家庭住址</dt>
-                  <dd>{{ report.address || '-' }}</dd>
-                </dl>
+          <section class="report-section">
+            <h2>基本情况</h2>
+            <dl class="clinical-list">
+              <div>
+                <dt>生活情况</dt>
+                <dd>{{ report.liveSituation || '暂无生活情况记录' }}</dd>
               </div>
-
-              <div class="score-card">
-                <strong>{{ report.totalScore || 0 }}</strong>
-                <span>/ 总分</span>
+              <div>
+                <dt>照顾情况</dt>
+                <dd>{{ report.careSituation || '暂无照顾情况记录' }}</dd>
               </div>
-            </section>
-
-            <section class="problem-section">
-              <h3>现存问题</h3>
-              <div v-if="problemTags.length" class="tag-list">
-                <span v-for="tag in problemTags" :key="tag">{{ tag }}</span>
+              <div>
+                <dt>医疗支付</dt>
+                <dd>{{ report.payType || '暂无医疗费用支付方式记录' }}</dd>
               </div>
-              <p v-else class="muted-text">暂无明显异常问题</p>
-            </section>
+              <div>
+                <dt>经济来源</dt>
+                <dd>{{ report.incomeSource || '暂无经济来源记录' }}</dd>
+              </div>
+            </dl>
+          </section>
 
-            <section class="assessment-section">
-              <h3>综合评估结果</h3>
-              <table>
-                <thead>
-                <tr>
-                  <th>评估内容</th>
-                  <th>评估结果</th>
-                  <th>正常范围</th>
-                  <th>提示</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr v-for="(item, index) in assessmentList" :key="item.scaleId">
-                  <td>{{ index + 1 }}. {{ item.scaleName }}</td>
-                  <td>{{ formatScore(item) }}</td>
-                  <td>{{ item.normalRange || '-' }}</td>
-                  <td>{{ item.tip || '-' }}</td>
-                </tr>
-                </tbody>
-              </table>
-            </section>
-          </div>
+          <section class="report-section">
+            <h2>现存问题</h2>
+            <div v-if="problemTags.length" class="problem-tags">
+              <span v-for="tag in problemTags" :key="tag" class="problem-tag">
+                <i>!</i>{{ tag }}
+              </span>
+            </div>
+            <div v-else class="empty-problem">暂无明显异常问题</div>
+          </section>
+
+          <section class="report-section">
+            <h2>综合评估结果</h2>
+            <table class="assessment-table">
+              <thead>
+              <tr>
+                <th class="col-name">评估内容</th>
+                <th class="col-result">评估结果</th>
+                <th class="col-normal">正常范围</th>
+                <th class="col-tip">提示</th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr
+                  v-for="(item, index) in assessmentRows"
+                  :key="item.scaleCode || index"
+                  :class="'row-' + getResultType(item)"
+              >
+                <td class="item-name">{{ index + 1 }}. {{ item._displayName }}</td>
+                <td>
+                  <span class="result-pill" :class="getResultType(item)">{{ formatResult(item) }}</span>
+                </td>
+                <td>{{ formatNormalRange(item) }}</td>
+                <td>{{ formatTip(item) }}</td>
+              </tr>
+              </tbody>
+            </table>
+          </section>
+
+          <section class="report-section">
+            <h2>综合建议</h2>
+            <p class="conclusion-text">{{ reportConclusion }}</p>
+          </section>
+
+          <section class="signature-section">
+            <div><span>评估人员签名：</span><b></b></div>
+            <div><span>审核医师签名：</span><b></b></div>
+            <div><span>评估日期：</span><b>{{ reportDate }}</b></div>
+          </section>
         </main>
       </div>
 
       <template #footer>
         <div class="dialog-footer no-print">
           <el-button @click="reportVisible = false">关闭</el-button>
-          <el-button type="success" :icon="Download" :loading="exportLoading" :disabled="!report" @click="exportPDF">导出PDF</el-button>
+          <el-button type="success" :icon="Download" :loading="exportLoading" :disabled="!report" @click="exportPDF">
+            导出PDF
+          </el-button>
           <el-button type="primary" :icon="Printer" :disabled="!report" @click="printReport">打印</el-button>
         </div>
       </template>
@@ -164,138 +242,415 @@
 </template>
 
 <script setup name="CgaReport">
-import { computed, onMounted, reactive, ref } from 'vue'
+import { computed, onActivated, onMounted, reactive, ref, watch } from 'vue'
+import { useRoute } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { Delete, Download, Printer, Refresh, Search, View } from '@element-plus/icons-vue'
+import { Delete, Document, Download, Printer, Refresh, Search, View } from '@element-plus/icons-vue'
 import html2canvas from 'html2canvas'
 import jsPDF from 'jspdf'
+
 import { deleteReportByPatientId, getFullCgaReportByPatient } from '@/api/cgaReport'
 import { selectReportedPatientList } from '@/api/patient.js'
 import { parseTime } from '@/utils/ruoyi'
 
-/** 列表加载状态 */
-const loading = ref(false)
-/** 报告加载状态 */
-const reportLoading = ref(false)
-/** 导出加载状态 */
-const exportLoading = ref(false)
-/** 报告抽屉显示状态 */
-const reportVisible = ref(false)
-/** 已评估患者列表 */
-const patientList = ref([])
-/** 报告详情数据 */
-const report = ref(null)
-/** 报告内容引用 */
-const reportContentRef = ref(null)
+const route = useRoute()
 
-/** 查询条件 */
+// ==================== 状态变量 ====================
+const loading = ref(false)
+const reportLoading = ref(false)
+const exportLoading = ref(false)
+const reportVisible = ref(false)
+const reportContentRef = ref(null)
+const lastOpenedPatientId = ref('')
+
+const patientList = ref([])
+const report = ref(null)
+
+// 查询参数
 const queryParams = reactive({
-  caseNo: '',
   name: '',
   phone: ''
 })
 
-/** 评估项目列表 */
-const assessmentList = computed(() => report.value?.assessmentList || [])
-
-/** 异常提示映射为简短标签 */
-const problemTagMap = {
-  '建议进行体能状况评估': '体能下降',
-  '应进一步到眼科评估': '视力下降',
-  '应进一步到耳鼻喉科评估': '听力下降',
-  '建议进行认知功能评估': '认知障碍风险',
-  '得分越低，风险越大': '居家环境风险',
-  '衰弱': '衰弱',
-  '重度用药': '多重用药',
-  '建议进行营养不良评估及诊断': '营养不良风险',
-  '视功能较差': '视功能下降',
-  '视功能差': '视功能严重下降',
-  '建议进行抑郁评估': '抑郁风险',
-  '建议进行焦虑评估': '焦虑风险',
-  '建议进行跌倒风险评估': '跌倒高风险',
-  '建议进行尿失禁评估': '尿失禁风险',
-  '建议进行便秘评估': '便秘',
-  '建议进行睡眠障碍评估': '睡眠障碍',
-  '建议进行慢性疼痛评估': '慢性疼痛',
-  '建议进行压力性损伤风险评估': '压力性损伤风险',
-  '建议进行吞咽障碍评估': '吞咽障碍风险',
-  '建议进行肌少症评估': '肌少症风险',
-  '建议进行营养不良评估': '营养不良风险',
-  '可能有睡眠障碍': '睡眠障碍',
+// ==================== 常量映射 ====================
+// 量表编码-名称映射
+const scaleNameMap = {
+  basic_adl: '基本日常生活活动能力',
+  instrumental_adl: '工具性日常生活活动能力',
+  exercise_function: '运动功能',
+  vision_assessment: '视力视觉功能',
+  hearing_assessment: '听力',
+  home_environment: '居家环境',
+  frail_assessment: '衰弱',
+  incontinence_screen: '尿失禁',
+  constipation_screen: '便秘',
+  chronic_pain_screen: '慢性疼痛',
+  pressure_injury_risk: '压力性损伤风险',
+  water_swallowing_test: '吞咽功能',
+  nutrition_risk_screen: '营养风险',
+  fall_risk_screen: '跌倒风险',
+  polypharmacy_assessment: '多重用药',
+  sarcopenia_screen: '微营养',
+  cognition_screen: '认知功能',
+  sleep_disorder_screen: '睡眠障碍',
+  delirium_assessment: '谵妄',
+  depression_screen: '抑郁',
+  anxiety_screen: '焦虑'
 }
 
-/** 异常问题标签（自动筛选并映射为短标签） */
-const problemTags = computed(() => {
-  const tags = new Set()
-  assessmentList.value.forEach(item => {
-    if (!item.tip) return
+// 量表默认正常范围映射
+const defaultNormalRangeMap = {
+  basic_adl: '无依赖',
+  instrumental_adl: '无依赖',
+  exercise_function: '运动功能正常',
+  vision_assessment: '筛查阴性',
+  hearing_assessment: '筛查阴性',
+  home_environment: '无明显风险',
+  frail_assessment: '无衰弱',
+  incontinence_screen: '阴性',
+  constipation_screen: '阴性',
+  chronic_pain_screen: '阴性',
+  pressure_injury_risk: '无风险',
+  water_swallowing_test: '阴性',
+  nutrition_risk_screen: '无营养风险',
+  fall_risk_screen: '无跌倒风险',
+  polypharmacy_assessment: '无多重用药',
+  sarcopenia_screen: '阴性',
+  cognition_screen: '阴性',
+  sleep_disorder_screen: '阴性',
+  delirium_assessment: '阴性',
+  depression_screen: '阴性',
+  anxiety_screen: '阴性'
+}
 
-    // 匹配映射表
-    for (const [key, value] of Object.entries(problemTagMap)) {
-      if (item.tip.includes(key)) {
-        tags.add(value)
-        return
-      }
-    }
-
-    // 没匹配到的，如果包含"建议"或"风险"也加入
-    if (item.tip.includes('建议') || item.tip.includes('风险') || item.tip.includes('阳性')) {
-      const shortTip = item.tip.replace(/建议进行|评估|WS\/T\d+\s*[A-Z]\d?/g, '').trim()
-      tags.add(shortTip || '需关注')
-    }
-  })
-  return Array.from(tags)
+// ==================== 计算属性 ====================
+// 报告日期
+const reportDate = computed(() => {
+  return formatDate(report.value?.createTime || report.value?.updateTime)
 })
 
-// ===================== 格式化工具 =====================
-/** 性别格式化 */
+// 展示年龄
+const displayAge = computed(() => {
+  // 优先取接口返回的年龄
+  if (report.value?.age || report.value?.age === 0) {
+    return `${report.value.age}岁`
+  }
+  // 根据出生日期计算
+  const birthday = report.value?.birthday
+  if (!birthday) return '-'
+  const birth = new Date(birthday)
+  if (Number.isNaN(birth.getTime())) return '-'
+
+  const today = new Date()
+  let age = today.getFullYear() - birth.getFullYear()
+  const monthDiff = today.getMonth() - birth.getMonth()
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+    age--
+  }
+  return `${Math.max(age, 0)}岁`
+})
+
+// 评估项列表（过滤未作答项）
+const assessmentRows = computed(() => {
+  return (report.value?.assessmentList || [])
+      .map(buildItem)
+      .filter(item => item._answered)
+})
+
+// 已完成评估项数
+const completedCount = computed(() => assessmentRows.value.length)
+
+// 异常项数
+const abnormalCount = computed(() => {
+  return assessmentRows.value.filter(item => getResultType(item) === 'positive').length
+})
+
+// 问题标签列表
+const problemTags = computed(() => {
+  return assessmentRows.value
+      .filter(item => getResultType(item) === 'positive')
+      .map(item => normalizeProblemName(item))
+})
+
+// 综合结论文案
+const reportConclusion = computed(() => {
+  const done = completedCount.value
+  const abn = abnormalCount.value
+
+  if (done === 0) {
+    return '患者本次尚未完成评估项目，请先完成评估后再查看报告。'
+  }
+  if (abn === 0) {
+    return `患者本次共完成${done}项评估，暂未发现明显异常问题，建议保持现有活动能力和健康管理方式，定期随访复评。`
+  }
+  return `患者本次共完成${done}项评估，发现${abn}项现存问题。建议结合评估结果完善专项干预、康复训练和随访管理，由医护人员制定个体化处理方案。`
+})
+
+// ==================== 工具函数 ====================
+/**
+ * 构建评估项展示数据
+ */
+function buildItem(raw) {
+  const code = raw?.scaleCode || ''
+  return {
+    ...raw,
+    scaleCode: code,
+    _displayName: scaleNameMap[code] || raw?.scaleName || '未命名项目',
+    _answered: true,
+    normalRange: raw?.normalRange || defaultNormalRangeMap[code] || '-',
+    itemScore: raw?.itemScore || raw?.result || '',
+    tip: raw?.tip || raw?.suggest || ''
+  }
+}
+
+/**
+ * 表格头部样式
+ */
+function headerStyle() {
+  return {
+    background: '#f1f5f9',
+    color: '#334155',
+    fontWeight: 700,
+    height: '48px'
+  }
+}
+
+/**
+ * 表格单元格样式
+ */
+function cellStyle() {
+  return {
+    color: '#334155',
+    height: '52px'
+  }
+}
+
+/**
+ * 格式化性别展示
+ */
 function formatGender(gender) {
-  if (gender === '1' || gender === 1) return '男'
-  if (gender === '2' || gender === 2) return '女'
+  if (String(gender) === '1') return '男'
+  if (String(gender) === '2') return '女'
   return '-'
 }
 
-/** 日期格式化 */
+/**
+ * 格式化日期（年月日）
+ */
 function formatDate(value) {
   if (!value) return '-'
-  if (typeof value === 'string') return value.slice(0, 10)
   return parseTime(value, '{y}-{m}-{d}') || '-'
 }
 
-/** 身高格式化 */
+/**
+ * 格式化日期时间（年月日时分）
+ */
+function formatDateTime(value) {
+  if (!value) return '-'
+  return parseTime(value, '{y}-{m}-{d} {h}:{i}') || '-'
+}
+
+/**
+ * 格式化身高展示
+ */
 function formatHeight(value) {
   return value || value === 0 ? `${value}cm` : '-'
 }
 
-/** 分数格式化：筛查项显示阴阳，评分项显示分数 */
-function formatScore(item) {
-  // 这些项目显示 阴性/阳性
-  const yinYangList = [
-    'exercise',
-    'depression',
-    'anxiety',
-    'fall',
-    'incontinence',
-    'constipation',
-    'sleep',
-    'chronic',
-    'pressure',
-    'swallow',
-    'sarcopenia',
-    'delirium'
-  ]
-
-  // 如果是阴阳项目
-  if (yinYangList.includes(item.scaleCode)) {
-    return item.itemScore === 0 ? '阳性' : '阴性'
-  }
-
-  // 其他显示分数（后端已返回"X分"格式，直接显示）
-  return item.itemScore != null ? item.itemScore : '-'
+/**
+ * 格式化体重展示
+ */
+function formatWeight(value) {
+  return value || value === 0 ? `${value}kg` : '-'
 }
 
-// ===================== 列表查询 =====================
-/** 获取已评估患者列表 */
+/**
+ * 判断文本是否包含阴性关键词
+ */
+function hasNegativeWord(text) {
+  const negativeWords = ['阴性', '正常', '无依赖', '无异常', '无衰弱', '无风险', '良好', '无多重用药', '无需进行专项评估']
+  return negativeWords.some(word => text.includes(word))
+}
+
+/**
+ * 判断文本是否包含阳性关键词
+ */
+function hasPositiveWord(text) {
+  const positiveWords = ['阳性', '依赖', '异常', '障碍', '下降', '风险', '衰弱', '疼痛', '便秘', '失禁', '抑郁', '焦虑', '营养不良', '轻度多重用药', '重度多重用药', '应进行', '应进一步', '建议进行']
+  return positiveWords.some(word => text.includes(word))
+}
+
+/**
+ * 获取评估结果类型（阳性/阴性/待完成）
+ */
+function getResultType(item) {
+  if (!item._answered) return 'pending'
+
+  const text = `${item.itemScore || ''} ${item.tip || ''} ${item.remark || ''}`
+  // 先判断阴性，排除正常表述
+  if (hasNegativeWord(text) && !hasPositiveWord(text.replace(/无依赖|无异常|无风险|无衰弱|无多重用药/g, ''))) {
+    return 'negative'
+  }
+  // 再判断阳性
+  if (hasPositiveWord(text)) return 'positive'
+
+  // 原始得分兜底判断
+  if (item.rawScore !== null && item.rawScore !== undefined && !Number.isNaN(Number(item.rawScore))) {
+    return Number(item.rawScore) === 0 ? 'positive' : 'negative'
+  }
+
+  return 'negative'
+}
+
+/**
+ * 格式化评估结果展示
+ */
+function formatResult(item) {
+  if (!item._answered) return '未完成'
+
+  const result = String(item.itemScore || '').trim()
+  // 多重用药特殊处理
+  if (item.scaleCode === 'polypharmacy_assessment' && /^\d+分$/.test(result)) {
+    return formatPolypharmacyResult(item)
+  }
+  if (result) return result
+
+  // 无得分时根据类型返回
+  const type = getResultType(item)
+  if (type === 'positive') return '阳性'
+  if (type === 'negative') return '阴性'
+  return '未完成'
+}
+
+/**
+ * 格式化多重用药结果
+ */
+function formatPolypharmacyResult(item) {
+  const text = `${item.itemScore || ''} ${item.tip || ''}`
+  const matched = text.match(/无多重用药|轻度多重用药|重度多重用药|重度用药/)
+
+  if (matched) {
+    return matched[0] === '重度用药' ? '重度多重用药' : matched[0]
+  }
+
+  const score = Number(item.rawScore)
+  if (Number.isNaN(score)) return String(item.itemScore || '').trim()
+  if (score >= 2) return '无多重用药'
+  if (score === 1) return '轻度多重用药'
+  return '重度多重用药'
+}
+
+/**
+ * 格式化正常范围展示
+ */
+function formatNormalRange(item) {
+  const normalRange = String(item.normalRange || '').trim()
+  if (normalRange && !['已完成评估', '已完成专项评估'].includes(normalRange)) {
+    return normalRange
+  }
+  return defaultNormalRangeMap[item.scaleCode] || '-'
+}
+
+/**
+ * 格式化评估提示文案
+ */
+function formatTip(item) {
+  const tip = String(item.tip || '').trim()
+  if (tip) return tip
+
+  const result = formatResult(item)
+  if (getResultType(item) === 'negative') {
+    if (result && !['阴性', '正常'].includes(result)) {
+      return `${item._displayName}${result}，建议保持现有状态，定期随访复评。`
+    }
+    return '未见明显异常，建议定期随访复评。'
+  }
+  return '提示存在相关风险，建议结合专项评估结果进一步处理。'
+}
+
+/**
+ * 标准化问题名称展示
+ */
+function normalizeProblemName(item) {
+  const result = formatResult(item)
+  const name = item._displayName.replace(/评估|筛查/g, '')
+  if (result && !['阳性', '阴性', '正常', '未完成'].includes(result)) {
+    return result
+  }
+  return name
+}
+
+/**
+ * 生成报告PDF文件名
+ */
+function getReportFileName() {
+  const name = report.value?.patientName || report.value?.name || 'report'
+  return `老年综合评估报告-${name}-${formatDate(new Date())}.pdf`
+}
+
+/**
+ * 获取报告DOM元素（带校验）
+ */
+function getReportElement() {
+  if (!report.value || !reportContentRef.value) {
+    ElMessage.warning('报告内容未加载')
+    return null
+  }
+  return reportContentRef.value
+}
+
+/**
+ * 报告打印样式字符串
+ */
+function reportPaperCss() {
+  return `
+    .report-paper { width: 210mm; min-height: 297mm; margin: 0 auto; padding: 18mm; background: #fff; color: #1f2937; font-family: "Microsoft YaHei", Arial, sans-serif; }
+    .paper-header { border-bottom: 2px solid #0f6b85; padding-bottom: 14px; text-align: center; }
+    .hospital-line { display: flex; justify-content: space-between; color: #607080; font-size: 12px; }
+    .paper-header h1 { margin: 16px 0 4px; color: #0f2f44; font-size: 28px; letter-spacing: 2px; }
+    .paper-header p { margin: 0; color: #6b7280; font-size: 12px; }
+    .identity-strip { display: grid; grid-template-columns: repeat(6, 1fr); margin-top: 16px; border: 1px solid #cbd5df; }
+    .identity-cell { min-height: 42px; padding: 7px 10px; border-right: 1px solid #cbd5df; background: #f8fbfd; }
+    .identity-cell.wide { grid-column: span 2; }
+    .identity-cell span { display: block; color: #7b8794; font-size: 11px; }
+    .identity-cell strong { display: block; margin-top: 3px; color: #20242a; font-size: 13px; }
+    .report-section { margin-top: 16px; padding: 14px 18px; border: 1px solid #d8e3ea; }
+    .report-section h2 { margin: 0 0 12px; padding-left: 10px; border-left: 4px solid #0f7895; color: #0f2f44; font-size: 17px; }
+    .clinical-list { margin: 0; }
+    .clinical-list div { display: grid; grid-template-columns: 110px 1fr; padding: 11px 0; border-bottom: 1px solid #edf2f6; }
+    .clinical-list div:last-child { border-bottom: 0; }
+    .clinical-list dt { color: #8793a1; }
+    .clinical-list dd { margin: 0; color: #303740; }
+    .problem-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+    .problem-tag { display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; border: 1px solid #facaca; background: #fff5f5; color: #bf3b3b; font-size: 12px; }
+    .problem-tag i { display: inline-flex; align-items: center; justify-content: center; width: 16px; height: 16px; border-radius: 50%; background: #d94a4a; color: #fff; font-style: normal; font-weight: 700; }
+    .empty-problem { color: #6f7a88; font-size: 13px; }
+    .assessment-table { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 12px; }
+    .assessment-table th { padding: 9px 10px; border: 1px solid #aebfcb; background: #e8f1f4; color: #102a43; text-align: left; }
+    .assessment-table td { padding: 8px 10px; border: 1px solid #cfd9e1; line-height: 1.65; vertical-align: top; word-break: break-word; }
+    .assessment-table .col-name { width: 28%; }
+    .assessment-table .col-result { width: 18%; }
+    .assessment-table .col-normal { width: 24%; }
+    .assessment-table .col-tip { width: 30%; }
+    .assessment-table .item-name { font-weight: 700; color: #20242a; }
+    .assessment-table tr.row-positive td { background: #fffafa; }
+    .assessment-table tr.row-positive .item-name { border-left: 3px solid #d84a4a; }
+    .assessment-table tr.row-negative .item-name { border-left: 3px solid #2f855a; }
+    .result-pill { display: inline-flex; padding: 3px 8px; border: 1px solid #d7dde5; background: #f7f9fb; }
+    .result-pill.positive { border-color: #f1c7c7; background: #fff1f1; color: #a12b2b; }
+    .result-pill.negative { border-color: #b9ddc4; background: #f1fbf4; color: #24653a; }
+    .conclusion-text { margin: 0; line-height: 1.9; text-indent: 2em; }
+    .signature-section { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 22px; padding-top: 14px; border-top: 1px solid #d7dde5; }
+    .signature-section div { display: flex; gap: 8px; align-items: center; }
+    .signature-section b { flex: 1; min-height: 24px; border-bottom: 1px solid #9aa5b1; }
+    @media print { body { margin: 0; background: #fff; } .report-paper { width: auto; min-height: auto; padding: 12mm; } }
+  `
+}
+
+// ==================== 业务方法 ====================
+/**
+ * 获取报告列表
+ */
 async function getList() {
   loading.value = true
   try {
@@ -306,22 +661,26 @@ async function getList() {
   }
 }
 
-/** 重置查询条件 */
+/**
+ * 重置查询条件
+ */
 function resetQuery() {
-  queryParams.caseNo = ''
   queryParams.name = ''
   queryParams.phone = ''
   getList()
 }
 
-// ===================== 报告操作 =====================
-/** 查看报告详情 */
+/**
+ * 查看报告详情
+ */
 async function handleView(row) {
   reportLoading.value = true
   reportVisible.value = true
   report.value = null
+
   try {
-    const res = await getFullCgaReportByPatient(row.id)
+    const patientId = row.patientId || row.id
+    const res = await getFullCgaReportByPatient(patientId)
     report.value = res.data || null
   } catch (error) {
     report.value = null
@@ -331,535 +690,511 @@ async function handleView(row) {
   }
 }
 
-/** 删除报告 */
+/**
+ * 根据路由参数自动打开报告
+ */
+async function openReportFromQuery() {
+  if (String(route.query.openReport || '') !== '1') return
+  const patientId = route.query.patientId ? String(route.query.patientId) : ''
+  if (!patientId) return
+  // 重复打开拦截
+  if (lastOpenedPatientId.value === patientId && reportVisible.value) return
+
+  lastOpenedPatientId.value = patientId
+  await handleView({ id: patientId })
+}
+
+/**
+ * 删除患者报告
+ */
 async function handleDelete(row) {
-  await ElMessageBox.confirm(`确定删除 ${row.name || '该患者'} 的报告吗？`, '提示', {
-    type: 'warning'
-  })
-  await deleteReportByPatientId(row.id)
-  ElMessage.success('删除成功')
-  getList()
-}
-
-function getReportElement() {
-  if (!report.value || !reportContentRef.value) {
-    ElMessage.warning('报告内容未加载')
-    return null
-  }
-  return reportContentRef.value
-}
-
-function getReportFileName() {
-  const name = report.value?.patientName || report.value?.caseNo || 'report'
-  return `老年综合评估报告_${name}_${formatDate(new Date())}`
-}
-
-function getPrintStyle() {
-  return `
-    @page {
-      size: A4;
-      margin: 8mm 9mm;
-    }
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      background: #fff;
-      color: #30343b;
-      font-family: "Microsoft YaHei", "PingFang SC", "Helvetica Neue", Arial, sans-serif;
-      line-height: 1.35;
-      -webkit-print-color-adjust: exact;
-      print-color-adjust: exact;
-    }
-    .paper {
-      width: auto;
-      max-width: 192mm;
-      background: #fff;
-      margin: 0 auto;
-      padding: 0;
-    }
-    .report-inner {
-      width: 100%;
-      margin: 0;
-    }
-    .report-header {
-      padding-bottom: 10px;
-      border-bottom: 2px solid #555b63;
-      text-align: center;
-    }
-    .report-header h2 {
-      margin: 0;
-      color: #30343b;
-      font-size: 22px;
-      font-weight: 600;
-    }
-    .identity-grid {
-      display: grid;
-      grid-template-columns: repeat(6, minmax(0, 1fr));
-      gap: 6px 14px;
-      padding: 12px 0 8px;
-    }
-    .identity-grid label {
-      display: block;
-      margin-bottom: 2px;
-      color: #6f7782;
-      font-size: 11px;
-    }
-    .identity-grid strong {
-      color: #3d424a;
-      font-size: 13px;
-    }
-    .overview {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) 92px;
-      gap: 16px;
-      align-items: center;
-      margin-top: 8px;
-    }
-    h3 {
-      margin: 0 0 8px;
-      color: #3b414a;
-      font-size: 15px;
-      font-weight: 600;
-    }
-    dl {
-      display: grid;
-      grid-template-columns: 75px minmax(0, 1fr);
-      margin: 0;
-    }
-    dt,
-    dd {
-      min-height: 23px;
-      margin: 0;
-      padding: 4px 8px;
-      border-bottom: 1px solid #edf0f3;
-      font-size: 12px;
-      line-height: 1.35;
-    }
-    dt {
-      background: #f4f5f7;
-      color: #59616d;
-      font-weight: 700;
-    }
-    dd {
-      color: #333941;
-    }
-    .score-card {
-      text-align: center;
-      color: #747b84;
-    }
-    .score-card strong {
-      display: block;
-      color: #505762;
-      font-size: 34px;
-      line-height: 1;
-    }
-    .score-card span {
-      display: block;
-      margin-top: 2px;
-      font-size: 12px;
-    }
-    .problem-section {
-      margin-top: 14px;
-    }
-    .tag-list {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 7px 9px;
-    }
-    .tag-list span {
-      display: inline-block;
-      padding: 3px 8px;
-      background: #fef2f2;
-      border: 1px solid #fecaca;
-      border-radius: 14px;
-      color: #991b1b;
-      font-size: 11px;
-      font-weight: 500;
-    }
-    .muted-text {
-      color: #78818d;
-      font-size: 12px;
-    }
-    .assessment-section {
-      margin-top: 14px;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      table-layout: fixed;
-      font-size: 11px;
-    }
-    thead { display: table-header-group; }
-    th {
-      padding: 6px 8px;
-      background: #edf0f3;
-      color: #59616d;
-      text-align: left;
-      font-size: 11px;
-      font-weight: 600;
-    }
-    td {
-      padding: 5px 8px;
-      border-bottom: 1px solid #e9edf1;
-      color: #343a43;
-      line-height: 1.28;
-    }
-    th:nth-child(1), td:nth-child(1) { width: 26%; }
-    th:nth-child(2), td:nth-child(2) { width: 10%; }
-    th:nth-child(3), td:nth-child(3) { width: 14%; }
-    th:nth-child(4), td:nth-child(4) { width: 50%; }
-    tr,
-    .overview,
-    .problem-section {
-      break-inside: avoid;
-      page-break-inside: avoid;
-    }
-  `
-}
-
-function getPdfStyle() {
-  return `
-    ${getPrintStyle()}
-    @page { size: A4; margin: 0; }
-    .paper {
-      width: 210mm;
-      max-width: 210mm;
-      margin: 0;
-      padding: 10mm 10mm 8mm;
-    }
-    th:nth-child(1), td:nth-child(1) { width: 28%; }
-    th:nth-child(2), td:nth-child(2) { width: 10%; }
-    th:nth-child(3), td:nth-child(3) { width: 18%; }
-    th:nth-child(4), td:nth-child(4) { width: 44%; }
-  `
-}
-
-/** 打印报告 */
-function printReport() {
-  const reportElement = getReportElement()
-  if (!reportElement) return
-
-  const printWindow = window.open('', '_blank', 'width=980,height=720')
-  if (!printWindow) {
-    ElMessage.warning('请允许打开新窗口')
-    return
-  }
-
-  printWindow.document.write(`
-    <!DOCTYPE html>
-    <html>
-      <head>
-        <meta charset="UTF-8">
-        <title>${getReportFileName()}</title>
-        <style>${getPrintStyle()}</style>
-      </head>
-      <body>${reportElement.outerHTML}</body>
-    </html>
-  `)
-  printWindow.document.close()
-
-  printWindow.onload = () => {
-    printWindow.focus()
-    printWindow.print()
+  try {
+    await ElMessageBox.confirm(
+        `确定删除 ${row.name || '该患者'} 的报告吗？`,
+        '删除提示',
+        { type: 'warning', confirmButtonText: '确定删除', cancelButtonText: '取消' }
+    )
+    await deleteReportByPatientId(row.id)
+    ElMessage.success('删除成功')
+    getList()
+  } catch {
+    // 用户取消操作，不做处理
   }
 }
 
-/** 导出PDF（单页A4，字体清晰版） */
+/**
+ * 导出报告为PDF
+ */
 async function exportPDF() {
-  const reportElement = getReportElement()
-  if (!reportElement) return
+  const el = getReportElement()
+  if (!el) return
 
   exportLoading.value = true
-  const renderContainer = document.createElement('div')
   try {
-    renderContainer.style.position = 'fixed'
-    renderContainer.style.left = '-10000px'
-    renderContainer.style.top = '0'
-    renderContainer.style.width = '210mm'
-    renderContainer.style.background = '#fff'
-    renderContainer.innerHTML = `<style>${getPdfStyle()}</style>${reportElement.outerHTML}`
-    document.body.appendChild(renderContainer)
-
-    const renderElement = renderContainer.querySelector('.paper') || reportElement
-
-    const canvas = await html2canvas(renderElement, {
-      backgroundColor: '#ffffff',
-      scale: 3,
+    const canvas = await html2canvas(el, {
+      scale: 2,
       useCORS: true,
-      logging: false,
-      width: renderElement.scrollWidth,
-      height: renderElement.scrollHeight,
-      imageTimeout: 0,
-      removeContainer: true
+      backgroundColor: '#ffffff'
     })
 
     const pdf = new jsPDF('p', 'mm', 'a4')
     const pageWidth = pdf.internal.pageSize.getWidth()
     const pageHeight = pdf.internal.pageSize.getHeight()
-    const pdfMarginX = 7
-    const pdfMarginTop = 8
-    const pdfMarginBottom = 7
-    const availableWidth = pageWidth - pdfMarginX * 2
-    const availableHeight = pageHeight - pdfMarginTop - pdfMarginBottom
+    const imgWidth = pageWidth - 20
+    const imgHeight = (canvas.height * imgWidth) / canvas.width
 
-    const scale = Math.min(availableWidth / canvas.width, availableHeight / canvas.height)
-    const imgWidth = canvas.width * scale
-    const imgHeight = canvas.height * scale
-    const offsetX = pdfMarginX + (availableWidth - imgWidth) / 2
-    const offsetY = pdfMarginTop + (availableHeight - imgHeight) / 2
+    let heightLeft = imgHeight
+    let position = 10
+    const imgData = canvas.toDataURL('image/jpeg', 0.95)
 
-    pdf.addImage(
-        canvas.toDataURL('image/png'),
-        'PNG',
-        offsetX,
-        offsetY,
-        imgWidth,
-        imgHeight
-    )
+    pdf.addImage(imgData, 'JPEG', 10, position, imgWidth, imgHeight)
+    heightLeft -= pageHeight
 
-    pdf.save(`${getReportFileName()}.pdf`)
-  } catch (error) {
-    ElMessage.error(error.message || 'PDF导出失败')
+    // 超长内容分页
+    while (heightLeft > 0) {
+      position = heightLeft - imgHeight + 10
+      pdf.addPage()
+      pdf.addImage(imgData, 'JPEG', 10, position, imgWidth, imgHeight)
+      heightLeft -= pageHeight
+    }
+
+    pdf.save(getReportFileName())
   } finally {
-    renderContainer.remove()
     exportLoading.value = false
   }
 }
 
-/** 页面初始化 */
-onMounted(getList)
+/**
+ * 打印报告
+ */
+function printReport() {
+  const el = getReportElement()
+  if (!el) return
+
+  const printWindow = window.open('', '_blank')
+  if (!printWindow) {
+    ElMessage.error('浏览器阻止了打印窗口，请允许弹窗后重试')
+    return
+  }
+
+  printWindow.document.write(`
+    <html>
+      <head>
+        <title>老年综合评估报告</title>
+        <style>${reportPaperCss()}</style>
+      </head>
+      <body>${el.outerHTML}</body>
+    </html>
+  `)
+  printWindow.document.close()
+  printWindow.focus()
+
+  // 等待样式加载后打印
+  setTimeout(() => {
+    printWindow.print()
+    printWindow.close()
+  }, 300)
+}
+
+// ==================== 生命周期 & 监听 ====================
+onMounted(async () => {
+  await getList()
+  await openReportFromQuery()
+})
+
+onActivated(async () => {
+  await openReportFromQuery()
+})
+
+watch(
+    () => route.query.openReport,
+    async () => {
+      await openReportFromQuery()
+    }
+)
 </script>
 
 <style scoped lang="scss">
 .report-page {
   min-height: calc(100vh - 84px);
+  padding: 24px 28px 40px;
+  background:
+      radial-gradient(1200px 500px at 10% -20%, rgba(59, 130, 246, 0.08), transparent 60%),
+      radial-gradient(1000px 400px at 110% 20%, rgba(99, 102, 241, 0.08), transparent 60%),
+      linear-gradient(180deg, #f7faff 0%, #eef3fb 100%);
 }
 
-.query-form {
-  margin-bottom: 12px;
-}
-
-.dialog-content {
-  max-height: 80vh;
-  overflow-y: auto;
-  padding: 0 20px;
-}
-
-.dialog-footer {
+/* ========== 顶部标题栏 ========== */
+.hero-bar {
   display: flex;
-  justify-content: flex-end;
-  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 22px 28px;
+  margin-bottom: 20px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, #ffffff 0%, #f5f7ff 100%);
+  border: 1px solid rgba(99, 102, 241, 0.12);
+  box-shadow: 0 10px 28px rgba(30, 41, 59, 0.06);
 }
 
-.paper {
-  width: 210mm;
-  min-height: 297mm;
+.hero-left {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+
+  h1 {
+    margin: 0;
+    font-size: 22px;
+    color: #1e293b;
+    font-weight: 700;
+  }
+
+  p {
+    margin: 4px 0 0;
+    font-size: 13px;
+    color: #64748b;
+
+    b {
+      color: #3b82f6;
+      font-weight: 600;
+      margin: 0 2px;
+    }
+  }
+}
+
+.hero-icon {
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 16px;
+  color: #fff;
+  background: linear-gradient(135deg, #0ea5e9 0%, #3b82f6 100%);
+  box-shadow: 0 10px 24px rgba(14, 165, 233, 0.28);
+}
+
+/* ========== 筛选区 ========== */
+.filter-card {
   background: #fff;
-  margin: 0 auto;
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  border-radius: 18px;
+  padding: 18px 22px 4px;
+  margin-bottom: 20px;
+  box-shadow: 0 8px 24px rgba(30, 41, 59, 0.04);
+}
+
+.filter-form :deep(.el-input__wrapper),
+.filter-form :deep(.el-select__wrapper),
+.filter-form :deep(.el-date-editor) {
+  border-radius: 10px;
+}
+
+/* ========== 表格区 ========== */
+.table-card {
+  background: #fff;
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  border-radius: 18px;
+  padding: 6px 6px 4px;
+  box-shadow: 0 8px 24px rgba(30, 41, 59, 0.04);
+  overflow: hidden;
+}
+
+.table-shell {
+  padding: 14px 14px 8px;
+}
+
+.name-cell {
+  display: inline-flex;
+  align-items: center;
+  color: #1e293b;
+  font-weight: 600;
+}
+
+/* ========== 弹窗 ========== */
+.dialog-content {
+  max-height: 72vh;
+  overflow: auto;
+  background: #eef3f8;
+  padding: 18px 0;
+}
+
+:deep(.report-dialog .el-dialog__body) {
   padding: 0;
 }
 
-.report-inner {
-  width: 190mm;
-  margin: 10px auto;
+:deep(.report-list-table .el-button) {
+  font-weight: 600;
 }
 
-.report-header {
-  padding-bottom: 12px;
-  border-bottom: 3px solid #555b63;
+/* ========== A4 报告样式 ========== */
+:deep(.report-paper) {
+  width: 210mm;
+  min-height: 297mm;
+  margin: 0 auto;
+  padding: 18mm;
+  background: #fff;
+  color: #1f2937;
+  font-family: "Microsoft YaHei", Arial, sans-serif;
 }
 
-.report-header h2 {
-  margin: 0;
-  color: #30343b;
-  font-size: 20px;
+:deep(.paper-header) {
+  border-bottom: 2px solid #0f6b85;
+  padding-bottom: 14px;
+  text-align: center;
 }
 
-.identity-grid {
-  display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
-  gap: 16px;
-  padding: 16px 0 12px;
-}
-
-.identity-grid label {
-  display: block;
-  margin-bottom: 4px;
-  color: #6f7782;
+:deep(.hospital-line) {
+  display: flex;
+  justify-content: space-between;
+  color: #607080;
   font-size: 12px;
 }
 
-.identity-grid strong {
-  color: #3d424a;
-  font-size: 14px;
+:deep(.paper-header h1) {
+  margin: 16px 0 4px;
+  color: #0f2f44;
+  font-size: 28px;
+  letter-spacing: 2px;
 }
 
-.overview {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 180px;
-  gap: 24px;
-  align-items: center;
-  margin-top: 8px;
-}
-
-.paper h3 {
-  margin: 0 0 12px;
-  color: #3b414a;
-  font-size: 16px;
-}
-
-dl {
-  display: grid;
-  grid-template-columns: 100px minmax(0, 1fr);
+:deep(.paper-header p) {
   margin: 0;
+  color: #6b7280;
+  font-size: 12px;
 }
 
-dt,
-dd {
-  min-height: 40px;
-  margin: 0;
-  padding: 10px 12px;
-  border-bottom: 1px solid #edf0f3;
+:deep(.identity-strip) {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  margin-top: 16px;
+  border: 1px solid #cbd5df;
+}
+
+:deep(.identity-cell) {
+  min-height: 42px;
+  padding: 7px 10px;
+  border-right: 1px solid #cbd5df;
+  background: #f8fbfd;
+}
+
+:deep(.identity-cell.wide) {
+  grid-column: span 2;
+}
+
+:deep(.identity-cell span) {
+  display: block;
+  color: #7b8794;
+  font-size: 11px;
+}
+
+:deep(.identity-cell strong) {
+  display: block;
+  margin-top: 3px;
+  color: #20242a;
   font-size: 13px;
 }
 
-dt {
-  background: #f4f5f7;
-  color: #59616d;
-  font-weight: 700;
+:deep(.report-section) {
+  margin-top: 16px;
+  padding: 14px 18px;
+  border: 1px solid #d8e3ea;
 }
 
-dd {
-  color: #333941;
+:deep(.report-section h2) {
+  margin: 0 0 12px;
+  padding-left: 10px;
+  border-left: 4px solid #0f7895;
+  color: #0f2f44;
+  font-size: 17px;
 }
 
-.score-card {
-  text-align: center;
-  color: #747b84;
+:deep(.clinical-list) {
+  margin: 0;
 }
 
-.score-card strong {
-  display: block;
-  color: #505762;
-  font-size: 60px;
-  line-height: 1;
+:deep(.clinical-list div) {
+  display: grid;
+  grid-template-columns: 110px 1fr;
+  padding: 11px 0;
+  border-bottom: 1px solid #edf2f6;
 }
 
-.score-card span {
-  display: block;
-  margin-top: 6px;
-  font-size: 12px;
+:deep(.clinical-list div:last-child) {
+  border-bottom: 0;
 }
 
-.problem-section {
-  margin-top: 36px;
+:deep(.clinical-list dt) {
+  color: #8793a1;
 }
 
-.tag-list {
+:deep(.clinical-list dd) {
+  margin: 0;
+  color: #303740;
+}
+
+:deep(.problem-tags) {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
 }
 
-.tag-list span {
-  display: inline-block;
-  padding: 6px 12px;
-  background: #fef2f2;
-  border: 1px solid #fecaca;
-  border-radius: 16px;
-  color: #991b1b;
+:deep(.problem-tag) {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  border: 1px solid #facaca;
+  background: #fff5f5;
+  color: #bf3b3b;
+  font-size: 12px;
+}
+
+:deep(.problem-tag i) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #d94a4a;
+  color: #fff;
+  font-style: normal;
+  font-weight: 700;
+}
+
+:deep(.empty-problem) {
+  color: #6f7a88;
   font-size: 13px;
-  font-weight: 500;
 }
 
-.assessment-section {
-  margin-top: 40px;
-}
-
-table {
+:deep(.assessment-table) {
   width: 100%;
   border-collapse: collapse;
   table-layout: fixed;
+  font-size: 12px;
 }
 
-th {
-  padding: 10px 12px;
-  background: #edf0f3;
-  color: #59616d;
-  font-size: 13px;
+:deep(.assessment-table th) {
+  padding: 9px 10px;
+  border: 1px solid #aebfcb;
+  background: #e8f1f4;
+  color: #102a43;
   text-align: left;
 }
 
-td {
-  padding: 10px 12px;
-  border-bottom: 1px solid #e9edf1;
-  color: #343a43;
-  font-size: 14px;
-  line-height: 1.4;
+:deep(.assessment-table td) {
+  padding: 8px 10px;
+  border: 1px solid #cfd9e1;
+  line-height: 1.65;
+  vertical-align: top;
+  word-break: break-word;
 }
 
-th:nth-child(1),
-td:nth-child(1) {
-  width: 23%;
+:deep(.assessment-table .col-name) {
+  width: 28%;
 }
 
-th:nth-child(2),
-td:nth-child(2) {
-  width: 13%;
+:deep(.assessment-table .col-result) {
+  width: 18%;
 }
 
-th:nth-child(3),
-td:nth-child(3) {
-  width: 20%;
+:deep(.assessment-table .col-normal) {
+  width: 24%;
 }
 
-th:nth-child(4),
-td:nth-child(4) {
-  width: 20%;
+:deep(.assessment-table .col-tip) {
+  width: 30%;
 }
 
-@media (max-width: 900px) {
-  .paper {
-    padding: 20px 16px 30px;
-  }
-
-  .report-inner {
-    width: 100%;
-    margin: 0;
-  }
-
-  .identity-grid,
-  .overview {
-    grid-template-columns: 1fr 1fr;
-  }
-
-  .score-card {
-    grid-column: 1 / -1;
-  }
-
-  table {
-    min-width: 820px;
-  }
-
-  .assessment-section {
-    overflow-x: auto;
-  }
+:deep(.assessment-table .item-name) {
+  font-weight: 700;
+  color: #20242a;
 }
 
-@media print {
-  .no-print,
-  :global(.el-overlay),
-  :global(.navbar),
-  :global(.tags-view-container),
-  :global(.sidebar-container) {
-    display: none !important;
+:deep(.assessment-table tr.row-positive td) {
+  background: #fffafa;
+}
+
+:deep(.assessment-table tr.row-positive .item-name) {
+  border-left: 3px solid #d84a4a;
+}
+
+:deep(.assessment-table tr.row-negative .item-name) {
+  border-left: 3px solid #2f855a;
+}
+
+:deep(.result-pill) {
+  display: inline-flex;
+  padding: 3px 8px;
+  border: 1px solid #d7dde5;
+  background: #f7f9fb;
+}
+
+:deep(.result-pill.positive) {
+  border-color: #f1c7c7;
+  background: #fff1f1;
+  color: #a12b2b;
+}
+
+:deep(.result-pill.negative) {
+  border-color: #b9ddc4;
+  background: #f1fbf4;
+  color: #24653a;
+}
+
+:deep(.conclusion-text) {
+  margin: 0;
+  line-height: 1.9;
+  text-indent: 2em;
+}
+
+:deep(.signature-section) {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  margin-top: 22px;
+  padding-top: 14px;
+  border-top: 1px solid #d7dde5;
+}
+
+:deep(.signature-section div) {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+:deep(.signature-section b) {
+  flex: 1;
+  min-height: 24px;
+  border-bottom: 1px solid #9aa5b1;
+}
+
+.dialog-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+/* ========== 响应式适配 ========== */
+@media (max-width: 768px) {
+  .report-page {
+    padding: 16px 12px 32px;
   }
 
-  .paper {
-    width: 210mm !important;
-    height: auto !important;
-    margin: 0 !important;
-    padding: 0 !important;
+  .hero-bar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 18px 18px;
+  }
+
+  .form-section {
+    padding: 18px 14px 2px;
+  }
+
+  .table-card {
+    padding: 20px 16px;
   }
 }
 </style>

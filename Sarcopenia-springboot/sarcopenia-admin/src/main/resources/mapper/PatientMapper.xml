@@ -7,116 +7,194 @@
 <mapper namespace="com.sarcopenia.web.mapper.PatientMapper">
 
     <!-- 新增患者信息 -->
-    <insert id="insertPatient" parameterType="com.sarcopenia.web.entity.Patient">
-        insert into patient
+    <insert id="insertPatient" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO patient
         <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="caseNo != null and caseNo != ''">case_no,</if>
+            <if test="medicalCaseNo != null and medicalCaseNo != ''">medical_case_no,</if>
             <if test="name != null and name != ''">name,</if>
-            <if test="gender != null">gender,</if>
-            <if test="height != null">height,</if>
-            <if test="birthday != null">birthday,</if>
             <if test="phone != null and phone != ''">phone,</if>
-            <if test="address != null">address,</if>
+            <if test="gender != null">gender,</if>
+            <if test="birthday != null">birthday,</if>
+            <if test="idCard != null and idCard != ''">id_card,</if>
+            <if test="socialCardNo != null and socialCardNo != ''">social_card_no,</if>
+            <if test="height != null">height,</if>
+            <if test="weight != null">weight,</if>
+            <if test="nation != null and nation != ''">nation,</if>
+            <if test="educationalLevel != null and educationalLevel != ''">educational_level,</if>
+            <if test="religiousBelief != null and religiousBelief != ''">religious_belief,</if>
+            <if test="maritalStatus != null and maritalStatus != ''">marital_status,</if>
+            <if test="familyStatus != null and familyStatus != ''">family_status,</if>
+            <if test="liveSituation != null and liveSituation != ''">live_situation,</if>
+            <if test="careSituation != null and careSituation != ''">care_situation,</if>
+            <if test="payType != null and payType != ''">pay_type,</if>
+            <if test="incomeSource != null and incomeSource != ''">income_source,</if>
+            <if test="remark != null and remark != ''">remark,</if>
+            <if test="isDel != null">is_del,</if>
+            <if test="isReport != null">is_report,</if>
             create_time,
             create_by
         </trim>
-        <trim prefix="values (" suffix=")" suffixOverrides=",">
-            <if test="caseNo != null and caseNo != ''">#{caseNo},</if>
+        <trim prefix="VALUES (" suffix=")" suffixOverrides=",">
+            <if test="medicalCaseNo != null and medicalCaseNo != ''">#{medicalCaseNo},</if>
             <if test="name != null and name != ''">#{name},</if>
-            <if test="gender != null">#{gender},</if>
-            <if test="height != null">#{height},</if>
-            <if test="birthday != null">#{birthday},</if>
             <if test="phone != null and phone != ''">#{phone},</if>
-            <if test="address != null">#{address},</if>
-            sysdate(),
+            <if test="gender != null">#{gender},</if>
+            <if test="birthday != null">#{birthday},</if>
+            <if test="idCard != null and idCard != ''">#{idCard},</if>
+            <if test="socialCardNo != null and socialCardNo != ''">#{socialCardNo},</if>
+            <if test="height != null">#{height},</if>
+            <if test="weight != null">#{weight},</if>
+            <if test="nation != null and nation != ''">#{nation},</if>
+            <if test="educationalLevel != null and educationalLevel != ''">#{educationalLevel},</if>
+            <if test="religiousBelief != null and religiousBelief != ''">#{religiousBelief},</if>
+            <if test="maritalStatus != null and maritalStatus != ''">#{maritalStatus},</if>
+            <if test="familyStatus != null and familyStatus != ''">#{familyStatus},</if>
+            <if test="liveSituation != null and liveSituation != ''">#{liveSituation},</if>
+            <if test="careSituation != null and careSituation != ''">#{careSituation},</if>
+            <if test="payType != null and payType != ''">#{payType},</if>
+            <if test="incomeSource != null and incomeSource != ''">#{incomeSource},</if>
+            <if test="remark != null and remark != ''">#{remark},</if>
+            <if test="isDel != null">#{isDel},</if>
+            <if test="isReport != null">#{isReport},</if>
+            SYSDATE(),
             #{createBy}
         </trim>
     </insert>
 
     <!-- 根据ID删除患者信息（逻辑删除） -->
-    <update id="deletePatientById" parameterType="java.lang.Long">
-        update patient set is_del = 1 where id = #{id}
+    <update id="deletePatientById">
+        UPDATE patient SET is_del = 1 WHERE id = #{id}
     </update>
 
     <!-- 修改患者信息 -->
-    <update id="updatePatient" parameterType="com.sarcopenia.web.entity.Patient">
-        update patient
+    <update id="updatePatient">
+        UPDATE patient
         <set>
-            <if test="caseNo != null and caseNo != ''">case_no = #{caseNo},</if>
+            <if test="medicalCaseNo != null and medicalCaseNo != ''">medical_case_no = #{medicalCaseNo},</if>
             <if test="name != null and name != ''">name = #{name},</if>
-            <if test="gender != null and gender != ''">gender = #{gender},</if>
-            <if test="height != null">height = #{height},</if>
-            <if test="birthday != null">birthday = #{birthday},</if>
             <if test="phone != null and phone != ''">phone = #{phone},</if>
-            <if test="idCard != null">id_card = #{idCard},</if>
-            <if test="address != null">address = #{address},</if>
-            update_time = sysdate()
+            <if test="gender != null">gender = #{gender},</if>
+            <if test="birthday != null">birthday = #{birthday},</if>
+            <if test="idCard != null and idCard != ''">id_card = #{idCard},</if>
+            <if test="socialCardNo != null and socialCardNo != ''">social_card_no = #{socialCardNo},</if>
+            <if test="height != null">height = #{height},</if>
+            <if test="weight != null">weight = #{weight},</if>
+            <if test="nation != null and nation != ''">nation = #{nation},</if>
+            <if test="educationalLevel != null and educationalLevel != ''">educational_level = #{educationalLevel},</if>
+            <if test="religiousBelief != null and religiousBelief != ''">religious_belief = #{religiousBelief},</if>
+            <if test="maritalStatus != null and maritalStatus != ''">marital_status = #{maritalStatus},</if>
+            <if test="familyStatus != null and familyStatus != ''">family_status = #{familyStatus},</if>
+            <if test="liveSituation != null and liveSituation != ''">live_situation = #{liveSituation},</if>
+            <if test="careSituation != null and careSituation != ''">care_situation = #{careSituation},</if>
+            <if test="payType != null and payType != ''">pay_type = #{payType},</if>
+            <if test="incomeSource != null and incomeSource != ''">income_source = #{incomeSource},</if>
+            <if test="remark != null and remark != ''">remark = #{remark},</if>
+            <if test="isDel != null">is_del = #{isDel},</if>
+            <if test="isReport != null">is_report = #{isReport},</if>
+            update_time = SYSDATE(),
+            update_by = #{updateBy}
         </set>
-        where id = #{id}
+        WHERE id = #{id}
+    </update>
+
+    <!-- 保存老年综合评估基本情况到患者信息表 -->
+    <update id="saveBasicInformation">
+        UPDATE patient
+        <set>
+            <if test="medicalCaseNo != null">medical_case_no = #{medicalCaseNo},</if>
+            <if test="name != null">name = #{name},</if>
+            <if test="phone != null">phone = #{phone},</if>
+            <if test="gender != null">gender = #{gender},</if>
+            <if test="birthday != null">birthday = #{birthday},</if>
+            <if test="idCard != null">id_card = #{idCard},</if>
+            <if test="socialCardNo != null">social_card_no = #{socialCardNo},</if>
+            <if test="height != null">height = #{height},</if>
+            <if test="weight != null">weight = #{weight},</if>
+            <if test="nation != null">nation = #{nation},</if>
+            <if test="educationalLevel != null">educational_level = #{educationalLevel},</if>
+            <if test="religiousBelief != null">religious_belief = #{religiousBelief},</if>
+            <if test="maritalStatus != null">marital_status = #{maritalStatus},</if>
+            <if test="familyStatus != null">family_status = #{familyStatus},</if>
+            <if test="liveSituation != null">live_situation = #{liveSituation},</if>
+            <if test="careSituation != null">care_situation = #{careSituation},</if>
+            <if test="payType != null">pay_type = #{payType},</if>
+            <if test="incomeSource != null">income_source = #{incomeSource},</if>
+            update_time = SYSDATE(),
+            update_by = #{updateBy}
+        </set>
+        WHERE id = #{id}
     </update>
 
     <!-- 公共查询字段 -->
     <sql id="selectFields">
-        id, case_no, name, gender, height, birthday, phone, id_card,
-        address, create_time, create_by, update_time, update_by, remark
+        id, medical_case_no, name, phone, gender, birthday, id_card, social_card_no,
+        height, weight, nation, educational_level, religious_belief, marital_status,
+        family_status, live_situation, care_situation, pay_type, income_source,
+        create_time, create_by, update_time, update_by, remark, is_del, is_report
     </sql>
 
     <!-- 查询患者信息列表（未生成报告） -->
-    <select id="selectPatientList" resultType="com.sarcopenia.web.entity.Patient"
-            parameterType="com.sarcopenia.web.entity.Patient">
-        select <include refid="selectFields"/>
-        from patient
+    <select id="selectPatientList" resultType="com.sarcopenia.web.entity.Patient">
+        SELECT <include refid="selectFields"/>
+        FROM patient
         <where>
-            del_flag = 0 and is_report = 0
-            <if test="caseNo != null">and case_no like concat('%',#{caseNo},'%')</if>
-            <if test="name != null">and name like concat('%',#{name},'%')</if>
-            <if test="gender != null">and gender = #{gender}</if>
-            <if test="height != null">and height = #{height}</if>
-            <if test="birthday != null">and birthday = #{birthday}</if>
-            <if test="phone != null">and phone like concat('%',#{phone},'%')</if>
-            <if test="idCard != null">and id_card like concat('%',#{idCard},'%')</if>
-            <if test="address != null">and address like concat('%',#{address},'%')</if>
+            is_del = 0 AND is_report = 0
+            <if test="medicalCaseNo != null and medicalCaseNo != ''">
+                AND medical_case_no LIKE CONCAT('%', #{medicalCaseNo}, '%')
+            </if>
+            <if test="name != null and name != ''">
+                AND name LIKE CONCAT('%', #{name}, '%')
+            </if>
+            <if test="gender != null">
+                AND gender = #{gender}
+            </if>
+            <if test="phone != null and phone != ''">
+                AND phone LIKE CONCAT('%', #{phone}, '%')
+            </if>
+            <if test="idCard != null and idCard != ''">
+                AND id_card LIKE CONCAT('%', #{idCard}, '%')
+            </if>
             <if test="beginCreateTime != null and beginCreateTime != ''">
-                and create_time &gt;= #{beginCreateTime}
+                AND create_time &gt;= #{beginCreateTime}
             </if>
             <if test="endCreateTime != null and endCreateTime != ''">
-                and create_time &lt;= #{endCreateTime}
+                AND create_time &lt;= #{endCreateTime}
             </if>
         </where>
-        order by id desc
+        ORDER BY id DESC
     </select>
 
     <!-- 根据ID查询患者信息 -->
-    <select id="selectPatientById" resultType="com.sarcopenia.web.entity.Patient"
-            parameterType="java.lang.Long">
-            select <include refid="selectFields"/> from patient where id = #{id} and del_flag = 0
+    <select id="selectPatientById" resultType="com.sarcopenia.web.entity.Patient">
+        SELECT <include refid="selectFields"/> FROM patient WHERE id = #{patientId} AND is_del = 0
     </select>
 
     <!-- 更新患者状态为已检查 -->
-    <update id="updatePatientIsReport" parameterType="java.lang.Long">
-        update patient set is_report = 1 where id = #{id}
+    <update id="updatePatientIsReport">
+        UPDATE patient SET is_report = 1 WHERE id = #{id}
     </update>
 
     <!-- 更新患者状态为已报告 -->
-    <update id="updatePatientIsReports" parameterType="java.lang.Long">
-        update patient set is_report = 2 where id = #{id}
+    <update id="updatePatientIsReports">
+        UPDATE patient SET is_report = 2 WHERE id = #{id}
     </update>
 
     <!-- 查询已完成评估的患者列表 -->
     <select id="selectPatientReportedList" resultType="com.sarcopenia.web.entity.Patient">
-        select <include refid="selectFields"/>
-        from patient p
-        where p.del_flag = 0
-        and p.is_report = 1
-        <if test="caseNo != null and caseNo != ''">
-            and p.case_no like concat('%', #{caseNo}, '%')
+        SELECT <include refid="selectFields"/>
+        FROM patient p
+        WHERE p.is_del = 0
+        AND p.is_report = 1
+        <if test="medicalCaseNo != null and medicalCaseNo != ''">
+            AND p.medical_case_no LIKE CONCAT('%', #{medicalCaseNo}, '%')
         </if>
         <if test="name != null and name != ''">
-            and p.name like concat('%', #{name}, '%')
+            AND p.name LIKE CONCAT('%', #{name}, '%')
         </if>
         <if test="phone != null and phone != ''">
-            and p.phone like concat('%', #{phone}, '%')
+            AND p.phone LIKE CONCAT('%', #{phone}, '%')
         </if>
-        order by p.id desc
+        ORDER BY p.id DESC
     </select>
+
 </mapper>

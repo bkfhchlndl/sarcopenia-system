@@ -7,7 +7,7 @@ import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 
 /**
  * 启动程序
- * 
+ *
  * @author ruoyi
  */
 @SpringBootApplication(exclude = { DataSourceAutoConfiguration.class })
@@ -17,15 +17,10 @@ public class RuoYiApplication
     {
         // System.setProperty("spring.devtools.restart.enabled", "false");
         SpringApplication.run(RuoYiApplication.class, args);
-        System.out.println("(♥◠‿◠)ﾉﾞ  若依启动成功   ლ(´ڡ`ლ)ﾞ  \n" +
-                " .-------.       ____     __        \n" +
-                " |  _ _   \\      \\   \\   /  /    \n" +
-                " | ( ' )  |       \\  _. /  '       \n" +
-                " |(_ o _) /        _( )_ .'         \n" +
-                " | (_,_).' __  ___(_ o _)'          \n" +
-                " |  |\\ \\  |  ||   |(_,_)'         \n" +
-                " |  | \\ `'   /|   `-'  /           \n" +
-                " |  |  \\    /  \\      /           \n" +
-                " ''-'   `'-'    `-..-'              ");
+        System.out.println("\n" +
+                "  年少未觉行路远，步步深陷幻梦中。\n" +
+                "  一失再失藏胸臆，几度惊醒又沉沦。\n" +
+                "  长成先尝世事深，连连艰难易辙时。\n" +
+                "  若危若安不会意，何年何月破茧飞。\n");
     }
 }

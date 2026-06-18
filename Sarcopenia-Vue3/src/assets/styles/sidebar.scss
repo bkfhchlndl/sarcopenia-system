@@ -103,6 +103,10 @@
       }
     }
 
+    .nest-menu .el-menu-item {
+      padding-left: 30px !important;
+    }
+
     & .theme-dark .nest-menu .el-sub-menu>.el-sub-menu__title,
     & .theme-dark .el-sub-menu .el-menu-item {
       background-color: vars.$base-sub-menu-background;
