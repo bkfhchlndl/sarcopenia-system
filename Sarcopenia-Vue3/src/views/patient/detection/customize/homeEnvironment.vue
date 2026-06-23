@@ -1,6 +1,6 @@
-<template>
+﻿<template>
   <div class="daily-life-container">
-    <!-- ===== 1. 顶部导航栏 ===== -->
+    <!-- 顶部导航栏 -->
     <header class="top-bar">
       <div class="top-left">
         <el-button link class="back-btn" @click="goBack">
@@ -23,13 +23,13 @@
       </div>
     </header>
 
-    <!-- ===== 2. 进度条 ===== -->
+    <!-- 进度条 -->
     <div class="progress-bar">
       <div class="progress-fill" :style="{ width: progressPercent + '%' }"></div>
       <span class="progress-label">已完成 {{ answeredCount }} / {{ totalQuestions }} 项</span>
     </div>
 
-    <!-- ===== 3. 题目卡（多选题） ===== -->
+    <!-- 评估题卡列表（多选题） -->
     <section class="question-list">
       <div
           v-for="(question, qIndex) in scaleData?.questionList || []"
@@ -50,9 +50,9 @@
               :key="option.id"
               class="q-option"
               :class="{
-                'is-selected': answers[question.questionId]?.includes(option.id),
-                'is-max': true
-              }"
+              'is-selected': answers[question.questionId]?.includes(option.id),
+              'is-max': true
+            }"
               @click="toggleOption(question.questionId, option)"
           >
             <div class="opt-left">
@@ -72,7 +72,7 @@
       </div>
     </section>
 
-    <!-- ===== 4. 结果展示区 ===== -->
+    <!-- 结果展示区 -->
     <section class="result-area">
       <!-- 总分卡片 -->
       <div class="result-card score-card">
@@ -85,8 +85,14 @@
           <span class="score-unit">/14分</span>
         </div>
         <div class="rc-footer">
-          <span class="level-tag"
-                :style="{ background: riskLevel.bg, color: riskLevel.color, borderColor: riskLevel.color }">
+          <span
+              class="level-tag"
+              :style="{
+              background: riskLevel.bg,
+              color: riskLevel.color,
+              borderColor: riskLevel.color
+            }"
+          >
             {{ riskLevel.text }}
           </span>
         </div>
@@ -96,14 +102,18 @@
       <div class="result-card findings-card">
         <div class="rc-head">
           <span class="rc-icon">⚠</span>
-          <span>检出风险 · 共 {{ riskItems.length }} 项</span>
+          <span>检出风险 · 共 {{ abnormalAnswers.length }} 项</span>
         </div>
-        <div v-if="riskItems.length === 0" class="no-finding">
+        <div v-if="abnormalAnswers.length === 0" class="no-finding">
           <el-icon class="ok-icon"><Check /></el-icon>
-          <div class="ok-text">居家环境安全，未检出明显跌倒风险，建议定期检查维护。</div>
+          <div class="ok-text">未检出异常项目，建议保持良好用眼习惯，定期进行听力检查。</div>
         </div>
         <div v-else class="finding-list">
-          <div v-for="(item, idx) in riskItems" :key="item.id" class="finding-row">
+          <div
+              v-for="(item, idx) in abnormalAnswers"
+              :key="item.id"
+              class="finding-row"
+          >
             <div class="finding-index">{{ idx + 1 }}</div>
             <div class="finding-content">
               <div class="finding-title">{{ getRiskItemLabel(item) }}</div>
@@ -119,13 +129,13 @@
           <span>整改建议</span>
         </div>
         <p class="suggest-text">{{ environmentSuggest }}</p>
-        <div v-if="riskItems.length > 0" class="suggest-sub">
+        <div v-if="abnormalAnswers.length > 0" class="suggest-sub">
           建议尽快针对以上检出的风险项进行整改，消除居家跌倒隐患，保障老年人居家安全。
         </div>
       </div>
     </section>
 
-    <!-- ===== 5. 提交按钮 ===== -->
+    <!-- 提交按钮 -->
     <div class="submit-area">
       <el-button
           type="primary"
@@ -142,50 +152,238 @@
   </div>
 </template>
 
-<script setup>
+<script setup name="HomeEnvironmentAssessment">
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ArrowLeft, Check } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import { selectHomeEnvironmentScale, insertCgaRecord } from '@/api/cga.js'
 
+// ==================== 常量配置 ====================
+/** 本地存储完成状态前缀 */
+const STORAGE_PREFIX = 'customize_done:'
+/** 默认量表ID */
+const DEFAULT_SCALE_ID = 27
+
+/** 未完成评估默认状态 */
+const PENDING_LEVEL = {
+  text: '待评估',
+  color: '#94a3b8',
+  bg: '#f8fafc',
+  suggest: '请完成全部评估题目以生成建议'
+}
+
+/** 跌倒风险等级配置（分数越高风险越低） */
+const RISK_LEVEL_CONFIG = [
+  {
+    maxScore: 7,
+    text: '跌倒风险高',
+    color: '#ef4444',
+    bg: '#fef2f2',
+    suggest: '居家环境跌倒风险较高，存在多处安全隐患。建议立即进行全面整改，必要时进行适老化改造，避免跌倒事故发生。'
+  },
+  {
+    maxScore: 11,
+    text: '跌倒风险中等',
+    color: '#f97316',
+    bg: '#fff7ed',
+    suggest: '居家环境存在一定跌倒风险。建议针对检出的风险项进行整改，重点改善照明、地面防滑和扶手配置，消除潜在隐患。'
+  },
+  {
+    maxScore: 14,
+    text: '跌倒风险低',
+    color: '#22c55e',
+    bg: '#f0fdf4',
+    suggest: '居家环境整体安全，跌倒风险较低。建议保持现有环境，定期检查照明、扶手等设施，及时清理通道杂物。'
+  }
+]
+
+/** 风险项文案映射（将正面安全描述转换为风险描述） */
+const RISK_ITEM_LABEL_MAP = {
+  '通道无杂乱物品': '通道杂乱物品',
+  '通道是否无杂乱物品': '通道杂乱物品',
+  '地板状况良好': '地板状况不佳',
+  '地板是否状况良好': '地板状况不佳',
+  '地板防滑': '地面防滑不足',
+  '地板是否防滑': '地面防滑不足',
+  '地板上有固定的防滑垫': '缺少固定防滑垫',
+  '地板上是否有固定的防滑垫': '缺少固定防滑垫',
+  '灯的亮度能够看清东西': '照明亮度不足',
+  '灯的亮度是否能够看清东西': '照明亮度不足',
+  '在床上开关灯方便': '床边开关不便',
+  '在床上开关灯是否方便': '床边开关不便',
+  '晚上外边的路灯、楼道的灯照明良好': '夜间公共照明不足',
+  '晚上外边的路灯、楼道的灯照明是否良好': '夜间公共照明不足',
+  '淋浴室和浴池旁有扶手': '浴室缺少扶手',
+  '淋浴室和浴池旁是否有扶手': '浴室缺少扶手',
+  '浴池和浴室有固定的防滑垫': '浴室缺少防滑垫',
+  '在浴池和浴室是否有固定的防滑垫': '浴室缺少防滑垫',
+  '厕所接近浴室': '厕浴距离过远',
+  '厕所是否接近浴室': '厕浴距离过远',
+  '室内的楼梯旁都有可用的扶手': '室内楼梯缺少扶手',
+  '室内的楼梯旁是否都有可用的扶手': '室内楼梯缺少扶手',
+  '室外的楼梯旁都有可用的扶手': '室外楼梯缺少扶手',
+  '室外的楼梯旁是否都有可用的扶手': '室外楼梯缺少扶手',
+  '楼梯的边缘清晰': '楼梯边缘不清晰',
+  '楼梯的边缘是否清晰': '楼梯边缘不清晰',
+  '房屋周围的路况良好': '周边路况不佳',
+  '房屋周围的路况是否良好': '周边路况不佳'
+}
+
+// ==================== 路由实例 ====================
 const route = useRoute()
 const router = useRouter()
+
+// ==================== 响应式状态 ====================
+/** 量表完整数据 */
+const scaleData = ref({ scaleId: null, scaleName: '', code: '', questionList: [] })
+/** 用户答案集合：key为题目ID，value为选中的选项ID数组（多选题） */
+const answers = ref({})
+/** 提交加载状态，防止重复提交 */
 const submitting = ref(false)
-const patientId = route.query.patientId
-const patientName = route.query.patientName || '患者'
-const toNumberId = (...values) => {
+
+// ==================== 计算属性 - 路由参数 ====================
+/** 患者ID（响应式获取，保证路由参数变化时同步更新） */
+const patientId = computed(() => route.query.patientId || '')
+/** 患者姓名 */
+const patientName = computed(() => route.query.patientName || '患者')
+/** 目标量表ID（优先取路由参数，兜底默认值） */
+const targetScaleId = computed(() => {
+  return toNumberId(route.query.targetScaleId, route.query.projectId, route.query.scaleId) || DEFAULT_SCALE_ID
+})
+
+// ==================== 计算属性 - 进度统计 ====================
+/** 题目总数 */
+const totalQuestions = computed(() => scaleData.value?.questionList?.length || 0)
+/** 已作答题目数量（多选题只要选中1项即视为已答） */
+const answeredCount = computed(() => {
+  return Object.values(answers.value).filter(arr => arr.length > 0).length
+})
+/** 完成进度百分比 */
+const progressPercent = computed(() => {
+  const total = totalQuestions.value || 1
+  return Math.round((answeredCount.value / total) * 100)
+})
+
+// ==================== 计算属性 - 得分与等级 ====================
+/** 评估总分，累加所有选中选项的分值 */
+const totalScore = computed(() => {
+  let sum = 0
+  for (const question of scaleData.value?.questionList || []) {
+    const selectedIds = answers.value[question.questionId] || []
+    selectedIds.forEach(id => {
+      const option = question.optionList?.find(item => item.id === id)
+      if (option) sum += Number(option.score) || 0
+    })
+  }
+  return sum
+})
+
+/** 当前跌倒风险等级 */
+const riskLevel = computed(() => {
+  if (answeredCount.value < totalQuestions.value) return PENDING_LEVEL
+
+  const score = totalScore.value
+  // 分数越高风险越低：0-7高风险，8-11中风险，12-14低风险
+  if (score >= 12) {
+    // 12~14分：低风险
+    return RISK_LEVEL_CONFIG[2]
+  } else if (score >= 8) {
+    // 8~11分：中风险
+    return RISK_LEVEL_CONFIG[1]
+  } else {
+    // 0~7分：高风险
+    return RISK_LEVEL_CONFIG[0]
+  }
+})
+
+// ==================== 计算属性 - 风险项与建议 ====================
+/** 检出的风险项列表：未勾选的选项即为存在风险 */
+const abnormalAnswers = computed(() => {
+  const list = []
+  for (const question of scaleData.value?.questionList || []) {
+    const selectedIds = answers.value[question.questionId] || []
+    question.optionList?.forEach(option => {
+      if (!selectedIds.includes(option.id)) {
+        list.push(option)
+      }
+    })
+  }
+  return list
+})
+
+/** 整改建议文案 */
+const environmentSuggest = computed(() => riskLevel.value.suggest)
+
+// ==================== 计算属性 - 提交数据拼接 ====================
+/** 综合评估结果文本，存入后端记录 */
+const combinedResult = computed(() => {
+  return `${riskLevel.value.text}（${totalScore.value}/14分）；检出跌倒风险 ${abnormalAnswers.value.length} 项`
+})
+
+/** 综合评估建议文本，包含风险项明细 */
+const combinedSuggest = computed(() => {
+  const extra = abnormalAnswers.value.map((item, idx) => {
+    return `${idx + 1}. ${getRiskItemLabel(item)}`
+  }).join('；')
+  return `${environmentSuggest.value}${extra ? ' 风险项：' + extra : ''}`
+})
+
+// ==================== 工具函数 ====================
+/**
+ * 从多个候选值中提取有效的数字ID
+ * @param  {...any} values 候选值
+ * @returns {number|null} 有效的数字ID，无效则返回null
+ */
+function toNumberId(...values) {
   const value = values.find(v => v !== undefined && v !== null && v !== '' && Number.isFinite(Number(v)))
   return value === undefined ? null : Number(value)
 }
-const targetScaleId = toNumberId(route.query.targetScaleId, route.query.projectId, route.query.scaleId) || 27
 
-// 修复KeepAlive缓存导致scaleData变成undefined的问题
-const scaleData = ref({ scaleId: null, scaleName: '', code: '', questionList: [] })
-watch(() => route.fullPath, () => {
-  if (!scaleData.value) {
-    scaleData.value = { scaleId: null, scaleName: '', code: '', questionList: [] }
-  }
-}, { immediate: true })
+/**
+ * 标准化选项内容，去除选项前缀（如A. B.）
+ * @param {string} value 原始选项内容
+ * @returns {string} 标准化后的内容
+ */
+function normalizeRiskContent(value) {
+  return String(value || '')
+      .replace(/^[A-Z]\.\s*/, '')
+      .trim()
+}
 
-const loadScaleData = async () => {
+/**
+ * 根据选项获取风险项展示文案
+ * @param {object} option 选项对象
+ * @returns {string} 风险项文案
+ */
+function getRiskItemLabel(option) {
+  const content = normalizeRiskContent(option?.content)
+  return RISK_ITEM_LABEL_MAP[content] || content
+}
+
+// ==================== 业务方法 ====================
+/**
+ * 加载量表题目数据
+ */
+async function loadScaleData() {
   try {
     const res = await selectHomeEnvironmentScale()
     if (res.code === 200 && res.data && res.data.length > 0) {
       scaleData.value = res.data[0]
     }
   } catch (error) {
+    console.error('加载居家环境量表失败：', error)
     ElMessage.error('加载量表数据失败')
-    // API失败时重置为安全默认值
+    // 接口失败时重置为安全默认值，避免渲染报错
     scaleData.value = { scaleId: null, scaleName: '', code: '', questionList: [] }
   }
 }
 
-onMounted(() => { loadScaleData() })
-
-// ——— 答案（多选题，存储选中的选项ID数组）———
-const answers = ref({})
-
+/**
+ * 切换选项选中状态（多选题）
+ * @param {number|string} questionId 题目ID
+ * @param {object} option 选项对象
+ */
 function toggleOption(questionId, option) {
   if (!answers.value[questionId]) {
     answers.value[questionId] = []
@@ -198,159 +396,65 @@ function toggleOption(questionId, option) {
   }
 }
 
-// ——— 进度 & 总分 ———
-const totalQuestions = computed(() => scaleData.value?.questionList?.length || 0)
-const answeredCount = computed(() => {
-  // 多选题只要有一个选项被选中就算已回答
-  return Object.values(answers.value).filter(arr => arr.length > 0).length
-})
-const progressPercent = computed(() => {
-  const total = totalQuestions.value || 1
-  return Math.round((answeredCount.value / total) * 100)
-})
-
-const totalScore = computed(() => {
-  let sum = 0
-  for (const q of scaleData.value?.questionList || []) {
-    const selectedIds = answers.value[q.questionId] || []
-    selectedIds.forEach(id => {
-      const option = q.optionList?.find(o => o.id === id)
-      if (option) sum += Number(option.score) || 0
-    })
-  }
-  return sum
-})
-
-// ——— 风险等级（得分越低风险越高）———
-const riskLevel = computed(() => {
-  if (answeredCount.value < totalQuestions.value) {
-    return { text: '待评估', color: '#94a3b8', bg: '#f8fafc' }
-  }
-  const score = totalScore.value
-  if (score >= 12) return { text: '跌倒风险低', color: '#22c55e', bg: '#f0fdf4' }
-  if (score >= 8) return { text: '跌倒风险中等', color: '#f97316', bg: '#fff7ed' }
-  return { text: '跌倒风险高', color: '#ef4444', bg: '#fef2f2' }
-})
-
-// ——— 检出风险项（未勾选的选项=有风险）———
-const riskItems = computed(() => {
-  const list = []
-  for (const q of scaleData.value?.questionList || []) {
-    const selectedIds = answers.value[q.questionId] || []
-    q.optionList?.forEach(option => {
-      if (!selectedIds.includes(option.id)) {
-        list.push(option)
-      }
-    })
-  }
-  return list
-})
-
-const riskItemLabelMap = {
-  '通道无杂乱物品': '通道杂乱物品',
-  '通道是否无杂乱物品': '通道杂乱物品',
-  '地板状况良好': '地板状况',
-  '地板状况是否良好': '地板状况',
-  '地板防滑': '地板防滑',
-  '地板是否防滑': '地板防滑',
-  '地板上有固定的防滑垫': '地板固定防滑垫',
-  '地板上是否有固定的防滑垫': '地板固定防滑垫',
-  '灯的亮度能够看清东西': '灯光亮度',
-  '灯的亮度是否能够看清东西': '灯光亮度',
-  '在床上开关灯方便': '床旁开关灯',
-  '在床上开关灯是否方便': '床旁开关灯',
-  '晚上外边的路灯、楼道的灯照明良好': '夜间室外及楼道照明',
-  '晚上外边的路灯、楼道的灯照明是否良好': '夜间室外及楼道照明',
-  '淋浴室和浴池旁有扶手': '淋浴室和浴池扶手',
-  '淋浴室和浴池旁是否有扶手': '淋浴室和浴池扶手',
-  '浴池和浴室有固定的防滑垫': '浴池和浴室固定防滑垫',
-  '在浴池和浴室是否有固定的防滑垫': '浴池和浴室固定防滑垫',
-  '厕所接近浴室': '厕所与浴室距离',
-  '厕所是否接近浴室': '厕所与浴室距离',
-  '室内的楼梯旁都有可用的扶手': '室内楼梯扶手',
-  '室内的楼梯旁是否都有可用的扶手': '室内楼梯扶手',
-  '室外的楼梯旁都有可用的扶手': '室外楼梯扶手',
-  '室外的楼梯旁是否都有可用的扶手': '室外楼梯扶手',
-  '楼梯的边缘清晰': '楼梯边缘',
-  '楼梯的边缘是否清晰': '楼梯边缘',
-  '房屋周围的路况良好': '房屋周围的路况',
-  '房屋周围的路况是否良好': '房屋周围的路况'
+/**
+ * 返回上一页
+ */
+function goBack() {
+  router.push({ path: '/patient/detection/customize', query: route.query })
 }
 
-function normalizeRiskContent(value) {
-  return String(value || '')
-      .replace(/^[A-Z]\.\s*/, '')
-      .trim()
-}
-
-function getRiskItemLabel(item) {
-  const content = normalizeRiskContent(item?.content)
-  return riskItemLabelMap[content] || content
-}
-
-// ——— 整改建议 ———
-const environmentSuggest = computed(() => {
-  const t = riskLevel.value.text
-  if (t === '跌倒风险低') return '居家环境整体安全，跌倒风险较低。建议保持现有环境，定期检查照明、扶手等设施，及时清理通道杂物。'
-  if (t === '跌倒风险中等') return '居家环境存在一定跌倒风险。建议针对检出的风险项进行整改，重点改善照明、地面防滑和扶手配置，消除潜在隐患。'
-  if (t === '跌倒风险高') return '居家环境跌倒风险较高，存在多处安全隐患。建议立即进行全面整改，必要时进行适老化改造，避免跌倒事故发生。'
-  return '请完成全部评估题目以生成建议。'
-})
-
-// ——— 提交合并结果 ———
-const combinedResult = computed(() =>
-    `居家环境筛查：${riskLevel.value.text}（${totalScore.value}/14分）；检出跌倒风险 ${riskItems.value.length} 项`
-)
-
-const combinedSuggest = computed(() => {
-  const extra = (riskItems.value || []).map((item, idx) =>
-      `${idx + 1}. ${getRiskItemLabel(item)}`
-  ).join('；')
-  return `${environmentSuggest.value}${extra ? ' 风险项：' + extra : ''}`
-})
-
-const goBack = () => { router.back() }
-
-const backToComprehensive = () => {
+/**
+ * 返回综合评估首页，并写入本地完成标记
+ */
+function backToComprehensive() {
   try {
-    if (patientId) {
-      localStorage.setItem(`customize_done:${patientId}:home_environment`, '1')
+    if (patientId.value) {
+      localStorage.setItem(`${STORAGE_PREFIX}${patientId.value}:home_environment`, '1')
     }
-  } catch (e) {}
+  } catch (e) {
+    console.warn('本地存储写入失败：', e)
+  }
   router.push({
-    path: '/patient/detection/comprehensive',
-    query: { patientId, patientName }
+    path: '/patient/detection/customize',
+    query: {
+      patientId: patientId.value,
+      patientName: patientName.value
+    }
   })
 }
 
-const submitAssessment = async () => {
+/**
+ * 提交评估结果
+ */
+async function submitAssessment() {
   if (submitting.value) return
   if (!scaleData.value?.questionList?.length) {
     ElMessage.warning('量表数据加载中，请稍后重试')
     return
   }
-  if (!answers.value[scaleData.value.questionList[0]?.questionId]?.length) {
+  if (!Object.values(answers.value).some(arr => arr.length > 0)) {
     ElMessage.warning('请至少勾选一项')
     return
   }
+
   submitting.value = true
-
-  const formattedAnswers = {}
-  for (const questionId in answers.value) {
-    formattedAnswers[String(questionId)] = answers.value[questionId].map(id => Number(id))
-  }
-
-  const dto = {
-    patientId: Number(patientId),
-    projectId: targetScaleId,
-    scaleId: targetScaleId,
-    answers: formattedAnswers,
-    result: combinedResult.value,
-    suggest: combinedSuggest.value
-  }
-
   try {
-    const res = await insertCgaRecord(dto)
+    // 格式化答案为后端要求结构
+    const formattedAnswers = {}
+    for (const questionId in answers.value) {
+      formattedAnswers[String(questionId)] = answers.value[questionId].map(id => Number(id))
+    }
+
+    const submitDto = {
+      patientId: Number(patientId.value),
+      projectId: targetScaleId.value,
+      scaleId: targetScaleId.value,
+      answers: formattedAnswers,
+      result: combinedResult.value,
+      suggest: combinedSuggest.value
+    }
+
+    const res = await insertCgaRecord(submitDto)
     if (res && (res.code === 200 || res.code === '200')) {
       ElMessage.success('评估提交成功')
       setTimeout(() => {
@@ -360,11 +464,24 @@ const submitAssessment = async () => {
       ElMessage.error(res.msg || '提交失败')
     }
   } catch (error) {
+    console.error('提交评估失败：', error)
     ElMessage.error('提交失败，请稍后重试')
   } finally {
     submitting.value = false
   }
 }
+
+// ==================== 生命周期与监听 ====================
+// 修复KeepAlive缓存导致scaleData变为undefined的问题，路由变化时重置默认值
+watch(() => route.fullPath, () => {
+  if (!scaleData.value) {
+    scaleData.value = { scaleId: null, scaleName: '', code: '', questionList: [] }
+  }
+}, { immediate: true })
+
+onMounted(() => {
+  loadScaleData()
+})
 </script>
 
 <style scoped lang="scss">
@@ -377,7 +494,7 @@ const submitAssessment = async () => {
   margin: 0 auto;
 }
 
-/* ===== 1. 顶部导航 ===== */
+/* 顶部导航 */
 .top-bar {
   display: flex;
   justify-content: space-between;
@@ -456,7 +573,7 @@ const submitAssessment = async () => {
   margin-top: 2px;
 }
 
-/* ===== 2. 进度条 ===== */
+/* 进度条 */
 .progress-bar {
   height: 46px;
   background: #fff;
@@ -488,7 +605,7 @@ const submitAssessment = async () => {
   z-index: 1;
 }
 
-/* ===== 3. 题目卡片 ===== */
+/* 题目卡片 */
 .question-list {
   display: flex;
   flex-direction: column;
@@ -660,7 +777,7 @@ const submitAssessment = async () => {
   color: #7c3aed;
 }
 
-/* ===== 4. 结果区 ===== */
+/* 结果区 */
 .result-area {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -794,7 +911,7 @@ const submitAssessment = async () => {
   line-height: 1.5;
 }
 
-/* 建议卡片 —— 跨两列 */
+/* 建议卡片 */
 .combined-suggest {
   grid-column: 1 / -1;
   border-left: 4px solid #8b5cf6;
@@ -816,7 +933,7 @@ const submitAssessment = async () => {
   line-height: 1.8;
 }
 
-/* ===== 5. 提交 ===== */
+/* 提交区 */
 .submit-area {
   text-align: center;
   padding: 8px 0;
@@ -835,18 +952,25 @@ const submitAssessment = async () => {
     box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);
     transform: translateY(-1px);
   }
+
+  &:disabled {
+    background: #cbd5e1;
+    box-shadow: none;
+  }
 }
 
-/* ===== 响应式 ===== */
+/* 响应式适配 */
 @media (max-width: 800px) {
   .daily-life-container {
     padding: 14px;
   }
+
   .top-bar {
     flex-direction: column;
     align-items: flex-start;
     gap: 12px;
   }
+
   .result-area {
     grid-template-columns: 1fr;
   }

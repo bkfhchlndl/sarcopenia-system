@@ -481,6 +481,58 @@ function joinResultText(...parts) {
 }
 
 /**
+ * 转义HTML，避免弹窗内容被异常文本破坏
+ * @param {String} text 原始文本
+ * @returns {String}
+ */
+function escapeHtml(text) {
+  return String(text || '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;')
+}
+
+/**
+ * 展示未完成专项评估提示
+ * @param {Array} items 未完成专项项目
+ */
+async function showMissingSpecialAlert(items) {
+  const listHtml = items
+      .map(item => `<li>${escapeHtml(getItemName(item))}</li>`)
+      .join('')
+  try {
+    await ElMessageBox.alert(
+        `<div style="padding: 8px 0 0;">
+           <div style="background: linear-gradient(135deg, #fff7ed 0%, #fffbeb 100%); padding: 18px 20px; border-radius: 12px; border: 1px solid #fed7aa;">
+             <div style="display: flex; align-items: flex-start; gap: 14px;">
+               <div style="flex-shrink: 0; width: 44px; height: 44px; border-radius: 50%; background: #fff; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(217,119,6,0.15);">
+                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 8v4"></path><path d="M12 16h.01"></path></svg>
+               </div>
+               <div style="flex: 1;">
+                 <div style="font-size: 16px; font-weight: 700; color: #92400e; margin-bottom: 6px;">还有阳性项目未完成专项评估</div>
+                 <div style="font-size: 14px; color: #475569; line-height: 1.7;">请先完成以下专项评估后，再生成综合报告：</div>
+                 <ul style="margin: 10px 0 0; padding-left: 20px; color: #78350f; font-size: 14px; line-height: 1.8;">${listHtml}</ul>
+               </div>
+             </div>
+           </div>
+         </div>`,
+        '请先完成专项评估',
+        {
+          confirmButtonText: '我知道了',
+          dangerouslyUseHTMLString: true,
+          showClose: true,
+          customClass: 'report-confirm-v2',
+          type: 'warning'
+        }
+    )
+  } catch (error) {
+    // 关闭弹窗时不报错
+  }
+}
+
+/**
  * 获取量表对应的专项评估ID列表
  * @param {Object} item 评估项
  * @returns {Array}
@@ -523,7 +575,7 @@ function matchesSpecialRecord(item, record) {
  * @returns {Object|null}
  */
 function getSpecialRecord(item) {
-  return cgaRecordList.value.find(record => matchesSpecialRecord(item, record)) || null
+  return validCgaRecords.value.find(record => matchesSpecialRecord(item, record)) || null
 }
 
 /**
@@ -580,7 +632,10 @@ function getSpecialResultType(item) {
   const text = recordText(record)
 
   // 阴性关键词
-  const negativeKeywords = ['无依赖', '正常', '良好', '认知正常', '无异常']
+  const negativeKeywords = [
+    '无依赖', '正常', '良好', '认知正常', '无异常', '无明显风险',
+    '未发现明显风险因素', '低风险', '风险低', '风险较低'
+  ]
   if (negativeKeywords.some(key => text.includes(key))) return 'negative'
 
   // 阳性关键词
@@ -883,7 +938,7 @@ function navigateTo(item) {
  * 返回上一页
  */
 function goBack() {
-  router.back()
+  router.push({ path: '/patient/detection/customize', query: route.query })
 }
 
 /**
@@ -939,8 +994,8 @@ async function handleGenerateReport() {
   // 刷新记录列表，确保状态最新
   await loadCgaRecordList(pid)
 
-  // 无有效评估记录时弹出提示
-  if (completedAssessmentRecords.value.length === 0) {
+  // 没有任何评估结果时弹出提示
+  if (answeredItems.value.length === 0 && completedAssessmentRecords.value.length === 0) {
     try {
       await ElMessageBox.alert(
           `<div style="padding: 8px 0 0;">
@@ -971,21 +1026,21 @@ async function handleGenerateReport() {
     return
   }
 
+  // CGA总筛查存在阳性项目时，必须先完成对应专项评估
+  const missingItems = missingSpecialItems.value
+  if (missingItems.length > 0) {
+    await showMissingSpecialAlert(missingItems)
+    return
+  }
+
   generating.value = true
   try {
     await generateCgaReport(pid)
-    ElMessage.success('报告生成成功，正在打开...')
+    ElMessage.success('报告生成成功')
 
-    // 跳转至报告预览页
-    const r = reportData.value || {}
+    // 跳转至报告列表页
     router.push({
-      path: '/report/cgareport',
-      query: {
-        openReport: '1',
-        patientId: pid,
-        patientName: patientName.value || r.patientName || r.name || '',
-        caseNo: r.caseNo || r.medicalCaseNo || ''
-      }
+      path: '/report/cgareport'
     })
   } catch (error) {
     ElMessage.error('生成报告失败，请重试')
@@ -1450,3 +1505,4 @@ onActivated(() => {
   }
 }
 </style>
+

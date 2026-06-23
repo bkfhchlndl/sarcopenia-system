@@ -93,8 +93,13 @@ public class PatientController {
      * @return 已评估患者信息列表
      */
     @GetMapping("/selectPatientReportedList")
-    public AjaxResult selectPatientReportedList(Patient patient) {
+    public AjaxResult selectPatientReportedList(Patient patient,
+                                                @RequestParam(defaultValue = "1") Integer pageNum,
+                                                @RequestParam(defaultValue = "20") Integer pageSize
+    ) {
+        PageHelper.startPage(pageNum, pageSize);
         List<Patient> list = patientService.selectPatientReportedList(patient);
-        return AjaxResult.success(list);
+        PageInfo<Patient> pageInfo = new PageInfo<>(list);
+        return AjaxResult.success(pageInfo);
     }
 }

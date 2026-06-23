@@ -1,6 +1,6 @@
-<template>
-  <div class="daily-life-container">
-    <!-- ===== 1. 顶部导航栏 ===== -->
+﻿<template>
+  <div class="anxiety-assessment-container">
+    <!-- 顶部导航栏 -->
     <header class="top-bar">
       <div class="top-left">
         <el-button link class="back-btn" @click="goBack">
@@ -23,14 +23,14 @@
       </div>
     </header>
 
-    <!-- ===== 2. 进度条 ===== -->
+    <!-- 进度条 -->
     <div class="progress-bar">
       <div class="progress-fill" :style="{ width: progressPercent + '%' }"></div>
       <span class="progress-label">已完成 {{ answeredCount }} / {{ totalQuestions }} 项</span>
     </div>
 
-    <!-- ===== 3. 评估题卡列表 ===== -->
-    <section class="question-list">
+    <!-- 评估题卡列表 -->
+    <section class="question-list" v-loading="loading">
       <div
           v-for="(question, qIndex) in scaleData.questionList"
           :key="question.questionId"
@@ -73,7 +73,7 @@
       </div>
     </section>
 
-    <!-- ===== 4. 结果与评判标准 ===== -->
+    <!-- 结果与评判标准 -->
     <section class="result-area" v-if="answeredCount === totalQuestions">
       <div class="result-card score-card">
         <div class="rc-head">
@@ -120,7 +120,7 @@
         </div>
       </div>
 
-      <div class="result-card note-card" style="grid-column: 1 / -1;">
+      <div class="result-card note-card full-width">
         <div class="note-block">
           <div class="note-title">评估结论</div>
           <div class="note-text">{{ resultLevel.text }}（{{ totalScore }} 分）</div>
@@ -135,7 +135,7 @@
         </div>
       </div>
 
-      <div class="result-card suggest-card" style="grid-column: 1 / -1;">
+      <div class="result-card suggest-card full-width">
         <div class="rc-head">
           <span class="rc-icon">💡</span>
           <span>评估建议</span>
@@ -144,7 +144,7 @@
       </div>
     </section>
 
-    <!-- ===== 5. 提交按钮 ===== -->
+    <!-- 提交按钮 -->
     <div class="submit-area">
       <el-button
           type="primary"
@@ -158,14 +158,14 @@
         提交评估
       </el-button>
       <p v-if="!canSubmit && totalQuestions > 0" class="submit-hint">
-        请完成全部 {{ totalQuestions }} 项评估后再提交
+        还有 {{ totalQuestions - answeredCount }} 道题未作答，请完成后再提交
       </p>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, reactive, computed, watch, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ArrowLeft, Check, CircleCheck } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
@@ -173,203 +173,247 @@ import { selectAnxietyScale, insertCgaRecord } from '@/api/cga.js'
 
 const route = useRoute()
 const router = useRouter()
-const submitting = ref(false)
 
+// ==================== 常量配置 ====================
+const DEFAULT_SCALE_ID = 42
+// GAD-7 评分等级配置，统一管理阈值、文案、颜色
+const GAD7_LEVELS = [
+  { maxScore: 4, text: '正常，无明显焦虑症状', color: '#22c55e' },
+  { maxScore: 9, text: '轻度焦虑', color: '#f59e0b' },
+  { maxScore: 14, text: '中度焦虑', color: '#f97316' },
+  { maxScore: 21, text: '重度焦虑', color: '#ef4444' }
+]
+
+// ==================== 状态变量 ====================
+const loading = ref(false)
+const submitting = ref(false)
 const patientId = route.query.patientId
 const patientName = route.query.patientName || '患者'
 
+// 量表基础数据
+const scaleData = ref({
+  scaleId: null,
+  scaleName: '',
+  code: '',
+  questionList: []
+})
+// 用户答案（reactive 保证对象属性修改的响应式稳定性）
+const answers = reactive({})
+
+// ==================== 工具函数 ====================
 const toNumberId = (...values) => {
   const value = values.find(v => v !== undefined && v !== null && v !== '' && Number.isFinite(Number(v)))
   return value === undefined ? null : Number(value)
 }
-const targetScaleId = toNumberId(route.query.targetScaleId, route.query.projectId, route.query.scaleId) || 42
+const targetScaleId = toNumberId(route.query.targetScaleId, route.query.projectId, route.query.scaleId) || DEFAULT_SCALE_ID
 
-// ============ 数据 ============
-const scaleData = ref({ scaleId: null, scaleName: '', code: '', questionList: [] })
-const answers = ref({})
+/**
+ * 获取指定题目的已选选项对象
+ * @param {number} qIndex 题目索引
+ * @returns {object|null} 选项对象
+ */
+const getSelectedOption = (qIndex) => {
+  const q = scaleData.value.questionList?.[qIndex]
+  if (!q) return null
+  const selectedId = answers[q.questionId]
+  if (selectedId === undefined || selectedId === null) return null
+  return q.optionList?.find(o => Number(o.id) === Number(selectedId)) || null
+}
 
-// ============ 加载 ============
+// ==================== 数据加载 ====================
 const loadScaleData = async () => {
   try {
+    loading.value = true
     const res = await selectAnxietyScale()
     if (res.code === 200 && res.data && res.data.length > 0) {
       scaleData.value = res.data[0]
     }
   } catch (error) {
-    ElMessage.error('加载量表数据失败')
+    ElMessage.error('加载量表数据失败，请刷新页面重试')
+  } finally {
+    loading.value = false
   }
 }
 
-onMounted(() => { loadScaleData() })
-
-// ============ 选择 ============
-function selectOption(questionId, optionId) {
-  answers.value[questionId] = optionId
+/**
+ * 重置所有答案数据
+ */
+const resetAnswers = () => {
+  Object.keys(answers).forEach(key => delete answers[key])
 }
 
-// ============ 进度 ============
+// 监听路由参数变化，切换患者/量表时自动重置并重载数据
+watch(
+    () => [route.query.patientId, route.query.scaleId],
+    () => {
+      resetAnswers()
+      loadScaleData()
+    },
+    { immediate: true }
+)
+
+// ==================== 选项选择 ====================
+const selectOption = (questionId, optionId) => {
+  answers[questionId] = optionId
+}
+
+// ==================== 进度计算 ====================
 const totalQuestions = computed(() => scaleData.value.questionList?.length || 0)
-const answeredCount = computed(() => Object.keys(answers.value).length)
+const answeredCount = computed(() => Object.keys(answers).length)
 const progressPercent = computed(() => {
   const total = totalQuestions.value || 1
   return Math.round((answeredCount.value / total) * 100)
 })
 
-// ============ 分数 ============
+// ==================== 总分计算 ====================
 const totalScore = computed(() => {
   let sum = 0
-  for (const questionId in answers.value) {
-    const optionId = answers.value[questionId]
-    const question = scaleData.value.questionList.find(q => Number(q.questionId) === Number(questionId))
-    if (!question) continue
-    const option = question.optionList.find(o => Number(o.id) === Number(optionId))
+  scaleData.value.questionList.forEach(q => {
+    const option = getSelectedOption(scaleData.value.questionList.indexOf(q))
     if (option) sum += Number(option.score || 0)
-  }
+  })
   return sum
 })
 
-// ============ 工具：取某题已选选项内容 & 分数 ============
-function getSelectedContent(qIndex) {
-  const q = scaleData.value.questionList?.[qIndex]
-  if (!q) return ''
-  const selectedId = answers.value[q.questionId]
-  if (selectedId === undefined || selectedId === null) return ''
-  const option = q.optionList?.find(o => Number(o.id) === Number(selectedId))
-  return option ? String(option.content || '').trim() : ''
-}
-
-function getSelectedScore(qIndex) {
-  const q = scaleData.value.questionList?.[qIndex]
-  if (!q) return 0
-  const selectedId = answers.value[q.questionId]
-  if (selectedId === undefined || selectedId === null) return 0
-  const option = q.optionList?.find(o => Number(o.id) === Number(selectedId))
-  return Number(option?.score || 0)
-}
-
-// 正常项 = 单题得分 0 的项目
+// ==================== 正常项 / 风险项 ====================
+// 正常项：单题得分 = 0
 const normalItemsText = computed(() => {
   if (answeredCount.value < totalQuestions.value) return ''
   const list = []
-  for (let i = 0; i < (scaleData.value.questionList || []).length; i++) {
-    const q = scaleData.value.questionList[i]
-    const score = getSelectedScore(i)
-    const content = getSelectedContent(i)
-    if (score === 0 && content) list.push(`${i + 1}. ${content}`)
-  }
+  scaleData.value.questionList.forEach((q, index) => {
+    const option = getSelectedOption(index)
+    if (!option) return
+    const score = Number(option.score || 0)
+    if (score === 0) {
+      list.push(`${index + 1}. ${option.content}`)
+    }
+  })
   return list.length ? list.join('；') : '无'
 })
 
-// 风险项 = 单题得分 ≥ 1 的项目
+// 风险项：单题得分 ≥ 1
 const riskItemsText = computed(() => {
   if (answeredCount.value < totalQuestions.value) return ''
   const list = []
-  for (let i = 0; i < (scaleData.value.questionList || []).length; i++) {
-    const q = scaleData.value.questionList[i]
-    const score = getSelectedScore(i)
-    const content = getSelectedContent(i)
-    if (score >= 1 && content) list.push(`${i + 1}. ${q.title}：${content}（${score} 分）`)
-  }
+  scaleData.value.questionList.forEach((q, index) => {
+    const option = getSelectedOption(index)
+    if (!option) return
+    const score = Number(option.score || 0)
+    if (score >= 1) {
+      list.push(`${index + 1}. ${q.title}：${option.content}（${score} 分）`)
+    }
+  })
   return list.join('；')
 })
 
-// ============ 评估结论 ============
+// ==================== 评估结论等级 ====================
 const resultLevel = computed(() => {
   if (answeredCount.value < totalQuestions.value || totalQuestions.value === 0) {
     return { text: '待评估', color: '#94a3b8' }
   }
   const score = totalScore.value
-  if (score <= 4) return { text: '正常，无明显焦虑症状', color: '#22c55e' }
-  if (score <= 9) return { text: '轻度焦虑', color: '#f59e0b' }
-  if (score <= 14) return { text: '中度焦虑', color: '#f97316' }
-  return { text: '重度焦虑', color: '#ef4444' }
+  return GAD7_LEVELS.find(level => score <= level.maxScore) || GAD7_LEVELS[GAD7_LEVELS.length - 1]
 })
 
 const currentStandardIdx = computed(() => {
   if (answeredCount.value < totalQuestions.value || totalQuestions.value === 0) return -1
   const score = totalScore.value
-  if (score <= 4) return 0
-  if (score <= 9) return 1
-  if (score <= 14) return 2
-  return 3
+  return GAD7_LEVELS.findIndex(level => score <= level.maxScore)
 })
 
-// ============ 评估建议 ============
+// ==================== 评估建议 ====================
 const resultSuggest = computed(() => {
-  if (answeredCount.value < totalQuestions.value || totalQuestions.value === 0) return '请完成全部题目以生成评估建议。'
+  if (answeredCount.value < totalQuestions.value || totalQuestions.value === 0) {
+    return '请完成全部题目以生成评估建议。'
+  }
   const score = totalScore.value
   if (score <= 4) {
-    return 'GAD-7 评分提示情绪状态良好，无明显焦虑症状。建议保持规律作息、适度运动、合理饮食与良好社会支持，定期随访观察。'
+    return '建议保持规律作息、适度运动、合理饮食与良好社会支持，定期随访观察。'
   }
   if (score <= 9) {
-    return 'GAD-7 评分提示轻度焦虑症状，建议加强心理调节与压力管理，保持规律作息与社交活动，必要时寻求心理咨询或短期随访评估。'
+    return '建议加强心理调节与压力管理，保持规律作息与社交活动，必要时寻求心理咨询或短期随访评估。'
   }
   if (score <= 14) {
-    return 'GAD-7 评分提示中度焦虑，建议至精神心理专科进一步评估，考虑结合心理治疗（如认知行为治疗）与必要的药物干预，同时关注躯体健康与生活方式调整。'
+    return '建议至精神心理专科进一步评估，考虑结合心理治疗（如认知行为治疗）与必要的药物干预，同时关注躯体健康与生活方式调整。'
   }
-  return 'GAD-7 评分提示重度焦虑，建议尽快至精神心理专科就诊，完善进一步评估与诊断，制定个体化治疗方案（心理治疗、药物治疗或二者联合），家属应加强陪伴与关注，避免病情加重。'
+  return '建议尽快至精神心理专科就诊，完善进一步评估与诊断，制定个体化治疗方案（心理治疗、药物治疗或二者联合），家属应加强陪伴与关注，避免病情加重。'
 })
 
-// ============ 导航 ============
-const goBack = () => { router.back() }
+// ==================== 导航跳转 ====================
+const goBack = () => {
+  router.push({ path: '/patient/detection/customize', query: route.query })
+}
 
 const backToComprehensive = () => {
   try {
     if (patientId) {
       localStorage.setItem(`customize_done:${patientId}:anxiety`, '1')
     }
-  } catch (e) {}
+  } catch (e) {
+    console.warn('本地存储写入失败', e)
+  }
   router.push({
-    path: '/patient/detection/comprehensive',
+    path: '/patient/detection/customize',
     query: { patientId, patientName }
   })
 }
 
-// ============ 提交 ============
+// ==================== 提交逻辑 ====================
 const canSubmit = computed(() => {
-  return totalQuestions.value > 0 && answeredCount.value >= totalQuestions.value
+  return totalQuestions.value > 0
+      && answeredCount.value >= totalQuestions.value
+      && patientId
+      && !submitting.value
 })
 
 const submitAssessment = async () => {
-  if (submitting.value) return
   if (!canSubmit.value) {
-    ElMessage.warning(`还有 ${totalQuestions.value - answeredCount.value} 道题未作答`)
+    const remain = totalQuestions.value - answeredCount.value
+    if (remain > 0) {
+      ElMessage.warning(`还有 ${remain} 道题未作答，请完成后再提交`)
+    }
+    if (!patientId) {
+      ElMessage.error('患者信息异常，请重新进入评估页面')
+    }
     return
-  }
-
-  const formattedAnswers = {}
-  for (const questionId in answers.value) {
-    formattedAnswers[String(questionId)] = [Number(answers.value[questionId])]
-  }
-
-  const dto = {
-    patientId: Number(patientId),
-    projectId: targetScaleId,
-    scaleId: targetScaleId,
-    answers: formattedAnswers,
-    result: resultLevel.value.text,
-    suggest: resultSuggest.value
   }
 
   submitting.value = true
   try {
+    // 格式化答案为后端要求的格式
+    const formattedAnswers = {}
+    Object.keys(answers).forEach(questionId => {
+      formattedAnswers[String(questionId)] = [Number(answers[questionId])]
+    })
+
+    const dto = {
+      patientId: Number(patientId),
+      projectId: targetScaleId,
+      scaleId: targetScaleId,
+      answers: formattedAnswers,
+      result: resultLevel.value.text,
+      suggest: resultSuggest.value
+    }
+
     const res = await insertCgaRecord(dto)
     if (res && (res.code === 200 || res.code === '200')) {
       ElMessage.success('评估提交成功')
-      setTimeout(() => { backToComprehensive() }, 1500)
+      setTimeout(() => {
+        backToComprehensive()
+      }, 1500)
     } else {
-      ElMessage.error(res.msg || '提交失败')
-      submitting.value = false
+      ElMessage.error(res.msg || '提交失败，请稍后重试')
     }
   } catch (error) {
-    ElMessage.error('提交失败，请稍后重试')
+    ElMessage.error('提交失败，请检查网络后重试')
+  } finally {
     submitting.value = false
   }
 }
 </script>
 
 <style scoped lang="scss">
-.daily-life-container {
+.anxiety-assessment-container {
   min-height: 100vh;
   padding: 24px 28px 48px;
   background: #f4f6fb;
@@ -389,14 +433,21 @@ const submitAssessment = async () => {
   margin-bottom: 14px;
 }
 
-.top-left { display: flex; align-items: center; gap: 16px; }
+.top-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
 
 .back-btn {
   font-size: 14px;
   color: #64748b;
   padding: 6px 12px;
   border-radius: 8px;
-  &:hover { color: #f59e0b; background: #fef3c7; }
+  &:hover {
+    color: #f59e0b;
+    background: #fef3c7;
+  }
 }
 
 .title-block h1 {
@@ -422,15 +473,27 @@ const submitAssessment = async () => {
   border: 1px solid #e2e8f0;
 }
 .badge-avatar {
-  width: 36px; height: 36px;
+  width: 36px;
+  height: 36px;
   border-radius: 10px;
   background: #f59e0b;
   color: #fff;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 16px; font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: 700;
 }
-.badge-name { font-size: 14px; font-weight: 600; color: #1e293b; }
-.badge-id { font-size: 11.5px; color: #94a3b8; margin-top: 2px; }
+.badge-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1e293b;
+}
+.badge-id {
+  font-size: 11.5px;
+  color: #94a3b8;
+  margin-top: 2px;
+}
 
 .progress-bar {
   height: 46px;
@@ -444,7 +507,8 @@ const submitAssessment = async () => {
 
 .progress-fill {
   position: absolute;
-  left: 0; top: 0;
+  left: 0;
+  top: 0;
   height: 100%;
   background: linear-gradient(90deg, #f59e0b, #d97706);
   border-radius: 10px;
@@ -453,7 +517,8 @@ const submitAssessment = async () => {
 
 .progress-label {
   position: absolute;
-  left: 20px; top: 50%;
+  left: 20px;
+  top: 50%;
   transform: translateY(-50%);
   font-size: 13px;
   font-weight: 600;
@@ -475,7 +540,9 @@ const submitAssessment = async () => {
   overflow: hidden;
   transition: border-color 0.2s;
 
-  &.is-answered { border-color: #fcd34d; }
+  &.is-answered {
+    border-color: #fcd34d;
+  }
 }
 
 .q-head {
@@ -495,19 +562,27 @@ const submitAssessment = async () => {
 }
 
 .q-index {
-  width: 30px; height: 30px;
+  width: 30px;
+  height: 30px;
   border-radius: 8px;
   background: #e2e8f0;
   color: #475569;
-  font-size: 12.5px; font-weight: 800;
+  font-size: 12.5px;
+  font-weight: 800;
   font-family: Consolas, monospace;
-  display: flex; align-items: center; justify-content: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   flex-shrink: 0;
 }
-.question-card.is-answered .q-index { background: #f59e0b; color: #fff; }
+.question-card.is-answered .q-index {
+  background: #f59e0b;
+  color: #fff;
+}
 
 .q-title {
-  font-size: 15px; font-weight: 600;
+  font-size: 15px;
+  font-weight: 600;
   color: #1e293b;
 }
 
@@ -519,20 +594,28 @@ const submitAssessment = async () => {
 }
 
 .q-done {
-  width: 28px; height: 28px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
-  background: #22c55e; color: #fff;
-  display: flex; align-items: center; justify-content: center;
+  background: #22c55e;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   font-size: 15px;
 }
 
 .q-options {
   padding: 10px 12px;
-  display: flex; flex-direction: column; gap: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
 .q-option {
-  display: flex; justify-content: space-between; align-items: center;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   padding: 12px 16px;
   border-radius: 10px;
   border: 1px solid transparent;
@@ -540,32 +623,65 @@ const submitAssessment = async () => {
   transition: all 0.15s;
   background: #fafbfc;
 
-  &:hover { background: #fef3c7; border-color: #fcd34d; }
-  &.is-selected { background: #fef3c7; border-color: #f59e0b; box-shadow: 0 2px 8px rgba(245,158,11,0.18); }
+  &:hover {
+    background: #fef3c7;
+    border-color: #fcd34d;
+  }
+  &.is-selected {
+    background: #fef3c7;
+    border-color: #f59e0b;
+    box-shadow: 0 2px 8px rgba(245,158,11,0.18);
+  }
 }
 
-.opt-left { display: flex; align-items: center; gap: 12px; }
+.opt-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
 
 .opt-radio {
-  font-size: 20px; color: #cbd5e1; flex-shrink: 0;
+  font-size: 20px;
+  color: #cbd5e1;
+  flex-shrink: 0;
   transition: color 0.15s;
-  &.is-checked { color: #f59e0b; }
+  &.is-checked {
+    color: #f59e0b;
+  }
 }
 
-.opt-label { font-size: 14px; color: #374151; line-height: 1.5; }
-.is-selected .opt-label { color: #78350f; font-weight: 600; }
+.opt-label {
+  font-size: 14px;
+  color: #374151;
+  line-height: 1.5;
+}
+.is-selected .opt-label {
+  color: #78350f;
+  font-weight: 600;
+}
 
 .opt-right {
-  display: flex; align-items: baseline;
-  gap: 2px; flex-shrink: 0; margin-left: 16px;
+  display: flex;
+  align-items: baseline;
+  gap: 2px;
+  flex-shrink: 0;
+  margin-left: 16px;
 }
 
 .opt-score {
-  font-size: 22px; font-weight: 800;
-  color: #64748b; font-family: Consolas, monospace; line-height: 1;
+  font-size: 22px;
+  font-weight: 800;
+  color: #64748b;
+  font-family: Consolas, monospace;
+  line-height: 1;
 }
-.opt-unit { font-size: 11px; color: #94a3b8; }
-.is-selected .opt-score { color: #b45309; }
+.opt-unit {
+  font-size: 11px;
+  color: #94a3b8;
+}
+.is-selected .opt-score {
+  color: #b45309;
+}
 
 .result-area {
   display: grid;
@@ -581,56 +697,103 @@ const submitAssessment = async () => {
   border: 1px solid #e5e7eb;
 }
 
-.rc-head {
-  display: flex; align-items: center; gap: 8px;
-  font-size: 14px; font-weight: 700; color: #1e293b; margin-bottom: 14px;
+.full-width {
+  grid-column: 1 / -1;
 }
-.rc-icon { font-size: 20px; }
 
-.score-card { text-align: center; }
+.rc-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 14px;
+}
+.rc-icon {
+  font-size: 20px;
+}
+
+.score-card {
+  text-align: center;
+}
 
 .score-big {
-  font-size: 56px; font-weight: 800;
-  color: #1e293b; line-height: 1;
+  font-size: 56px;
+  font-weight: 800;
+  color: #1e293b;
+  line-height: 1;
   font-family: Consolas, monospace;
 }
-.score-unit { font-size: 18px; color: #64748b; margin-left: 4px; }
-.rc-footer { margin-top: 12px; }
+.score-unit {
+  font-size: 18px;
+  color: #64748b;
+  margin-left: 4px;
+}
+.rc-footer {
+  margin-top: 12px;
+}
 
 .level-tag {
   display: inline-block;
   padding: 6px 20px;
   border-radius: 999px;
   border: 1.5px solid;
-  font-size: 15px; font-weight: 700; letter-spacing: 1px;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 1px;
 }
 
-.standard-list { margin-top: -4px; }
+.standard-list {
+  margin-top: -4px;
+}
 
 .stan-row {
-  display: flex; align-items: center; gap: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
   padding: 6px 0;
-  font-size: 13px; color: #64748b;
-  border-radius: 6px; transition: all 0.2s;
+  font-size: 13px;
+  color: #64748b;
+  border-radius: 6px;
+  transition: all 0.2s;
 
   &.is-current {
-    background: #f8fafc; padding: 6px 10px;
-    margin: 0 -10px; color: #1e293b; font-weight: 600;
+    background: #f8fafc;
+    padding: 6px 10px;
+    margin: 0 -10px;
+    color: #1e293b;
+    font-weight: 600;
   }
 }
 
-.stan-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
-.stan-range { width: 110px; font-weight: 700; font-family: Consolas, monospace; color: #334155; }
-.stan-text { color: #475569; }
-.is-current .stan-text { color: #111827; }
+.stan-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.stan-range {
+  width: 110px;
+  font-weight: 700;
+  font-family: Consolas, monospace;
+  color: #334155;
+}
+.stan-text {
+  color: #475569;
+}
+.is-current .stan-text {
+  color: #111827;
+}
 
-.note-card { }
 .note-block {
   padding: 8px 12px;
   margin-bottom: 6px;
   background: #f8fafc;
   border-radius: 8px;
-  &:last-child { margin-bottom: 0; }
+  &:last-child {
+    margin-bottom: 0;
+  }
 }
 .note-title {
   font-size: 13px;
@@ -641,8 +804,14 @@ const submitAssessment = async () => {
   align-items: center;
   gap: 6px;
 }
-.dot-normal { color: #22c55e; font-size: 10px; }
-.dot-abnormal { color: #ef4444; font-size: 10px; }
+.dot-normal {
+  color: #22c55e;
+  font-size: 10px;
+}
+.dot-abnormal {
+  color: #ef4444;
+  font-size: 10px;
+}
 .note-text {
   font-size: 13.5px;
   color: #1f2937;
@@ -652,25 +821,54 @@ const submitAssessment = async () => {
 .suggest-card {
   border-left: 4px solid #f59e0b;
 }
-.suggest-text { margin: 0; font-size: 14px; color: #374151; line-height: 1.9; }
+.suggest-text {
+  margin: 0;
+  font-size: 14px;
+  color: #374151;
+  line-height: 1.9;
+}
 
-.submit-area { text-align: center; padding: 8px 0; }
+.submit-area {
+  text-align: center;
+  padding: 8px 0;
+}
 
 .submit-area .el-button--primary {
   background: linear-gradient(135deg, #f59e0b, #d97706);
   border: none;
   padding: 14px 48px;
-  font-size: 16px; font-weight: 600; letter-spacing: 1px;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 1px;
   box-shadow: 0 4px 14px rgba(217,119,6,0.3);
-  &:hover { box-shadow: 0 6px 20px rgba(217,119,6,0.4); transform: translateY(-1px); }
-  &:disabled { background: #cbd5e1; box-shadow: none; }
+  &:hover {
+    box-shadow: 0 6px 20px rgba(217,119,6,0.4);
+    transform: translateY(-1px);
+  }
+  &:disabled {
+    background: #cbd5e1;
+    box-shadow: none;
+    cursor: not-allowed;
+  }
 }
 
-.submit-hint { margin: 12px 0 0; font-size: 13px; color: #94a3b8; }
+.submit-hint {
+  margin: 12px 0 0;
+  font-size: 13px;
+  color: #94a3b8;
+}
 
 @media (max-width: 800px) {
-  .daily-life-container { padding: 14px; }
-  .top-bar { flex-direction: column; align-items: flex-start; gap: 12px; }
-  .result-area { grid-template-columns: 1fr; }
+  .anxiety-assessment-container {
+    padding: 14px;
+  }
+  .top-bar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .result-area {
+    grid-template-columns: 1fr;
+  }
 }
 </style>

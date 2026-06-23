@@ -356,7 +356,13 @@ function startAssessment(item) {
 
 /** 返回上一页 */
 function goBack() {
-  router.back()
+  router.push({
+    path: '/patient/detection/geriatricsyndrome',
+    query: {
+      patientId: patientId.value,
+      patientName: patientName.value
+    }
+  })
 }
 
 /** 跳转至综合报告页面 */

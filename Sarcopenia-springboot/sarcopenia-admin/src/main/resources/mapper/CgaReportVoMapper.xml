@@ -130,9 +130,20 @@
                  FROM cga_record r
                           LEFT JOIN patient p ON r.patient_id = p.id
                           LEFT JOIN cga_scale s ON s.del_flag = '0'
+                              AND s.id BETWEEN 1 AND 21
+                              AND s.code IN (
+                                  'basic_adl', 'instrumental_adl', 'exercise_function',
+                                  'vision_assessment', 'hearing_assessment', 'home_environment',
+                                  'frail_assessment', 'incontinence_screen', 'constipation_screen',
+                                  'sleep_disorder_screen', 'chronic_pain_screen', 'pressure_injury_risk',
+                                  'water_swallowing_test', 'nutrition_risk_screen', 'sarcopenia_screen',
+                                  'cognition_screen', 'delirium_assessment', 'depression_screen',
+                                  'anxiety_screen', 'fall_risk_screen', 'polypharmacy_assessment'
+                              )
                           LEFT JOIN cga_question q ON q.scale_id = s.id AND q.del_flag = '0'
                  WHERE r.id = #{id}
                    AND r.del_flag = '0'
+                   AND s.id IS NOT NULL
                  GROUP BY
                      p.id,
                      p.medical_case_no,

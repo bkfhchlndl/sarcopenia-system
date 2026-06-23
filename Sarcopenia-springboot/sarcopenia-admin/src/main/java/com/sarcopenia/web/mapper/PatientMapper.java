@@ -70,6 +70,13 @@ public interface PatientMapper {
     int updatePatientIsReports(@Param("id") Long id);
 
     /**
+     * 重置患者评估报告状态为未报告
+     * @param id 患者ID
+     * @return 影响行数
+     */
+    int resetPatientIsReport(@Param("id") Long id);
+
+    /**
      * 查询已完成评估的患者列表
      * @param patient 查询条件实体
      * @return 已评估患者信息集合

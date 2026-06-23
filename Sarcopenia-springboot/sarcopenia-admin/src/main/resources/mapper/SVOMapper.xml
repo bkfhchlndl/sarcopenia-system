@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 量表查询数据访问层 -->
+<mapper namespace="com.sarcopenia.web.mapper.SVOMapper">
+
+    <!-- ===================== 结果映射：量表+题目+选项 三层嵌套 ===================== -->
+    <resultMap id="ScaleFullResultMap" type="com.sarcopenia.web.entity.vo.SVO">
+        <!-- 1. 量表主表字段映射 -->
+        <id column="scale_id" property="scaleId"/>
+        <result column="scale_name" property="scaleName"/>
+        <result column="code" property="code"/>
+        <result column="total_score" property="totalScore"/>
+        <result column="scale_remark" property="remark"/>
+<!--        <result column="del_flag" property="delFlag"/>-->
+
+        <!-- 2. 一对多：量表 → 题目列表 -->
+        <collection property="questionList" ofType="com.sarcopenia.web.entity.vo.SVO$QuestionVO">
+            <id column="question_id" property="questionId"/>
+            <result column="question_title" property="title"/>
+            <result column="question_type" property="type"/>
+            <result column="question_sort" property="sort"/>
+            <result column="question_remark" property="remark"/>
+
+            <!-- 3. 一对多：题目 → 选项列表 -->
+            <collection property="optionList" ofType="com.sarcopenia.web.entity.vo.SVO$OptionVO">
+                <id column="option_id" property="optionId"/>
+                <result column="option_label" property="label"/>
+                <result column="option_content" property="content"/>
+                <result column="option_score" property="score"/>
+                <result column="option_sort" property="sort"/>
+            </collection>
+        </collection>
+    </resultMap>
+
+    <!-- ===================== 查询量表列表（含全部题目+选项） ===================== -->
+    <select id="selectSVOList" resultMap="ScaleFullResultMap">
+        SELECT
+            s.id          AS scale_id,
+            s.scale_name  AS scale_name,
+            s.code        AS code,
+            s.total_score AS total_score,
+            s.remark      AS scale_remark,
+--             s.del_flag    AS del_flag,
+
+            q.id          AS question_id,
+            q.title       AS question_title,
+            q.type        AS question_type,
+            q.sort        AS question_sort,
+            q.remark      AS question_remark,
+
+            o.id          AS option_id,
+            o.label       AS option_label,
+            o.content     AS option_content,
+            o.score       AS option_score,
+            o.sort        AS option_sort
+        FROM s_scale s
+                 LEFT JOIN s_question q
+                           ON s.id = q.scale_id
+                               AND q.del_flag = '0'
+                 LEFT JOIN s_option o
+                           ON q.id = o.question_id
+                               AND o.del_flag = '0'
+        WHERE s.del_flag = '0'
+        ORDER BY s.id ASC, q.sort ASC, o.sort ASC
+    </select>
+
+    <!-- ===================== 补充：根据ID查询单个量表详情（常用场景） ===================== -->
+    <select id="selectSVOById" resultMap="ScaleFullResultMap" parameterType="long">
+        SELECT
+            s.id          AS scale_id,
+            s.scale_name  AS scale_name,
+            s.code        AS code,
+            s.total_score AS total_score,
+            s.remark      AS scale_remark,
+--             s.del_flag    AS del_flag,
+
+            q.id          AS question_id,
+            q.title       AS question_title,
+            q.type        AS question_type,
+            q.sort        AS question_sort,
+            q.remark      AS question_remark,
+
+            o.id          AS option_id,
+            o.label       AS option_label,
+            o.content     AS option_content,
+            o.score       AS option_score,
+            o.sort        AS option_sort
+        FROM s_scale s
+                 LEFT JOIN s_question q
+                           ON s.id = q.scale_id
+                               AND q.del_flag = '0'
+                 LEFT JOIN s_option o
+                           ON q.id = o.question_id
+                               AND o.del_flag = '0'
+        WHERE s.del_flag = '0'
+          AND s.id = #{scaleId}
+        ORDER BY q.sort ASC, o.sort ASC
+    </select>
+
+</mapper>

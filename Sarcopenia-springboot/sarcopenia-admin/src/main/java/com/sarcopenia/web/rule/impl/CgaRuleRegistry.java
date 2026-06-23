@@ -42,14 +42,14 @@ public class CgaRuleRegistry {
         // 视力视觉简易评估
         RULES.put("vision_assessment", new YinYangRule(
                 "视力筛查>3分且视觉功能筛查>2分=阴性",
-                "视力筛查≤3分或视觉功能筛查≤2分，应进一步进行视力视觉评估",
+                "视力视觉筛查为阳性，应进一步进行视力视觉评估",
                 "视力视觉筛查阴性"
         ));
 
         // 听力简易评估
         RULES.put("hearing_assessment", new YinYangRule(
                 "听力筛查>3分且耳语试验能听清=阴性",
-                "听力简易评估≤3分或耳语试验阳性者，应进一步进行听力评估",
+                "听力简易评估筛查为阳性，应进一步进行听力评估",
                 "听力筛查阴性"
         ));
 
@@ -133,8 +133,8 @@ public class CgaRuleRegistry {
         // 肌少症筛查
         RULES.put("sarcopenia_screen", new YinYangRule(
                 "筛查阴性=无肌少症风险；筛查阳性需进一步进行肌肉力量、躯体功能评估",
-                "肌少症筛查阳性，宜进行肌肉力量和躯体功能评估；阳性者进一步进行肌少症评估及诊断",
-                "肌少症筛查阴性"
+                "微营养筛查为阳性，应该进一步进行评估及诊断",
+                "微营养筛查阴性"
         ));
 
 
@@ -164,7 +164,7 @@ public class CgaRuleRegistry {
                     } else if (score >= 3) {
                         return "衰弱前期";
                     } else {
-                        return "衰弱";
+                        return "判定为衰弱";
                     }
                 }
         ));

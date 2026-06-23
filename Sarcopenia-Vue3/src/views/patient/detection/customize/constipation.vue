@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="daily-life-container">
     <!-- ===== 1. 顶部导航栏 ===== -->
     <header class="top-bar">
@@ -45,7 +45,7 @@
           </span>
         </div>
 
-        <!-- 选择题（单选 / 多选）—— 持续时间题用下面的专用UI -->
+        <!-- 选择题（单选 / 多选）—— 持续时间题用专用UI -->
         <div v-if="isChoiceQuestion(question) && !isDurationQuestion(question)" class="q-options">
           <div
               v-for="option in question.optionList"
@@ -57,9 +57,9 @@
             <div class="opt-left">
               <div
                   :class="[
-                    (question.type === 1 || !question.type) ? 'opt-radio' : 'opt-checkbox',
-                    { 'is-checked': answers[question.questionId]?.includes(option.id) }
-                  ]"
+                  (question.type === 1 || !question.type) ? 'opt-radio' : 'opt-checkbox',
+                  { 'is-checked': answers[question.questionId]?.includes(option.id) }
+                ]"
               >
                 <el-icon><Component :is="(question.type === 1 || !question.type) ? CircleCheck : Check" /></el-icon>
               </div>
@@ -70,7 +70,7 @@
           </div>
         </div>
 
-        <!-- 填空题（type === 3 或有 inputType） -->
+        <!-- 填空题 -->
         <div v-if="isFillQuestion(question)" class="q-fill">
           <div class="fill-row">
             <span class="fill-label">{{ question.inputLabel || '请输入：' }}</span>
@@ -85,7 +85,7 @@
           </div>
         </div>
 
-        <!-- 日期题（type === 4 或 标题含 日期/发病时间/上次排便） -->
+        <!-- 日期题 -->
         <div v-if="isDateQuestion(question)" class="q-fill">
           <div class="fill-row date-row">
             <span class="fill-label">{{ question.dateLabel || '选择日期：' }}</span>
@@ -103,7 +103,7 @@
           </div>
         </div>
 
-        <!-- 年月下拉框（持续时间型） + "不知道"按钮，两者互斥 -->
+        <!-- 持续时间题（年月下拉 + 不知道互斥） -->
         <div v-if="isDurationQuestion(question)" class="q-fill">
           <div class="fill-row duration-row">
             <span class="fill-label">持续时间：</span>
@@ -175,7 +175,7 @@
         </div>
         <p class="suggest-text">{{ constipationSuggest }}</p>
         <div v-if="constipationLevel.text === '存在便秘症状'" class="suggest-sub">
-          建议增加膳食纤维摄入，每日饮水1500-2000ml，规律排便习惯，必要时到消化内科就诊进一步检查。
+          若症状持续无改善或进行性加重，建议及时前往消化内科专科就诊，完善相关检查明确诊断。
         </div>
       </div>
     </section>
@@ -203,8 +203,8 @@
 <script setup>
 import { ref, reactive, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { ArrowLeft, Check, CircleCheck } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
+import { ArrowLeft, Check, CircleCheck } from '@element-plus/icons-vue'
 import { selectConstipationScale, insertCgaRecord } from '@/api/cga.js'
 
 const route = useRoute()
@@ -212,6 +212,8 @@ const router = useRouter()
 const submitting = ref(false)
 const patientId = route.query.patientId
 const patientName = route.query.patientName || '患者'
+
+// 数字ID格式化
 const toNumberId = (...values) => {
   const value = values.find(v => v !== undefined && v !== null && v !== '' && Number.isFinite(Number(v)))
   return value === undefined ? null : Number(value)
@@ -226,6 +228,7 @@ watch(() => route.fullPath, () => {
   }
 }, { immediate: true })
 
+// 加载量表数据
 const loadScaleData = async () => {
   try {
     const res = await selectConstipationScale()
@@ -253,133 +256,133 @@ const loadScaleData = async () => {
 
 onMounted(() => { loadScaleData() })
 
-// 选择题答案：{ questionId: [optionId, ...] }
-const answers = ref({})
-// 填空题答案：{ questionId: 'text' }
-const fillAnswers = reactive({})
-// 日期题答案：{ questionId: { date: 'YYYY-MM-DD' } }
-const dateAnswers = reactive({})
-// 持续时间（年月）答案：{ questionId: { years: null, months: null } }
-const durationAnswers = reactive({})
+// ==================== 答案存储 ====================
+const answers = ref({}) // 选择题
+const fillAnswers = reactive({}) // 填空题
+const dateAnswers = reactive({}) // 日期题
+const durationAnswers = reactive({}) // 持续时间题
 
 // 禁用未来日期
 const disabledFutureDate = (time) => {
   return time.getTime() > Date.now()
 }
 
-// 题目类型判断
+// ==================== 题目类型判断 ====================
 function isChoiceQuestion(q) {
   if (isDateQuestionRaw(q)) return false
   if (isDurationQuestion(q)) return false
   return q.type === 1 || q.type === 2 || (!q.type && !q.inputType)
 }
+
 function isFillQuestion(q) {
   if (isDateQuestionRaw(q)) return false
   if (isDurationQuestion(q)) return false
   return q.type === 3 || q.inputType
 }
+
 function isDateQuestionRaw(q) {
   if (q.type === 5) return false
   const title = String(q.title || '')
-  // 只有真正需要"具体某一天"的题才是日期题
-  // 如：上次排便时间、最近一次排便日期
-  // 排除"持续时间/多长时间/发病时间/病程"（这些用年月下拉框）
+  // 持续时间类排除，仅真实日期题生效
   if (title.includes('持续时间') || title.includes('多长时间')
-      || title.includes('发病时间') || title.includes('病程')) {
+      || title.includes('发病时间') || title.includes('病程')
+      || title.includes('多久') || title.includes('到现在')) {
     return false
   }
-  return title.includes('日期') && !title.includes('发病')
-    || title.includes('上次排便') || title.includes('最近排便')
+  return title.includes('日期') || title.includes('上次排便') || title.includes('最近一次排便')
 }
+
 function isDateQuestion(q) {
   return isDateQuestionRaw(q)
 }
 
-// 持续时间题（年月下拉框）——只要标题问时间长短就是
+// 持续时间题判断
 function isDurationQuestion(q) {
   if (q.type === 5) return true
   const title = String(q.title || '')
-  // 包含明确问时间长短的关键词
-  if (title.includes('持续时间') || title.includes('多长时间')
+  return title.includes('持续时间') || title.includes('多长时间')
       || title.includes('发病时间') || title.includes('病程')
-      || title.includes('多久') || title.includes('几年')
-      || title.includes('几个月') || title.includes('到现在')
-      || title.includes('多长') || title.includes('时间是')
-      || title.includes('有几年') || title.includes('有几个月')) {
-    return true
-  }
-  // type=4 作为备选
-  if (q.type === 4) return true
-  return false
+      || title.includes('多久') || title.includes('到现在')
+      || title.includes('有几年') || title.includes('有几个月')
+      || q.type === 4
 }
 
-// 切换选项（单选/多选）
+// ==================== 选项交互逻辑 ====================
+// 切换选择题选项
 function toggleOption(question, option) {
   if (!answers.value[question.questionId]) {
     answers.value[question.questionId] = []
   }
   const qType = question.type || 1
-  // 单选：直接替换
+  // 单选直接替换
   if (qType === 1) {
     answers.value[question.questionId] = [option.id]
+    return
+  }
+
+  // 多选：不知道和普通选项互斥
+  const isClickUnknown = isOptionUnknown(option)
+  if (isClickUnknown) {
+    const currentIdx = answers.value[question.questionId].indexOf(option.id)
+    answers.value[question.questionId] = currentIdx === -1 ? [option.id] : []
   } else {
-    // 多选："不清楚/不知道"和其他选项互斥
-    const isClickingUnknown = isOptionUnknown(option)
-    if (isClickingUnknown) {
-      // 点的是"不知道"类选项 → 只保留它自己（如果已选中则取消）
-      const currentIdx = answers.value[question.questionId].indexOf(option.id)
-      if (currentIdx === -1) {
-        answers.value[question.questionId] = [option.id]
-      } else {
-        answers.value[question.questionId] = []
-      }
+    // 先清除所有不知道类选项，再切换当前选项
+    answers.value[question.questionId] = answers.value[question.questionId].filter(id => {
+      const opt = (question.optionList || []).find(o => o.id === id)
+      return opt ? !isOptionUnknown(opt) : true
+    })
+    const idx = answers.value[question.questionId].indexOf(option.id)
+    if (idx === -1) {
+      answers.value[question.questionId].push(option.id)
     } else {
-      // 点的是正常选项 → 先清除所有"不知道"类选项，再正常切换当前选项
-      // 清除"不知道"类选项
-      answers.value[question.questionId] = answers.value[question.questionId].filter(id => {
-        const opt = (question.optionList || []).find(o => o.id === id)
-        return opt ? !isOptionUnknown(opt) : true
-      })
-      // 正常切换当前选项
-      const idx = answers.value[question.questionId].indexOf(option.id)
-      if (idx === -1) {
-        answers.value[question.questionId].push(option.id)
-      } else {
-        answers.value[question.questionId].splice(idx, 1)
-      }
+      answers.value[question.questionId].splice(idx, 1)
     }
   }
 }
 
-// 切换持续时间题的"不知道"状态（和年月互斥）
+// 切换持续时间题的不知道状态
 function toggleDurationUnknown(question) {
   const d = durationAnswers[question.questionId]
   if (!d) {
     durationAnswers[question.questionId] = reactive({ years: null, months: null, unknown: true })
     return
   }
-  // 如果已经是unknown，取消
   if (d.unknown) {
     d.unknown = false
-    return
+  } else {
+    d.unknown = true
+    d.years = null
+    d.months = null
   }
-  // 勾选"不知道"时清空年月
-  d.unknown = true
-  d.years = null
-  d.months = null
 }
 
-// 判断某题是否已作答
+// 判断选项是否为正常/无异常
+function isOptionNormal(option) {
+  const text = String(option.content || '').toLowerCase()
+  const label = String(option.label || '').toLowerCase()
+  const combined = `${label} ${text}`
+  const normalKeywords = ['无', '正常', '从不', '没有', '否', '不是', '不影响', '不费力', '畅通', '通畅', '>3', '3次以上', '3次及以上', '每周3次以上', '正常范围']
+  return normalKeywords.some(k => combined.includes(k))
+}
+
+// 判断选项是否为不知道/不清楚
+function isOptionUnknown(option) {
+  const text = String(option.content || '').toLowerCase()
+  const label = String(option.label || '').toLowerCase()
+  const combined = `${label} ${text}`
+  return combined.includes('不知道') || combined.includes('不清楚') || combined.includes('不确定')
+      || combined.includes('记不清') || combined.includes('不记得')
+}
+
+// ==================== 作答状态统计 ====================
 function isQuestionAnswered(question) {
   if (isDateQuestion(question)) {
     const d = dateAnswers[question.questionId]
-    if (!d) return false
-    return d.date && d.date !== ''
+    return !!(d && d.date)
   }
   if (isDurationQuestion(question)) {
     const d = durationAnswers[question.questionId]
     if (!d) return false
-    // 选了年月或"不知道"都算作答
     if (d.unknown) return true
     return (d.years !== null && d.years !== undefined) || (d.months !== null && d.months !== undefined)
   }
@@ -392,7 +395,6 @@ function isQuestionAnswered(question) {
 }
 
 const totalQuestions = computed(() => scaleData.value.questionList?.length || 0)
-
 const answeredCount = computed(() => {
   let count = 0
   for (const q of scaleData.value.questionList || []) {
@@ -400,34 +402,15 @@ const answeredCount = computed(() => {
   }
   return count
 })
-
 const progressPercent = computed(() => {
   const total = totalQuestions.value || 1
   return Math.round((answeredCount.value / total) * 100)
 })
 
-// 判断选项是否表示"正常/无异常"
-function isOptionNormal(option) {
-  const text = String(option.content || '').toLowerCase()
-  const label = String(option.label || '').toLowerCase()
-  const combined = `${label} ${text}`
-  const normalKeywords = ['无', '正常', '从不', '没有', '否', '不是', '不影响', '不费力', '畅通', '通畅', '>3', '3次以上', '3次及以上', '3～6', '4-6', '4～6', '每周3次以上', '正常范围']
-  return normalKeywords.some(k => combined.includes(k))
-}
-
-// 判断选项是否是"不知道/不清楚"——中性状态，既不算正常也不算异常
-function isOptionUnknown(option) {
-  const text = String(option.content || '').toLowerCase()
-  const label = String(option.label || '').toLowerCase()
-  const combined = `${label} ${text}`
-  return combined.includes('不知道') || combined.includes('不清楚') || combined.includes('不确定')
-    || combined.includes('记不清') || combined.includes('不记得')
-}
-
+// ==================== 工具方法 ====================
 // 日期格式化
 function formatDate(dateStr) {
   if (!dateStr) return ''
-  // dateStr 可能是 YYYY-MM-DD 或 YYYY-MM
   const parts = dateStr.split('-')
   if (parts.length >= 2) {
     if (parts.length === 2) return `${parts[0]}年${parts[1]}月`
@@ -436,7 +419,7 @@ function formatDate(dateStr) {
   return dateStr
 }
 
-// 计算两个日期之间的时长（用于便秘持续时间）
+// 计算病程持续时长
 function calcDuration(startStr) {
   if (!startStr) return ''
   const start = new Date(startStr)
@@ -463,58 +446,61 @@ function calcDuration(startStr) {
   return parts.join('') || '今天'
 }
 
-// 计算距上次排便的天数
+// 计算距上次排便天数
 function calcDaysAgo(dateStr) {
   if (!dateStr) return ''
   const target = new Date(dateStr)
   const now = new Date()
   const diffMs = now.getTime() - target.getTime()
   const days = Math.floor(diffMs / (1000 * 60 * 60 * 24))
-  if (days === 0) return '今天'
-  if (days === 1) return '昨天'
-  if (days === 2) return '前天'
+  if (days === 0) return '今日'
+  if (days === 1) return '昨日'
   if (days <= 30) return `${days}天前`
   if (days <= 365) return `${Math.floor(days / 30)}个月前`
   return `${Math.floor(days / 365)}年${Math.floor((days % 365) / 30)}个月前`
 }
 
-// 判断日期题是否是"开始时间"类型（用于生成持续时间描述）
+// 判断日期题类型
 function isStartDateQuestion(q) {
   const title = String(q.title || '')
   return title.includes('开始') || title.includes('出现') || title.includes('多久') || title.includes('持续')
 }
-
-// 判断日期题是否是"上次排便"类型
 function isLastBmQuestion(q) {
   const title = String(q.title || '')
   return title.includes('上次排便') || title.includes('最近排便') || title.includes('最近一次')
 }
 
-// 清理题目标题前缀（如"1. ""2. "、"是否有以下症状（可多选）"）并去掉末尾冒号/空格
+/**
+ * 清洗题目标题，输出简洁专业表述
+ */
 function cleanTitle(title) {
   if (!title) return ''
-  let t = String(title).replace(/^\s*\d+[.、\s]+/, '')
-  t = t.trim()
-  // 把"是否有以下症状（可多选）"类型的题干改成简洁描述
-  if (t.includes('是否有以下症状') || t.includes('以下症状')) return '存在症状'
-  if (t.includes('有症状时的粪便性状')) return '粪便性状'
-  if (t.includes('有症状时的') && t.includes('粪便')) return '粪便性状'
-  // 去掉"（可多选）""（单选）"括号提示
+  let t = String(title).replace(/^\s*\d+[.、\s]+/, '').trim()
+
+  // 统一语义映射
+  if (t.includes('是否有以下症状') || t.includes('症状表现') || t.includes('存在症状')) return '症状表现'
+  if (t.includes('粪便性状') || t.includes('大便性状')) return '粪便性状'
+  if (t.includes('开始到现在持续') || t.includes('总病程') || t.includes('出现至今') || t.includes('症状至今')) return '症状出现至今'
+  if (t.includes('有多长时间是有症状') || t.includes('症状持续时长') || t.includes('实际有症状')) return '有症状时长'
+  if (t.includes('上次排便') || t.includes('最近一次排便') || t.includes('末次排便')) return '末次排便时间'
+
+  // 移除括号提示、末尾标点
   t = t.replace(/[（(].*?[）)]/g, '').trim()
-  // 去掉末尾冒号、顿号、空格
   t = t.replace(/[：:、\s]+$/g, '').trim()
   return t
 }
 
-// 生成单项结果文本
+// 格式化单条答案文本
 function formatAnswerItem(title, answerText, isAbnormal) {
   const clean = cleanTitle(title)
-  // 对于"存在症状"类型，直接显示症状内容
-  if (clean === '存在症状') return answerText
+  if (clean === '症状表现') return answerText
   return `${clean}：${answerText}`
 }
 
-// 答题摘要：逐条列出用户的选择（日期题打 isDate 标记，"不知道"作为中性状态）
+// ==================== 结果汇总计算 ====================
+/**
+ * 答题摘要列表
+ */
 const answerSummary = computed(() => {
   const result = []
   for (const q of scaleData.value.questionList || []) {
@@ -523,17 +509,17 @@ const answerSummary = computed(() => {
       const selectedIds = answers.value[q.questionId] || []
       if (selectedIds.length === 0) continue
       const selectedOptions = q.optionList.filter(o => selectedIds.includes(o.id))
-      // 区分：正常选项、不知道选项、异常选项
+
       const unknownOptions = selectedOptions.filter(o => isOptionUnknown(o))
-      const normalOptions = selectedOptions.filter(o => isOptionNormal(o))
       const abnormalOptions = selectedOptions.filter(o => !isOptionNormal(o) && !isOptionUnknown(o))
       const isAllUnknown = unknownOptions.length === selectedOptions.length
       const isAbnormal = abnormalOptions.length > 0 && !isAllUnknown
-      const answerText = selectedOptions.map(o => `${o.content}`).join('、')
+
+      const answerText = selectedOptions.map(o => o.content).join('、')
       result.push({
         questionTitle: q.title,
         answerText: answerText,
-        displayText: isAllUnknown ? `${cleanTitle(q.title)}：不清楚` : formatAnswerItem(q.title, answerText, isAbnormal),
+        displayText: isAllUnknown ? `${cleanTitle(q.title)}：患者无法明确表述` : formatAnswerItem(q.title, answerText, isAbnormal),
         isAbnormal,
         isUnknown: isAllUnknown,
         isDate: false
@@ -555,9 +541,7 @@ const answerSummary = computed(() => {
     // 日期题
     else if (isDateQuestion(q)) {
       const d = dateAnswers[q.questionId]
-      if (!d) continue
-      if (d.unknown) continue
-      if (!d.date) continue
+      if (!d?.date) continue
       let text = ''
       if (isStartDateQuestion(q)) {
         text = `${formatDate(d.date)}（已持续约${calcDuration(d.date)}）`
@@ -569,21 +553,20 @@ const answerSummary = computed(() => {
       result.push({
         questionTitle: q.title,
         answerText: text,
-        displayText: formatAnswerItem(q.title, text, true),
-        isAbnormal: true,
+        displayText: formatAnswerItem(q.title, text, false),
+        isAbnormal: false,
         isDate: true
       })
     }
-    // 持续时间题（年月）——时间本身不算异常，只做信息描述
+    // 持续时间题
     else if (isDurationQuestion(q)) {
       const d = durationAnswers[q.questionId]
       if (!d) continue
-      // 选了"不知道"
       if (d.unknown) {
         result.push({
           questionTitle: q.title,
-          answerText: '不清楚',
-          displayText: `${cleanTitle(q.title)}：不清楚`,
+          answerText: '患者无法明确表述',
+          displayText: `${cleanTitle(q.title)}：患者无法明确表述`,
           isAbnormal: false,
           isUnknown: true,
           isDate: true
@@ -593,14 +576,14 @@ const answerSummary = computed(() => {
       const y = (d.years !== null && d.years !== undefined) ? d.years : 0
       const m = (d.months !== null && d.months !== undefined) ? d.months : 0
       if (y === 0 && m === 0) continue
-      let text = ''
-      if (y > 0 && m > 0) text = `${y}年${m}个月`
-      else if (y > 0) text = `${y}年`
-      else text = `${m}个月`
+
+      const parts = []
+      if (y > 0) parts.push(`${y}年`)
+      if (m > 0) parts.push(`${m}个月`)
       result.push({
         questionTitle: q.title,
-        answerText: text,
-        displayText: formatAnswerItem(q.title, text, false),
+        answerText: parts.join(''),
+        displayText: formatAnswerItem(q.title, parts.join(''), false),
         isAbnormal: false,
         isDate: true
       })
@@ -609,20 +592,11 @@ const answerSummary = computed(() => {
   return result
 })
 
-// 是否存在日期题或持续时间题
 const hasDateQuestion = computed(() => {
   return (scaleData.value.questionList || []).some(q => isDateQuestion(q) || isDurationQuestion(q))
 })
 
-// 判断某个选项是否是"不知道"类选项
-function isUnknownOption(option) {
-  const content = String(option.content || '').toLowerCase()
-  return content.includes('不知道') || content.includes('不清楚')
-    || content.includes('不确定') || content.includes('记不清')
-}
-
-// 第一题（选择题）是否选了"不知道"
-// 注意：即使第一题选了不知道，持续时间题仍然可以正常作答
+// 首题是否选了不知道
 const isFirstQuestionUnknown = computed(() => {
   const questions = scaleData.value.questionList || []
   for (const q of questions) {
@@ -635,23 +609,20 @@ const isFirstQuestionUnknown = computed(() => {
   }
   return false
 })
-
-// 保留向后兼容：是否有日期题被标记为未知（当前未使用日期题的"不知道"）
-const hasUnknownDate = computed(() => {
-  return false
-})
-// 保留向后兼容：第一题选了不知道
+const hasUnknownDate = computed(() => false)
 const isFirstDateUnknown = isFirstQuestionUnknown
 
-// 便秘等级：只基于真实症状选择（排除"不知道"和时间类题目）
+/**
+ * 便秘等级判定
+ */
 const constipationLevel = computed(() => {
   if (answeredCount.value < totalQuestions.value || totalQuestions.value === 0) {
     return { text: '待评估', color: '#94a3b8', bg: '#f8fafc' }
   }
-  // 只统计非日期/非"不知道"的题目（即真实症状选择）
+  // 仅统计真实症状项（排除时间、不知道）
   const meaningfulItems = answerSummary.value.filter(item => !item.isDate && !item.isUnknown)
   const abnormalCount = meaningfulItems.filter(item => item.isAbnormal).length
-  // 如果所有有内容的题目都是"不知道"——信息不足
+
   if (meaningfulItems.length === 0) {
     return { text: '信息不足，无法评估', color: '#f59e0b', bg: '#fffbeb' }
   }
@@ -661,107 +632,146 @@ const constipationLevel = computed(() => {
   return { text: '存在便秘症状', color: '#ef4444', bg: '#fef2f2' }
 })
 
-// 时间描述（用于结论拼接）：日期题 + 持续时间题
+/**
+ * 时间病程描述（智能拼接，时长一致时自动简化）
+ */
 const timeDescription = computed(() => {
-  const parts = []
+  const timeMap = {}
   for (const q of scaleData.value.questionList || []) {
+    const titleKey = cleanTitle(q.title)
     if (isDateQuestion(q)) {
       const d = dateAnswers[q.questionId]
-      if (!d) continue
-      if (!d.date) continue
+      if (!d?.date) continue
       if (isStartDateQuestion(q)) {
-        parts.push(`${cleanTitle(q.title)}：${formatDate(d.date)}（已持续约${calcDuration(d.date)}）`)
+        timeMap[titleKey] = `${formatDate(d.date)}（已持续约${calcDuration(d.date)}）`
       } else if (isLastBmQuestion(q)) {
-        parts.push(`${cleanTitle(q.title)}：${formatDate(d.date)}（${calcDaysAgo(d.date)}）`)
+        timeMap[titleKey] = `${formatDate(d.date)}（${calcDaysAgo(d.date)}）`
       } else {
-        parts.push(`${cleanTitle(q.title)}：${formatDate(d.date)}`)
+        timeMap[titleKey] = formatDate(d.date)
       }
     } else if (isDurationQuestion(q)) {
       const d = durationAnswers[q.questionId]
       if (!d) continue
-      // "不知道"也加入时间描述
       if (d.unknown) {
-        parts.push(`${cleanTitle(q.title)}：不清楚`)
+        timeMap[titleKey] = '患者无法明确表述'
         continue
       }
       const y = (d.years !== null && d.years !== undefined) ? d.years : 0
       const m = (d.months !== null && d.months !== undefined) ? d.months : 0
       if (y === 0 && m === 0) continue
-      let text = ''
-      if (y > 0 && m > 0) text = `${y}年${m}个月`
-      else if (y > 0) text = `${y}年`
-      else text = `${m}个月`
-      parts.push(`${cleanTitle(q.title)}：${text}`)
+      const parts = []
+      if (y > 0) parts.push(`${y}年`)
+      if (m > 0) parts.push(`${m}个月`)
+      timeMap[titleKey] = parts.join('')
     }
   }
+
+  const parts = []
+  const totalDuration = timeMap['症状出现至今']
+  const symptomDuration = timeMap['有症状时长']
+
+  // 两个时长都存在且一致时，简化表述
+  if (totalDuration && symptomDuration) {
+    if (totalDuration === symptomDuration) {
+      parts.push(`症状出现至今约${totalDuration}，期间症状持续存在`)
+    } else {
+      parts.push(`症状出现至今约${totalDuration}，其中存在明显症状的时长约${symptomDuration}`)
+    }
+  } else if (totalDuration) {
+    parts.push(`症状出现至今约${totalDuration}`)
+  } else if (symptomDuration) {
+    parts.push(`症状持续时长约${symptomDuration}`)
+  }
+
+  if (timeMap['末次排便时间']) {
+    parts.push(`末次排便为${timeMap['末次排便时间']}`)
+  }
+
+  // 其他时间项兜底
+  Object.entries(timeMap).forEach(([key, val]) => {
+    if (!['症状出现至今', '有症状时长', '末次排便时间'].includes(key)) {
+      parts.push(`${key}：${val}`)
+    }
+  })
   return parts
 })
 
+/**
+ * 综合建议文案（修正多余逗号，表述更通顺专业）
+ */
 const constipationSuggest = computed(() => {
-  const t = constipationLevel.value.text
-  if (t === '未见明显便秘征象') {
-    return '未见明显便秘征象，肠道功能良好。建议保持均衡饮食、足量饮水、规律运动，维持良好排便习惯。'
+  const level = constipationLevel.value.text
+
+  if (level === '未见明显便秘征象') {
+    return '肠道功能未见明显异常。建议继续保持均衡饮食，每日足量饮水，坚持规律运动，维持良好的排便习惯。'
   }
-  if (t === '信息不足，无法评估') {
-    // 全部都是"不知道"——时间描述里列出来，症状部分说"无法明确评估"
-    if (timeDescription.value.length > 0) {
-      return `${timeDescription.value.join('，')}，患者无法明确描述具体症状表现，建议必要时到消化内科进一步就诊评估。`
-    }
-    return '患者无法明确描述具体症状表现，信息不足，无法评估。建议必要时到消化内科进一步就诊检查。'
+
+  if (level === '信息不足，无法评估') {
+    return '因有效信息不足，暂无法完成准确评估。建议密切观察排便情况，若症状持续或加重，及时前往消化内科专科就诊检查。'
   }
-  if (t === '存在便秘症状') {
-    // "主要表现为" 中剔除日期题、剔除"不知道"的题目
-    const abnormalItems = answerSummary.value.filter(item => item.isAbnormal && !item.isDate && !item.isUnknown)
-    const details = abnormalItems.map(item => item.displayText).join('；')
-    if (timeDescription.value.length > 0) {
-      if (!details) {
-        return `${timeDescription.value.join('，')}，并无明显症状表现。建议增加膳食纤维（蔬菜、水果、粗粮）摄入，每日饮水1500-2000ml，规律排便，避免久坐。`
-      }
-      return `${timeDescription.value.join('，')}，主要表现为：${details}。建议增加膳食纤维（蔬菜、水果、粗粮）摄入，每日饮水1500-2000ml，规律排便，避免久坐。`
+
+  if (level === '存在便秘症状') {
+    const abnormalCount = answerSummary.value.filter(item => item.isAbnormal && !item.isDate && !item.isUnknown).length
+    let base = '日常建议增加膳食纤维摄入，多吃蔬菜水果与粗粮，每日保证1500-2000ml饮水，养成规律排便习惯，避免久坐不动。'
+
+    // 有异常项时自然衔接，不加多余标点
+    if (abnormalCount > 0) {
+      base = `针对上述症状，${base}`
     }
-    if (!details) {
-      return `存在便秘症状，并无明显症状表现。建议增加膳食纤维（蔬菜、水果、粗粮）摄入，每日饮水1500-2000ml，规律排便，避免久坐。`
-    }
-    return `存在便秘症状，主要表现为：${details}。建议增加膳食纤维（蔬菜、水果、粗粮）摄入，每日饮水1500-2000ml，规律排便，避免久坐。`
+    return base
   }
-  return '请完成全部评估题目以生成建议。'
+
+  return '请完成全部评估题目后生成专属建议。'
 })
 
-// 详细结果（传到数据库的 result 字段）
+/**
+ * 便秘症状详情，存入建议，不放入评估结果
+ */
+const constipationDetailText = computed(() => {
+  const symptomItems = answerSummary.value.filter(item => !item.isDate)
+  if (symptomItems.length === 0) return ''
+
+  const summaryParts = symptomItems.map(item => {
+    if (item.isUnknown) {
+      return `${item.displayText}不清楚`
+    }
+    return item.displayText
+  })
+  return `症状表现：${summaryParts.join('；')}。`
+})
+
+/**
+ * 存入数据库的结果文本：只保留结论和病程
+ */
 const combinedResult = computed(() => {
   if (totalQuestions.value === 0) return ''
   if (answeredCount.value < totalQuestions.value) return '便秘评估：待评估'
 
-  // 逐条摘要（排除日期题，日期通过 timeDescription 单独展示）
-  const symptomItems = answerSummary.value.filter(item => !item.isDate)
-  const summaryParts = symptomItems.map(item => {
-    if (item.isUnknown) {
-      return `${item.displayText}【不清楚】`
-    }
-    const mark = item.isAbnormal ? '【异常】' : '【正常】'
-    return `${item.displayText}${mark}`
-  })
-
   let timePart = ''
   if (timeDescription.value.length > 0) {
-    timePart = `时间情况：${timeDescription.value.join('；')}。`
+    timePart = `${timeDescription.value.join('；')}。`
   }
 
-  return `便秘评估：${constipationLevel.value.text}。${timePart}${summaryParts.length > 0 ? '症状表现：' + summaryParts.join('；') + '。' : ''}`
+  return `${constipationLevel.value.text}。${timePart}`
+      .replace(/[。；;，,]+$/, '')
 })
 
+/**
+ * 存入数据库的完整建议文本
+ */
 const combinedSuggest = computed(() => {
-  const base = constipationSuggest.value
+  const baseSuggest = constipationSuggest.value
   if (constipationLevel.value.text === '存在便秘症状') {
-    return `${base} 建议必要时到消化内科专科就诊，完善相关检查明确诊断。`
+    return `${constipationDetailText.value}${baseSuggest}若症状持续无改善或进行性加重，建议及时前往消化内科专科就诊，完善相关检查明确诊断。`
   }
   if (constipationLevel.value.text === '信息不足，无法评估') {
-    return `${base} 建议到消化内科专科就诊，完善相关检查以明确是否存在便秘问题。`
+    return `${baseSuggest}建议前往消化内科专科就诊，完善相关检查以明确是否存在便秘及相关问题。`
   }
-  return base
+  return baseSuggest
 })
 
-const goBack = () => { router.back() }
+// ==================== 交互方法 ====================
+const goBack = () => { router.push({ path: '/patient/detection/customize', query: route.query }) }
 
 const backToComprehensive = () => {
   try {
@@ -770,20 +780,22 @@ const backToComprehensive = () => {
     }
   } catch (e) {}
   router.push({
-    path: '/patient/detection/comprehensive',
+    path: '/patient/detection/customize',
     query: { patientId, patientName }
   })
 }
 
+// 构建持续时间答案对象
 const buildDurationAnswer = (question) => {
   const d = durationAnswers[question.questionId]
   if (!d) return null
   if (d.unknown) {
-    return { type: 'duration', unknown: true, text: '不知道' }
+    return { type: 'duration', unknown: true, text: '患者无法明确表述' }
   }
   const hasYears = d.years !== null && d.years !== undefined && d.years !== ''
   const hasMonths = d.months !== null && d.months !== undefined && d.months !== ''
   if (!hasYears && !hasMonths) return null
+
   const years = hasYears ? Number(d.years) : 0
   const months = hasMonths ? Number(d.months) : 0
   const parts = []
@@ -798,11 +810,12 @@ const buildDurationAnswer = (question) => {
   }
 }
 
+// 提交评估
 const submitAssessment = async () => {
   if (submitting.value || answeredCount.value < totalQuestions.value) return
   submitting.value = true
 
-  // ========== 组装答案：选择题存选项ID数组，填空/日期/持续时间原样保存 ==========
+  // 格式化所有答案
   const formattedAnswers = {}
   for (const q of scaleData.value.questionList || []) {
     if (isDateQuestion(q)) {
@@ -863,7 +876,7 @@ const submitAssessment = async () => {
 
 <style scoped lang="scss">
 .daily-life-container {
-  min-height: 100vh;
+  min-height: calc(100vh - 84px);
   padding: 24px 28px 48px;
   background: #faf5ff;
   box-sizing: border-box;
@@ -871,7 +884,7 @@ const submitAssessment = async () => {
   margin: 0 auto;
 }
 
-/* ===== 1. 顶部导航 ===== */
+/* 顶部导航栏 */
 .top-bar {
   display: flex;
   justify-content: space-between;
@@ -882,9 +895,7 @@ const submitAssessment = async () => {
   box-shadow: 0 1px 4px rgba(0,0,0,0.04);
   margin-bottom: 14px;
 }
-
 .top-left { display: flex; align-items: center; gap: 16px; }
-
 .back-btn {
   font-size: 14px;
   color: #64748b;
@@ -892,7 +903,6 @@ const submitAssessment = async () => {
   border-radius: 8px;
   &:hover { color: #a855f7; background: #f3e8ff; }
 }
-
 .title-block h1 {
   margin: 0;
   font-size: 20px;
@@ -922,7 +932,7 @@ const submitAssessment = async () => {
 .badge-name { font-size: 14px; font-weight: 600; color: #1e293b; }
 .badge-id { font-size: 11.5px; color: #94a3b8; margin-top: 2px; }
 
-/* ===== 2. 进度条 ===== */
+/* 进度条 */
 .progress-bar {
   height: 46px;
   background: #fff;
@@ -932,7 +942,6 @@ const submitAssessment = async () => {
   margin-bottom: 20px;
   box-shadow: 0 1px 4px rgba(0,0,0,0.04);
 }
-
 .progress-fill {
   position: absolute;
   left: 0; top: 0;
@@ -941,7 +950,6 @@ const submitAssessment = async () => {
   border-radius: 10px;
   transition: width 0.4s ease;
 }
-
 .progress-label {
   position: absolute;
   left: 20px; top: 50%;
@@ -952,14 +960,13 @@ const submitAssessment = async () => {
   z-index: 1;
 }
 
-/* ===== 3. 题目卡 ===== */
+/* 题目卡片 */
 .question-list {
   display: flex;
   flex-direction: column;
   gap: 14px;
   margin-bottom: 24px;
 }
-
 .question-card {
   background: #fff;
   border-radius: 14px;
@@ -968,7 +975,6 @@ const submitAssessment = async () => {
   transition: border-color 0.2s;
   &.is-answered { border-color: #d8b4fe; }
 }
-
 .q-head {
   display: flex;
   align-items: center;
@@ -977,7 +983,6 @@ const submitAssessment = async () => {
   background: #faf5ff;
   border-bottom: 1px solid #f3e8ff;
 }
-
 .q-index {
   width: 30px; height: 30px;
   border-radius: 8px;
@@ -989,13 +994,11 @@ const submitAssessment = async () => {
   flex-shrink: 0;
 }
 .question-card.is-answered .q-index { background: #a855f7; color: #fff; }
-
 .q-title {
   flex: 1;
   font-size: 15px; font-weight: 600;
   color: #1e293b;
 }
-
 .q-done {
   width: 28px; height: 28px;
   border-radius: 50%;
@@ -1004,11 +1007,11 @@ const submitAssessment = async () => {
   font-size: 15px;
 }
 
+/* 选项样式 */
 .q-options {
   padding: 10px 12px;
   display: flex; flex-direction: column; gap: 6px;
 }
-
 .q-option {
   display: flex; justify-content: space-between; align-items: center;
   padding: 12px 16px;
@@ -1020,9 +1023,7 @@ const submitAssessment = async () => {
   &:hover { background: #f3e8ff; border-color: #e9d5ff; }
   &.is-selected { background: #f3e8ff; border-color: #a855f7; box-shadow: 0 2px 8px rgba(168,85,247,0.12); }
 }
-
 .opt-left { display: flex; align-items: center; gap: 12px; flex: 1; }
-
 .opt-radio, .opt-checkbox {
   width: 22px; height: 22px;
   display: flex; align-items: center; justify-content: center;
@@ -1037,9 +1038,7 @@ const submitAssessment = async () => {
     border-color: #a855f7;
   }
 }
-
 .opt-checkbox { border-radius: 6px; }
-
 .opt-content { flex: 1; }
 .opt-label {
   font-size: 14px;
@@ -1047,14 +1046,51 @@ const submitAssessment = async () => {
   line-height: 1.5;
 }
 
-/* 填空题样式 */
+/* 填空/日期/持续时间 通用样式 */
 .q-fill {
   padding: 12px 16px;
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
+.fill-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #fafbfc;
+  padding: 12px 16px;
+  border-radius: 10px;
+  &.is-disabled {
+    opacity: 0.5;
+    pointer-events: none;
+  }
+}
+.fill-label {
+  font-size: 14px;
+  color: #334155;
+  flex-shrink: 0;
+}
+.fill-input, .date-input {
+  flex: 1;
+  max-width: 320px;
+}
+.fill-unit {
+  font-size: 14px;
+  color: #64748b;
+  flex-shrink: 0;
+}
+.date-row { margin-top: 4px; }
 
+/* 持续时间专用 */
+.duration-row {
+  margin-top: 4px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.dur-select { width: 120px; }
+
+/* 不知道按钮 */
 .unknown-option {
   display: inline-flex;
   align-items: center;
@@ -1084,50 +1120,6 @@ const submitAssessment = async () => {
   }
 }
 
-.fill-row {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  background: #fafbfc;
-  padding: 12px 16px;
-  border-radius: 10px;
-  &.is-disabled {
-    opacity: 0.5;
-    pointer-events: none;
-  }
-}
-
-.fill-label {
-  font-size: 14px;
-  color: #334155;
-  flex-shrink: 0;
-}
-
-.fill-input, .date-input {
-  flex: 1;
-  max-width: 320px;
-}
-
-.fill-unit {
-  font-size: 14px;
-  color: #64748b;
-  flex-shrink: 0;
-}
-
-.date-row {
-  margin-top: 4px;
-}
-
-.duration-row {
-  margin-top: 4px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.dur-select {
-  width: 120px;
-}
-
 .skip-hint {
   display: flex;
   align-items: center;
@@ -1139,27 +1131,24 @@ const submitAssessment = async () => {
   font-size: 13px;
   margin-top: 4px;
 }
-
 .q-fill.is-disabled {
   opacity: 0.65;
   pointer-events: none;
 }
 
-/* ===== 4. 结果区 ===== */
+/* 结果区域 */
 .result-area {
   display: flex;
   flex-direction: column;
   gap: 14px;
   margin-bottom: 24px;
 }
-
 .result-card {
   background: #fff;
   border-radius: 14px;
   border: 1px solid #e5e7eb;
   overflow: hidden;
 }
-
 .rc-head {
   display: flex;
   align-items: center;
@@ -1171,7 +1160,6 @@ const submitAssessment = async () => {
   font-weight: 700;
   color: #581c87;
 }
-
 .rc-icon {
   width: 28px; height: 28px;
   border-radius: 8px;
@@ -1186,7 +1174,6 @@ const submitAssessment = async () => {
   display: flex;
   justify-content: center;
 }
-
 .level-tag {
   padding: 10px 24px;
   border-radius: 24px;
@@ -1195,10 +1182,10 @@ const submitAssessment = async () => {
   letter-spacing: 2px;
 }
 
+/* 异常条目 */
 .abnormal-section {
   padding: 0 20px 20px;
 }
-
 .abnormal-title {
   font-size: 13px;
   font-weight: 600;
@@ -1207,7 +1194,6 @@ const submitAssessment = async () => {
   padding-top: 6px;
   border-top: 1px dashed #e9d5ff;
 }
-
 .abnormal-row {
   display: flex;
   gap: 12px;
@@ -1217,7 +1203,6 @@ const submitAssessment = async () => {
   &.is-abnormal .abnormal-q { color: #b91c1c; }
   &.is-normal .abnormal-q { color: #047857; }
 }
-
 .abnormal-index {
   width: 26px; height: 26px;
   border-radius: 6px;
@@ -1228,12 +1213,10 @@ const submitAssessment = async () => {
   display: flex; align-items: center; justify-content: center;
   flex-shrink: 0;
 }
-
 .abnormal-row.is-abnormal .abnormal-index {
   background: #fef3c7;
   color: #b45309;
 }
-
 .abnormal-content { flex: 1; }
 .abnormal-q {
   font-size: 13.5px;
@@ -1256,7 +1239,6 @@ const submitAssessment = async () => {
   align-items: center;
   gap: 10px;
 }
-
 .ok-icon {
   width: 48px; height: 48px;
   border-radius: 50%;
@@ -1265,10 +1247,10 @@ const submitAssessment = async () => {
   font-size: 24px;
   display: flex; align-items: center; justify-content: center;
 }
-
 .ok-text { font-size: 14px; font-weight: 600; color: #22c55e; }
 .hint-text { font-size: 13px; color: #94a3b8; }
 
+/* 建议卡片 */
 .suggest-card .suggest-text {
   padding: 16px 20px;
   margin: 0;
@@ -1276,7 +1258,6 @@ const submitAssessment = async () => {
   color: #334155;
   line-height: 1.7;
 }
-
 .suggest-sub {
   padding: 0 20px 16px;
   font-size: 12.5px;
@@ -1287,7 +1268,7 @@ const submitAssessment = async () => {
   margin-top: 4px;
 }
 
-/* ===== 5. 提交按钮 ===== */
+/* 提交按钮 */
 .submit-area {
   display: flex;
   flex-direction: column;
@@ -1295,7 +1276,6 @@ const submitAssessment = async () => {
   gap: 8px;
   margin-top: 24px;
 }
-
 .submit-area .el-button {
   background: linear-gradient(90deg, #a855f7, #c084fc);
   border: none;
@@ -1304,10 +1284,26 @@ const submitAssessment = async () => {
   font-size: 16px;
   font-weight: 600;
 }
-
 .submit-hint {
   margin: 0;
   font-size: 12px;
   color: #94a3b8;
 }
+
+/* 响应式适配 */
+@media (max-width: 900px) {
+  .daily-life-container {
+    padding: 16px 12px 32px;
+  }
+  .hero-bar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 18px 18px;
+  }
+  .patient-dialog :deep(.el-dialog__body) {
+    padding: 0 16px 20px;
+  }
+}
 </style>
+

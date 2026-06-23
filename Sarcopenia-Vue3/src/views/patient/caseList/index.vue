@@ -179,6 +179,7 @@
         v-model="dialogVisible"
         :title="dialogMode === 'create' ? '新增患者' : '编辑患者信息'"
         width="880px"
+        top="30vh"
         :close-on-click-modal="false"
         class="patient-dialog"
         append-to-body
@@ -299,6 +300,38 @@
         </div>
       </template>
     </el-dialog>
+
+    <!-- 删除确认弹窗 -->
+    <el-dialog
+        v-model="delDialogVisible"
+        width="440px"
+        top="50%"
+        class="patient-dialog delete-dialog"
+        :close-on-click-modal="false"
+        destroy-on-close
+    >
+      <div class="dialog-inner">
+        <div class="dialog-head">
+          <div class="dialog-ico delete">
+            <el-icon :size="22"><Warning /></el-icon>
+          </div>
+          <div>
+            <h4>删除提示</h4>
+            <p>确认删除患者「{{ delRow?.name }}」吗？删除后数据可在回收站恢复</p>
+          </div>
+        </div>
+        <div class="delete-tip">
+          <el-icon :size="14"><InfoFilled /></el-icon>
+          <span>此操作会从当前评估结果一起删除，请确认后再操作。</span>
+        </div>
+      </div>
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button round @click="delDialogVisible = false">取消</el-button>
+          <el-button type="danger" round :loading="delLoading" @click="confirmDelete">确定删除</el-button>
+        </div>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -306,7 +339,7 @@
 import { ref, reactive, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { User, UserFilled, Plus, Notebook, Edit, Delete, Search, RefreshLeft } from '@element-plus/icons-vue'
+import { User, UserFilled, Plus, Notebook, Edit, Delete, Search, RefreshLeft, Warning, InfoFilled } from '@element-plus/icons-vue'
 import { selectPatientList, insertPatient, updatePatient, deletePatientById } from '@/api/patient'
 
 const router = useRouter()
@@ -321,6 +354,9 @@ const pageSize = ref(10)
 const dialogVisible = ref(false)
 const dialogMode = ref('create')
 const dialogFormRef = ref(null)
+const delDialogVisible = ref(false)
+const delRow = ref(null)
+const delLoading = ref(false)
 
 // 查询参数
 const queryParams = reactive({
@@ -499,19 +535,22 @@ function handleEdit(row) {
 }
 
 // 删除患者
-async function handleDelete(row) {
+function handleDelete(row) {
+  delRow.value = row
+  delDialogVisible.value = true
+}
+
+async function confirmDelete() {
+  delLoading.value = true
   try {
-    await ElMessageBox.confirm(`确认删除患者「${row.name}」吗？删除后数据可在回收站恢复`, '删除提示', {
-      confirmButtonText: '确定删除',
-      cancelButtonText: '取消',
-      type: 'warning'
-    })
-    await deletePatientById({ id: row.id })
+    await deletePatientById({ id: delRow.value.id })
     ElMessage.success('删除成功')
-    // 删除后刷新当前页
+    delDialogVisible.value = false
     getList()
-  } catch {
-    // 用户取消操作，不做处理
+  } catch (e) {
+    // 接口异常
+  } finally {
+    delLoading.value = false
   }
 }
 
@@ -702,6 +741,22 @@ onMounted(() => {
   padding-top: 18px;
 }
 
+// 删除弹窗垂直居中
+.delete-dialog:deep(.el-dialog) {
+  margin-top: 0 !important;
+  transform: translateY(-50%) !important;
+}
+
+.delete-dialog:deep(.el-dialog__wrapper) {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.delete-dialog:deep(.el-dialog) {
+  top: auto !important;
+  margin: 0 !important;
+}
+
 .dialog-head {
   display: flex;
   align-items: center;
@@ -728,6 +783,29 @@ onMounted(() => {
 .dialog-ico.edit {
   background: linear-gradient(135deg, #3b82f6, #6366f1);
   box-shadow: 0 6px 14px rgba(59, 130, 246, 0.25);
+}
+
+.dialog-ico.delete {
+  background: linear-gradient(135deg, #f59e0b, #ef4444);
+  box-shadow: 0 6px 14px rgba(239, 68, 68, 0.25);
+}
+
+.delete-tip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: linear-gradient(135deg, #fff7ed 0%, #fef2f2 100%);
+  border: 1px solid rgba(245, 158, 11, 0.2);
+  border-radius: 12px;
+  color: #92400e;
+  font-size: 12.5px;
+  line-height: 1.6;
+}
+
+.delete-dialog :deep(.dialog-head) {
+  background: linear-gradient(135deg, #fff7ed 0%, #fef2f2 100%);
+  border-color: rgba(245, 158, 11, 0.2);
 }
 
 .dialog-head h4 {

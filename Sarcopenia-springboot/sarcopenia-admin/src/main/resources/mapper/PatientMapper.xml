@@ -72,7 +72,7 @@
         <set>
             <if test="medicalCaseNo != null and medicalCaseNo != ''">medical_case_no = #{medicalCaseNo},</if>
             <if test="name != null and name != ''">name = #{name},</if>
-            <if test="phone != null and phone != ''">phone = #{phone},</if>
+            <if test="phone != null">phone = #{phone},</if>
             <if test="gender != null">gender = #{gender},</if>
             <if test="birthday != null">birthday = #{birthday},</if>
             <if test="idCard != null and idCard != ''">id_card = #{idCard},</if>
@@ -177,6 +177,11 @@
     <!-- 更新患者状态为已报告 -->
     <update id="updatePatientIsReports">
         UPDATE patient SET is_report = 2 WHERE id = #{id}
+    </update>
+
+    <!-- 重置患者报告状态为未报告 -->
+    <update id="resetPatientIsReport">
+        UPDATE patient SET is_report = 0 WHERE id = #{id}
     </update>
 
     <!-- 查询已完成评估的患者列表 -->

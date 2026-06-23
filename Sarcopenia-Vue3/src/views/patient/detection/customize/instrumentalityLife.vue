@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="daily-life-container">
     <!-- ===== 顶部导航栏 ===== -->
     <header class="top-bar">
@@ -166,28 +166,28 @@ const DEPENDENCY_LEVELS = [
     text: '严重依赖',
     color: '#ef4444',
     bg: '#fef2f2',
-    suggest: '工具性日常生活活动能力严重依赖，建议全面照护支持，包括用药管理、财务处理、外出安全等方面，联系家庭或社区支持资源，制定综合照护计划。'
+    suggest: '建议全面照护支持，包括用药管理、财务处理、外出安全等方面，联系家庭或社区支持资源，制定综合照护计划。'
   },
   {
     maxScore: 5,
     text: '中度依赖',
     color: '#f97316',
     bg: '#fff7ed',
-    suggest: '工具性日常生活活动能力中度依赖，建议在安全前提下给予部分生活辅助，关注外出、购物、用药等高风险环节，定期评估功能变化。'
+    suggest: '建议在安全前提下给予部分生活辅助，关注外出、购物、用药等高风险环节，定期评估功能变化。'
   },
   {
     maxScore: 7,
     text: '轻度依赖',
     color: '#3b82f6',
     bg: '#eff6ff',
-    suggest: '工具性日常生活活动能力轻度依赖，建议鼓励独立完成日常活动，必要时提供辅助器具或照护支持，定期随访观察。'
+    suggest: '建议鼓励独立完成日常活动，必要时提供辅助器具或照护支持，定期随访观察。'
   },
   {
     maxScore: 8,
     text: '正常',
     color: '#22c55e',
     bg: '#f0fdf4',
-    suggest: '工具性日常生活活动能力正常，建议保持现有功能状态，定期随访观察。'
+    suggest: '建议保持现有功能状态，定期随访观察。'
   }
 ]
 
@@ -269,7 +269,7 @@ function selectOption(questionId, option) {
 }
 
 function goBack() {
-  router.back()
+  router.push({ path: '/patient/detection/customize', query: route.query })
 }
 
 function backToComprehensive() {
@@ -279,7 +279,7 @@ function backToComprehensive() {
     }
   } catch (e) {}
   router.push({
-    path: '/patient/detection/comprehensive',
+    path: '/patient/detection/customize',
     query: { patientId: patientId.value, patientName: patientName.value }
   })
 }

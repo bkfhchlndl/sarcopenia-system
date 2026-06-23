@@ -38,6 +38,16 @@ public class CgaReportVoServiceImpl implements CgaReportVoService {
     /** 谵妄评估正常参考范围 */
     private static final String DELIRIUM_NORMAL_RANGE = "第1题和第2题均选“是”，且第3题或第4题至少一题选“是”";
 
+    /** 综合评估量表编码白名单（共 21 项，对应 comprehensive.vue 中 FULL_SCALE_LIST） */
+    private static final java.util.Set<String> ASSESSMENT_CODE_WHITELIST = new java.util.HashSet<>(Arrays.asList(
+            "basic_adl", "instrumental_adl", "exercise_function",
+            "vision_assessment", "hearing_assessment", "home_environment",
+            "frail_assessment", "incontinence_screen", "constipation_screen",
+            "sleep_disorder_screen", "chronic_pain_screen", "pressure_injury_risk",
+            "water_swallowing_test", "nutrition_risk_screen", "sarcopenia_screen",
+            "cognition_screen", "delirium_assessment", "depression_screen",
+            "anxiety_screen", "fall_risk_screen", "polypharmacy_assessment"
+    ));
     /** 量表编码与专项量表ID映射 */
     private static final Map<String, List<Long>> SPECIAL_SCALE_IDS = new LinkedHashMap<>();
     /** 专项量表ID与编码、名称映射 */
@@ -137,12 +147,6 @@ public class CgaReportVoServiceImpl implements CgaReportVoService {
         if (report == null) {
             return null;
         }
-        List<CgaRecord> records = selectSpecialRecords(report.getPatientId());
-        if (!records.isEmpty()) {
-            report.setAssessmentList(records.stream()
-                    .map(this::buildRecordOnlyAssessmentItem)
-                    .collect(Collectors.toList()));
-        }
         processAssessmentList(report);
         return report;
     }
@@ -200,6 +204,8 @@ public class CgaReportVoServiceImpl implements CgaReportVoService {
         report.setCreateTime(latest.getCreateTime());
         report.setAssessmentList(records.stream()
                 .map(this::buildRecordOnlyAssessmentItem)
+                .filter(item -> item.getScaleCode() != null
+                        && ASSESSMENT_CODE_WHITELIST.contains(item.getScaleCode()))
                 .collect(Collectors.toList()));
         return report;
     }
@@ -227,7 +233,9 @@ public class CgaReportVoServiceImpl implements CgaReportVoService {
 
     @Override
     public int deleteReportByPatientId(Long patientId) {
-        return reportMapper.deleteReportByPatientId(patientId);
+        int recordRows = reportMapper.deleteReportByPatientId(patientId);
+        int patientRows = patientMapper.updatePatientIsReports(patientId);
+        return recordRows + patientRows;
     }
 
     /**
@@ -243,6 +251,8 @@ public class CgaReportVoServiceImpl implements CgaReportVoService {
 
         List<CgaReportVO.AssessmentItemVO> processedList = assessmentList.stream()
                 .filter(item -> item.getScaleId() != null)
+                .filter(item -> item.getScaleCode() != null
+                        && ASSESSMENT_CODE_WHITELIST.contains(item.getScaleCode()))
                 .map(item -> processAssessmentItem(item, report.getAnswerJson(), specialRecords))
                 .collect(Collectors.toList());
 

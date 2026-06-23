@@ -603,7 +603,14 @@ async function submitForm() {
  * 返回上一页
  */
 function goBack() {
-  router.back()
+  router.push({
+    path: '/patient/detection/geriatricsyndrome',
+    query: {
+      patientId: patientId.value,
+      patientName: patientInfo.value.name,
+      projectId: projectId.value
+    }
+  })
 }
 
 // ==================== 生命周期 ====================

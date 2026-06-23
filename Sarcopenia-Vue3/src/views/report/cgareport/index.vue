@@ -8,7 +8,7 @@
         </div>
         <div>
           <h1>老年综合评估报告</h1>
-          <p>共 <b>{{ patientList.length }}</b> 份报告 · 支持查看、打印和 PDF 导出</p>
+          <p>共 <b>{{ total }}</b> 份报告 · 支持查看、打印和 PDF 导出</p>
         </div>
       </div>
     </div>
@@ -22,7 +22,7 @@
               placeholder="请输入姓名"
               clearable
               style="width: 160px"
-              @keyup.enter="getList"
+              @keyup.enter="handleQuery"
           />
         </el-form-item>
         <el-form-item label="手机号">
@@ -31,7 +31,7 @@
               placeholder="请输入手机号"
               clearable
               style="width: 180px"
-              @keyup.enter="getList"
+              @keyup.enter="handleQuery"
           />
         </el-form-item>
         <el-form-item>
@@ -39,7 +39,7 @@
             <el-icon><Refresh /></el-icon>
             <span>重置</span>
           </el-button>
-          <el-button type="primary" :loading="loading" @click="getList">
+          <el-button type="primary" :loading="loading" @click="handleQuery">
             <el-icon><Search /></el-icon>
             <span>搜索</span>
           </el-button>
@@ -59,7 +59,7 @@
             :cell-style="cellStyle"
             class="report-list-table"
         >
-          <el-table-column type="index" label="序号" width="70" align="center" />
+          <el-table-column type="index" label="序号" width="70" align="center" :index="getTableIndex" />
           <el-table-column label="姓名" min-width="110" align="center">
             <template #default="{ row }">
               <div class="name-cell">{{ row.name || '-' }}</div>
@@ -99,6 +99,14 @@
         </el-table>
 
         <el-empty v-if="!loading && patientList.length === 0" description="暂无报告数据" />
+
+        <pagination
+            v-show="total > 0"
+            :total="total"
+            v-model:page="queryParams.pageNum"
+            v-model:limit="queryParams.pageSize"
+            @pagination="getList"
+        />
       </div>
     </div>
 
@@ -134,6 +142,10 @@
               <strong>{{ report.patientName || report.name || '-' }}</strong>
             </div>
             <div class="identity-cell">
+              <span>病历号</span>
+              <strong>{{ report.caseNo || report.medicalCaseNo || '-' }}</strong>
+            </div>
+            <div class="identity-cell">
               <span>性别</span>
               <strong>{{ formatGender(report.gender) }}</strong>
             </div>
@@ -149,7 +161,7 @@
               <span>体重</span>
               <strong>{{ formatWeight(report.weight) }}</strong>
             </div>
-            <div class="identity-cell wide">
+            <div class="identity-cell">
               <span>评估时间</span>
               <strong>{{ reportDate }}</strong>
             </div>
@@ -166,14 +178,6 @@
                 <dt>照顾情况</dt>
                 <dd>{{ report.careSituation || '暂无照顾情况记录' }}</dd>
               </div>
-              <div>
-                <dt>医疗支付</dt>
-                <dd>{{ report.payType || '暂无医疗费用支付方式记录' }}</dd>
-              </div>
-              <div>
-                <dt>经济来源</dt>
-                <dd>{{ report.incomeSource || '暂无经济来源记录' }}</dd>
-              </div>
             </dl>
           </section>
 
@@ -189,30 +193,27 @@
 
           <section class="report-section">
             <h2>综合评估结果</h2>
-            <table class="assessment-table">
-              <thead>
-              <tr>
-                <th class="col-name">评估内容</th>
-                <th class="col-result">评估结果</th>
-                <th class="col-normal">正常范围</th>
-                <th class="col-tip">提示</th>
-              </tr>
-              </thead>
-              <tbody>
-              <tr
+            <div class="assessment-list">
+              <div class="assessment-list-head">
+                <span>评估内容</span>
+                <span>评估结果</span>
+                <!-- <span>正常范围</span> -->
+                <span>提示</span>
+              </div>
+              <div
                   v-for="(item, index) in assessmentRows"
                   :key="item.scaleCode || index"
+                  class="assessment-list-row"
                   :class="'row-' + getResultType(item)"
               >
-                <td class="item-name">{{ index + 1 }}. {{ item._displayName }}</td>
-                <td>
+                <div class="item-name">{{ index + 1 }}. {{ item._displayName }}</div>
+                <div>
                   <span class="result-pill" :class="getResultType(item)">{{ formatResult(item) }}</span>
-                </td>
-                <td>{{ formatNormalRange(item) }}</td>
-                <td>{{ formatTip(item) }}</td>
-              </tr>
-              </tbody>
-            </table>
+                </div>
+                <!-- <div>{{ formatNormalRange(item) }}</div> -->
+                <div class="item-tip">{{ formatTip(item) }}</div>
+              </div>
+            </div>
           </section>
 
           <section class="report-section">
@@ -220,11 +221,11 @@
             <p class="conclusion-text">{{ reportConclusion }}</p>
           </section>
 
-          <section class="signature-section">
-            <div><span>评估人员签名：</span><b></b></div>
-            <div><span>审核医师签名：</span><b></b></div>
-            <div><span>评估日期：</span><b>{{ reportDate }}</b></div>
-          </section>
+<!--          <section class="signature-section">-->
+<!--            <div><span>评估人员签名：</span><b></b></div>-->
+<!--            <div><span>审核医师签名：</span><b></b></div>-->
+<!--            <div><span>评估日期：</span><b>{{ reportDate }}</b></div>-->
+<!--          </section>-->
         </main>
       </div>
 
@@ -265,11 +266,14 @@ const lastOpenedPatientId = ref('')
 
 const patientList = ref([])
 const report = ref(null)
+const total = ref(0)
 
 // 查询参数
 const queryParams = reactive({
   name: '',
-  phone: ''
+  phone: '',
+  pageNum: 1,
+  pageSize: 20
 })
 
 // ==================== 常量映射 ====================
@@ -352,9 +356,10 @@ const displayAge = computed(() => {
 
 // 评估项列表（过滤未作答项）
 const assessmentRows = computed(() => {
-  return (report.value?.assessmentList || [])
+  const rows = (report.value?.assessmentList || [])
       .map(buildItem)
       .filter(item => item._answered)
+  return dedupeAssessmentRows(rows)
 })
 
 // 已完成评估项数
@@ -370,6 +375,8 @@ const problemTags = computed(() => {
   return assessmentRows.value
       .filter(item => getResultType(item) === 'positive')
       .map(item => normalizeProblemName(item))
+      .filter(Boolean)
+      .filter((tag, index, arr) => arr.indexOf(tag) === index)
 })
 
 // 综合结论文案
@@ -396,11 +403,38 @@ function buildItem(raw) {
     ...raw,
     scaleCode: code,
     _displayName: scaleNameMap[code] || raw?.scaleName || '未命名项目',
-    _answered: true,
+    _answered: !!scaleNameMap[code],
     normalRange: raw?.normalRange || defaultNormalRangeMap[code] || '-',
     itemScore: raw?.itemScore || raw?.result || '',
     tip: raw?.tip || raw?.suggest || ''
   }
+}
+
+/**
+ * 同一个量表编码只保留一条，避免筛查项和专项项重复出现在报告中。
+ * 优先保留已完成专项覆盖后的记录，其次保留信息更完整的记录。
+ */
+function dedupeAssessmentRows(rows) {
+  const rowMap = new Map()
+  rows.forEach(row => {
+    const key = row.scaleCode || row.scaleId
+    if (!key) return
+    const old = rowMap.get(key)
+    if (!old || getRowPriority(row) > getRowPriority(old)) {
+      rowMap.set(key, row)
+    }
+  })
+  return Array.from(rowMap.values())
+}
+
+function getRowPriority(item) {
+  let priority = 0
+  const text = `${item.remark || ''} ${item.tip || ''} ${item.itemScore || ''}`
+  if (text.includes('专项评估已完成')) priority += 20
+  if (String(item.tip || '').trim()) priority += 4
+  if (String(item.itemScore || '').trim()) priority += 3
+  if (item.rawScore !== null && item.rawScore !== undefined) priority += 1
+  return priority
 }
 
 /**
@@ -468,7 +502,12 @@ function formatWeight(value) {
  * 判断文本是否包含阴性关键词
  */
 function hasNegativeWord(text) {
-  const negativeWords = ['阴性', '正常', '无依赖', '无异常', '无衰弱', '无风险', '良好', '无多重用药', '无需进行专项评估']
+  const negativeWords = [
+    '阴性', '正常', '无依赖', '无异常', '无衰弱', '无风险', '无明显风险',
+    '良好', '无多重用药', '无需进行专项评估', '风险低', '低风险',
+    '风险较低', '未发现明显风险因素', '未发现明显异常', '用药情况相对平稳',
+    '无抑郁症状', '无焦虑症状', '无睡眠障碍'
+  ]
   return negativeWords.some(word => text.includes(word))
 }
 
@@ -476,8 +515,32 @@ function hasNegativeWord(text) {
  * 判断文本是否包含阳性关键词
  */
 function hasPositiveWord(text) {
-  const positiveWords = ['阳性', '依赖', '异常', '障碍', '下降', '风险', '衰弱', '疼痛', '便秘', '失禁', '抑郁', '焦虑', '营养不良', '轻度多重用药', '重度多重用药', '应进行', '应进一步', '建议进行']
-  return positiveWords.some(word => text.includes(word))
+  const cleaned = text
+      .replace(/无明显风险因素|未发现明显风险因素|未发现明显异常|无风险|低风险|风险低|风险较低|无多重用药|用药情况相对平稳/g, '')
+      .replace(/无抑郁症状|无焦虑症状|无睡眠障碍|无营养不良风险/g, '')
+  const positiveWords = [
+    '阳性', '依赖', '异常', '障碍', '下降', '衰弱', '疼痛', '便秘', '失禁',
+    '抑郁', '焦虑', '营养不良', '轻度多重用药', '重度多重用药',
+    '中度风险', '高度风险', '高风险', '风险较高',
+    '应进行', '应进一步', '建议进行'
+  ]
+  return positiveWords.some(word => cleaned.includes(word))
+}
+
+function getStoredResultType(item) {
+  const result = String(item.itemScore || item.result || '').trim()
+  if (!result) return ''
+
+  if (hasNegativeWord(result) && !hasPositiveWord(result)) {
+    return 'negative'
+  }
+  if (result.includes('阴性')) {
+    return 'negative'
+  }
+  if (result.includes('阳性') || hasPositiveWord(result)) {
+    return 'positive'
+  }
+  return ''
 }
 
 /**
@@ -486,9 +549,21 @@ function hasPositiveWord(text) {
 function getResultType(item) {
   if (!item._answered) return 'pending'
 
-  const text = `${item.itemScore || ''} ${item.tip || ''} ${item.remark || ''}`
+  if (item.scaleCode === 'frail_assessment') {
+    const score = getRuleScore(item)
+    if (!Number.isNaN(score)) return score === 5 ? 'negative' : 'positive'
+  }
+  if (item.scaleCode === 'cognition_screen') {
+    const score = getRuleScore(item)
+    if (!Number.isNaN(score)) return score <= 2 ? 'positive' : 'negative'
+  }
+
+  const storedType = getStoredResultType(item)
+  if (storedType) return storedType
+
+  const text = `${item.tip || ''} ${item.remark || ''}`
   // 先判断阴性，排除正常表述
-  if (hasNegativeWord(text) && !hasPositiveWord(text.replace(/无依赖|无异常|无风险|无衰弱|无多重用药/g, ''))) {
+  if (hasNegativeWord(text) && !hasPositiveWord(text)) {
     return 'negative'
   }
   // 再判断阳性
@@ -508,6 +583,9 @@ function getResultType(item) {
 function formatResult(item) {
   if (!item._answered) return '未完成'
 
+  const ruleResult = formatRuleBasedResult(item)
+  if (ruleResult) return ruleResult
+
   const result = String(item.itemScore || '').trim()
   // 多重用药特殊处理
   if (item.scaleCode === 'polypharmacy_assessment' && /^\d+分$/.test(result)) {
@@ -520,6 +598,32 @@ function formatResult(item) {
   if (type === 'positive') return '阳性'
   if (type === 'negative') return '阴性'
   return '未完成'
+}
+
+function getRuleScore(item) {
+  if (item.rawScore !== null && item.rawScore !== undefined && !Number.isNaN(Number(item.rawScore))) {
+    return Number(item.rawScore)
+  }
+  const text = `${item.itemScore || ''} ${item.result || ''} ${item.tip || ''}`
+  const matched = text.match(/(-?\d+)\s*分?/)
+  return matched ? Number(matched[1]) : NaN
+}
+
+function formatRuleBasedResult(item) {
+  const score = getRuleScore(item)
+  if (Number.isNaN(score)) return ''
+
+  if (item.scaleCode === 'frail_assessment') {
+    if (score === 5) return '无衰弱'
+    if (score >= 3) return '衰弱前期'
+    return '判定为衰弱'
+  }
+
+  if (item.scaleCode === 'cognition_screen') {
+    return score <= 2 ? '认知功能障碍筛查阳性' : '阴性'
+  }
+
+  return ''
 }
 
 /**
@@ -569,15 +673,45 @@ function formatTip(item) {
 }
 
 /**
- * 标准化问题名称展示
+ * 标准化问题名称展示（项目名 + 结果描述）
  */
 function normalizeProblemName(item) {
-  const result = formatResult(item)
-  const name = item._displayName.replace(/评估|筛查/g, '')
-  if (result && !['阳性', '阴性', '正常', '未完成'].includes(result)) {
+  const name = item._displayName.replace(/(评估|筛查|量表|评分表)$/, '')
+  const result = cleanProblemText(formatResult(item))
+  if (item.scaleCode === 'constipation_screen' && result.includes('存在便秘症状')) {
+    return '存在便秘症状'
+  }
+  if (item.scaleCode === 'sleep_disorder_screen' && result.includes('睡眠障碍')) {
+    return result.includes('可能') ? '可能有睡眠障碍' : '存在睡眠障碍'
+  }
+  if (item.scaleCode === 'water_swallowing_test' && result.includes('吞咽困难')) {
+    return result.match(/(轻度吞咽困难|中度吞咽困难|重度吞咽困难)/)?.[1] || '存在吞咽困难'
+  }
+  if (item.scaleCode === 'pressure_injury_risk') {
+    const riskLevel = result.match(/(极高风险|高度风险|中度风险|低度风险|低风险|无风险)/)?.[1]
+    return riskLevel ? `压力性损伤风险：${riskLevel}` : '压力性损伤风险'
+  }
+  // 如果结果是纯关键词，直接用项目名+关键词组合
+  if (['阳性', '阴性', '正常', '未完成'].includes(result)) {
+    return name
+  }
+  // 避免重复：结果文本已经包含项目名则不再拼接
+  if (result && name && result.includes(name)) {
     return result
   }
-  return name
+  return result ? `${name}：${result}` : name
+}
+
+function cleanProblemText(text) {
+  return String(text || '')
+      .replace(/[{}]/g, '')
+      .replace(/[；;，,]?\s*检出异常项目\s*\d+\s*项/g, '')
+      .replace(/[；;，,]?\s*检出跌倒风险\s*\d+\s*项/g, '')
+      .replace(/[；;，,]?\s*疼痛相关存在\s*\d+\s*项异常/g, '')
+      .replace(/\s+/g, ' ')
+      .replace(/；\s*；/g, '；')
+      .replace(/[；;，,]\s*$/g, '')
+      .trim()
 }
 
 /**
@@ -602,18 +736,56 @@ function getReportElement() {
 /**
  * 报告打印样式字符串
  */
+function escapePrintHtml(value) {
+  return String(value ?? '-')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;')
+}
+
+function getRepeatHeaderHtml() {
+  const currentReport = report.value || {}
+  const headerCells = [
+    ['姓名', currentReport.patientName || currentReport.name || '-'],
+    ['病历号', currentReport.caseNo || currentReport.medicalCaseNo || '-'],
+    ['性别', formatGender(currentReport.gender)],
+    ['年龄', displayAge.value],
+    ['身高', formatHeight(currentReport.height)],
+    ['体重', formatWeight(currentReport.weight)],
+    ['评估时间', reportDate.value]
+  ]
+
+  const cellHtml = headerCells.map(([label, value]) => `
+    <div class="identity-cell">
+      <span>${escapePrintHtml(label)}</span>
+      <strong>${escapePrintHtml(value || '-')}</strong>
+    </div>
+  `).join('')
+
+  return `
+    <div class="print-repeat-header">
+      <div class="print-repeat-title">
+        <h1>老年综合评估报告单</h1>
+        <p>Comprehensive Geriatric Assessment Report</p>
+      </div>
+      <section class="identity-strip">${cellHtml}</section>
+    </div>
+  `
+}
+
 function reportPaperCss() {
   return `
-    .report-paper { width: 210mm; min-height: 297mm; margin: 0 auto; padding: 18mm; background: #fff; color: #1f2937; font-family: "Microsoft YaHei", Arial, sans-serif; }
+    .report-paper { width: 210mm; min-height: 297mm; margin: 0 auto; padding: 18mm; background: #fff; color: #1f2937; font-size: 13px; font-family: "Microsoft YaHei", Arial, sans-serif; }
     .paper-header { border-bottom: 2px solid #0f6b85; padding-bottom: 14px; text-align: center; }
     .hospital-line { display: flex; justify-content: space-between; color: #607080; font-size: 12px; }
     .paper-header h1 { margin: 16px 0 4px; color: #0f2f44; font-size: 28px; letter-spacing: 2px; }
     .paper-header p { margin: 0; color: #6b7280; font-size: 12px; }
-    .identity-strip { display: grid; grid-template-columns: repeat(6, 1fr); margin-top: 16px; border: 1px solid #cbd5df; }
-    .identity-cell { min-height: 42px; padding: 7px 10px; border-right: 1px solid #cbd5df; background: #f8fbfd; }
-    .identity-cell.wide { grid-column: span 2; }
+    .identity-strip { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); margin-top: 16px; border: 1px solid #cbd5df; border-right: 0; border-bottom: 0; }
+    .identity-cell { min-height: 38px; padding: 7px 8px; border-right: 1px solid #cbd5df; border-bottom: 1px solid #cbd5df; background: #f8fbfd; min-width: 0; }
     .identity-cell span { display: block; color: #7b8794; font-size: 11px; }
-    .identity-cell strong { display: block; margin-top: 3px; color: #20242a; font-size: 13px; }
+    .identity-cell strong { display: block; margin-top: 3px; color: #20242a; font-size: 12px; font-weight: 400; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .report-section { margin-top: 16px; padding: 14px 18px; border: 1px solid #d8e3ea; }
     .report-section h2 { margin: 0 0 12px; padding-left: 10px; border-left: 4px solid #0f7895; color: #0f2f44; font-size: 17px; }
     .clinical-list { margin: 0; }
@@ -622,28 +794,46 @@ function reportPaperCss() {
     .clinical-list dt { color: #8793a1; }
     .clinical-list dd { margin: 0; color: #303740; }
     .problem-tags { display: flex; flex-wrap: wrap; gap: 8px; }
-    .problem-tag { display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; border: 1px solid #facaca; background: #fff5f5; color: #bf3b3b; font-size: 12px; }
-    .problem-tag i { display: inline-flex; align-items: center; justify-content: center; width: 16px; height: 16px; border-radius: 50%; background: #d94a4a; color: #fff; font-style: normal; font-weight: 700; }
+    .problem-tag { display: inline-flex; align-items: center; gap: 6px; padding: 4px 8px; border: 1px solid #cfd9e1; background: #f8fafc; color: #334155; font-size: 11px; }
+    .problem-tag i { display: inline-flex; align-items: center; justify-content: center; width: 14px; height: 14px; border-radius: 50%; background: #64748b; color: #fff; font-style: normal; font-weight: 400; }
     .empty-problem { color: #6f7a88; font-size: 13px; }
-    .assessment-table { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 12px; }
-    .assessment-table th { padding: 9px 10px; border: 1px solid #aebfcb; background: #e8f1f4; color: #102a43; text-align: left; }
-    .assessment-table td { padding: 8px 10px; border: 1px solid #cfd9e1; line-height: 1.65; vertical-align: top; word-break: break-word; }
-    .assessment-table .col-name { width: 28%; }
-    .assessment-table .col-result { width: 18%; }
-    .assessment-table .col-normal { width: 24%; }
-    .assessment-table .col-tip { width: 30%; }
-    .assessment-table .item-name { font-weight: 700; color: #20242a; }
-    .assessment-table tr.row-positive td { background: #fffafa; }
-    .assessment-table tr.row-positive .item-name { border-left: 3px solid #d84a4a; }
-    .assessment-table tr.row-negative .item-name { border-left: 3px solid #2f855a; }
-    .result-pill { display: inline-flex; padding: 3px 8px; border: 1px solid #d7dde5; background: #f7f9fb; }
-    .result-pill.positive { border-color: #f1c7c7; background: #fff1f1; color: #a12b2b; }
-    .result-pill.negative { border-color: #b9ddc4; background: #f1fbf4; color: #24653a; }
+    .assessment-list { font-size: 11px; }
+    .assessment-list-head,
+    .assessment-list-row { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr) minmax(0, 2.2fr); column-gap: 12px; align-items: start; }
+    .assessment-list-head > *,
+    .assessment-list-row > * { min-width: 0; }
+    .assessment-list-head { padding: 7px 0 9px; border-bottom: 2px solid #b8c8d3; color: #102a43; font-weight: 400; }
+    .assessment-list-row { padding: 10px 0; border-bottom: 1px solid #dbe4ec; line-height: 1.65; word-break: break-word; overflow-wrap: anywhere; }
+    .assessment-list-row:last-child { border-bottom: 0; }
+    .assessment-list-row .item-name { font-weight: 400; color: #20242a; }
+    .assessment-list-row.row-positive .item-name { color: #20242a; }
+    .assessment-list-row.row-negative .item-name { color: #20242a; }
+    .result-pill { display: inline; padding: 0; border: 0; background: transparent; color: #1f2937; font-weight: 400; }
+    .result-pill.positive,
+    .result-pill.negative { color: #1f2937; }
     .conclusion-text { margin: 0; line-height: 1.9; text-indent: 2em; }
     .signature-section { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 22px; padding-top: 14px; border-top: 1px solid #d7dde5; }
     .signature-section div { display: flex; gap: 8px; align-items: center; }
     .signature-section b { flex: 1; min-height: 24px; border-bottom: 1px solid #9aa5b1; }
-    @media print { body { margin: 0; background: #fff; } .report-paper { width: auto; min-height: auto; padding: 12mm; } }
+    .print-repeat-header { display: none; }
+    .print-repeat-title { border-bottom: 2px solid #0f6b85; padding-bottom: 8px; text-align: center; }
+    .print-repeat-title h1 { margin: 0 0 4px; color: #0f2f44; font-size: 20px; letter-spacing: 1px; }
+    .print-repeat-title p { margin: 0; color: #6b7280; font-size: 10px; }
+    @media print {
+      @page { size: A4; margin: 12mm; }
+      body { margin: 0; background: #fff; }
+      .print-report-table { width: 100%; border-collapse: collapse; }
+      .print-report-table thead { display: table-header-group; }
+      .print-report-table tbody { display: table-row-group; }
+      .print-report-table td { padding: 0; border: 0; vertical-align: top; }
+      .print-repeat-header { display: block; position: static; margin-bottom: 10mm; background: #fff; }
+      .print-repeat-header .identity-strip { margin-top: 8px; }
+      .report-paper { width: auto; min-height: auto; padding: 0 !important; }
+      .report-paper > .paper-header,
+      .report-paper > .identity-strip { display: none; }
+      .assessment-list-row,
+      .signature-section { break-inside: avoid; page-break-inside: avoid; }
+    }
   `
 }
 
@@ -655,10 +845,20 @@ async function getList() {
   loading.value = true
   try {
     const res = await selectReportedPatientList(queryParams)
-    patientList.value = res.data || []
+    const pageData = res.data || {}
+    patientList.value = res.rows || pageData.rows || pageData.records || pageData.list || (Array.isArray(pageData) ? pageData : [])
+    total.value = Number(res.total ?? pageData.total ?? patientList.value.length ?? 0)
   } finally {
     loading.value = false
   }
+}
+
+/**
+ * 搜索报告列表
+ */
+function handleQuery() {
+  queryParams.pageNum = 1
+  getList()
 }
 
 /**
@@ -667,7 +867,15 @@ async function getList() {
 function resetQuery() {
   queryParams.name = ''
   queryParams.phone = ''
+  queryParams.pageNum = 1
   getList()
+}
+
+/**
+ * 表格序号按分页连续显示
+ */
+function getTableIndex(index) {
+  return (queryParams.pageNum - 1) * queryParams.pageSize + index + 1
 }
 
 /**
@@ -783,7 +991,16 @@ function printReport() {
         <title>老年综合评估报告</title>
         <style>${reportPaperCss()}</style>
       </head>
-      <body>${el.outerHTML}</body>
+      <body>
+        <table class="print-report-table">
+          <thead>
+            <tr><td>${getRepeatHeaderHtml()}</td></tr>
+          </thead>
+          <tbody>
+            <tr><td>${el.outerHTML}</td></tr>
+          </tbody>
+        </table>
+      </body>
     </html>
   `)
   printWindow.document.close()
@@ -935,6 +1152,7 @@ watch(
   padding: 18mm;
   background: #fff;
   color: #1f2937;
+  font-size: 13px;
   font-family: "Microsoft YaHei", Arial, sans-serif;
 }
 
@@ -966,20 +1184,20 @@ watch(
 
 :deep(.identity-strip) {
   display: grid;
-  grid-template-columns: repeat(6, 1fr);
+  grid-template-columns: repeat(7, minmax(0, 1fr));
   margin-top: 16px;
   border: 1px solid #cbd5df;
+  border-right: 0;
+  border-bottom: 0;
 }
 
 :deep(.identity-cell) {
-  min-height: 42px;
-  padding: 7px 10px;
+  min-height: 38px;
+  padding: 7px 8px;
   border-right: 1px solid #cbd5df;
+  border-bottom: 1px solid #cbd5df;
   background: #f8fbfd;
-}
-
-:deep(.identity-cell.wide) {
-  grid-column: span 2;
+  min-width: 0;
 }
 
 :deep(.identity-cell span) {
@@ -992,7 +1210,11 @@ watch(
   display: block;
   margin-top: 3px;
   color: #20242a;
-  font-size: 13px;
+  font-size: 12px;
+  font-weight: 400;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 :deep(.report-section) {
@@ -1043,24 +1265,24 @@ watch(
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 5px 10px;
-  border: 1px solid #facaca;
-  background: #fff5f5;
-  color: #bf3b3b;
-  font-size: 12px;
+  padding: 4px 8px;
+  border: 1px solid #cfd9e1;
+  background: #f8fafc;
+  color: #334155;
+  font-size: 11px;
 }
 
 :deep(.problem-tag i) {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 16px;
-  height: 16px;
+  width: 14px;
+  height: 14px;
   border-radius: 50%;
-  background: #d94a4a;
+  background: #64748b;
   color: #fff;
   font-style: normal;
-  font-weight: 700;
+  font-weight: 400;
 }
 
 :deep(.empty-problem) {
@@ -1068,79 +1290,62 @@ watch(
   font-size: 13px;
 }
 
-:deep(.assessment-table) {
-  width: 100%;
-  border-collapse: collapse;
-  table-layout: fixed;
+:deep(.assessment-list) {
   font-size: 12px;
 }
 
-:deep(.assessment-table th) {
-  padding: 9px 10px;
-  border: 1px solid #aebfcb;
-  background: #e8f1f4;
+:deep(.assessment-list-head),
+:deep(.assessment-list-row) {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr) minmax(0, 2.2fr);
+  column-gap: 12px;
+  align-items: start;
+}
+
+:deep(.assessment-list-head > *),
+:deep(.assessment-list-row > *) {
+  min-width: 0;
+}
+
+:deep(.assessment-list-head) {
+  padding: 8px 0 10px;
+  border-bottom: 2px solid #b8c8d3;
   color: #102a43;
-  text-align: left;
+  font-weight: 400;
 }
 
-:deep(.assessment-table td) {
-  padding: 8px 10px;
-  border: 1px solid #cfd9e1;
+:deep(.assessment-list-row) {
+  padding: 12px 0;
+  border-bottom: 1px solid #dbe4ec;
   line-height: 1.65;
-  vertical-align: top;
   word-break: break-word;
+  overflow-wrap: anywhere;
 }
 
-:deep(.assessment-table .col-name) {
-  width: 28%;
+:deep(.assessment-list-row:last-child) {
+  border-bottom: 0;
 }
 
-:deep(.assessment-table .col-result) {
-  width: 18%;
-}
-
-:deep(.assessment-table .col-normal) {
-  width: 24%;
-}
-
-:deep(.assessment-table .col-tip) {
-  width: 30%;
-}
-
-:deep(.assessment-table .item-name) {
-  font-weight: 700;
+:deep(.assessment-list-row .item-name) {
+  font-weight: 400;
   color: #20242a;
 }
 
-:deep(.assessment-table tr.row-positive td) {
-  background: #fffafa;
-}
-
-:deep(.assessment-table tr.row-positive .item-name) {
-  border-left: 3px solid #d84a4a;
-}
-
-:deep(.assessment-table tr.row-negative .item-name) {
-  border-left: 3px solid #2f855a;
-}
-
 :deep(.result-pill) {
-  display: inline-flex;
-  padding: 3px 8px;
-  border: 1px solid #d7dde5;
-  background: #f7f9fb;
+  display: inline;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #1f2937;
+  font-weight: 400;
 }
 
 :deep(.result-pill.positive) {
-  border-color: #f1c7c7;
-  background: #fff1f1;
-  color: #a12b2b;
+  color: #1f2937;
 }
 
 :deep(.result-pill.negative) {
-  border-color: #b9ddc4;
-  background: #f1fbf4;
-  color: #24653a;
+  color: #1f2937;
 }
 
 :deep(.conclusion-text) {

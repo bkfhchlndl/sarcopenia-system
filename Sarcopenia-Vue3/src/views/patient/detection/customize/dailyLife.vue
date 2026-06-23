@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="daily-life-container">
     <!-- ===== 顶部导航栏 ===== -->
     <header class="top-bar">
@@ -166,28 +166,28 @@ const DEPENDENCY_LEVELS = [
     text: '重度依赖',
     color: '#ef4444',
     bg: '#fef2f2',
-    suggest: '基本日常生活活动能力重度依赖，建议完善照护计划，加强进食、转移、如厕、洗澡等基础生活照护，并结合患者情况进行康复训练。'
+    suggest: '建议完善照护计划，加强进食、转移、如厕、洗澡等基础生活照护，并结合患者情况进行康复训练。'
   },
   {
     maxScore: 60,
     text: '中度依赖',
     color: '#f97316',
     bg: '#fff7ed',
-    suggest: '基本日常生活活动能力中度依赖，建议给予部分生活照护，重点关注转移、行走、上下楼梯等风险环节，并进行针对性功能训练。'
+    suggest: '建议给予部分生活照护，重点关注转移、行走、上下楼梯等风险环节，并进行针对性功能训练。'
   },
   {
     maxScore: 99,
     text: '轻度依赖',
     color: '#3b82f6',
     bg: '#eff6ff',
-    suggest: '基本日常生活活动能力轻度依赖，建议鼓励患者在安全前提下独立完成日常活动，必要时给予辅助和康复指导。'
+    suggest: '建议鼓励患者在安全前提下独立完成日常活动，必要时给予辅助和康复指导。'
   },
   {
     maxScore: 100,
     text: '无依赖',
     color: '#22c55e',
     bg: '#f0fdf4',
-    suggest: '基本日常生活活动能力无依赖，建议保持现有活动能力，定期随访复评。'
+    suggest: '建议保持现有活动能力，定期随访复评。'
   }
 ]
 
@@ -312,7 +312,7 @@ function selectOption(questionId, option) {
  * 返回上一页
  */
 function goBack() {
-  router.back()
+  router.push({ path: '/patient/detection/customize', query: route.query })
 }
 
 /**
@@ -327,7 +327,7 @@ function backToComprehensive() {
   } catch (e) {}
 
   router.push({
-    path: '/patient/detection/comprehensive',
+    path: '/patient/detection/customize',
     query: {
       patientId: patientId.value,
       patientName: patientName.value

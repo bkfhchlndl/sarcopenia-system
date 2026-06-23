@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="basic-info-container">
     <div class="page-shell">
       <!-- 页面头部 -->
@@ -822,7 +822,7 @@ async function submitBasicInfo() {
     ElMessage.success('基本情况保存成功')
     setTimeout(() => {
       router.push({
-        path: '/patient/detection/comprehensive',
+        path: '/patient/detection/customize',
         query: {
           patientId: patientId.value,
           patientName: form.name || patientName.value
@@ -841,7 +841,7 @@ async function submitBasicInfo() {
  * 返回上一页
  */
 function goBack() {
-  router.back()
+  router.push({ path: '/patient/detection/customize', query: route.query })
 }
 
 // ==================== 副作用监听 ====================

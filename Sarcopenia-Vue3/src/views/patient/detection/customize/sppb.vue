@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="daily-life-container">
     <!-- ===== 顶部导航栏 ===== -->
     <header class="top-bar">
@@ -269,7 +269,7 @@ function selectOption(questionId, option) {
 }
 
 function goBack() {
-  router.back()
+  router.push({ path: '/patient/detection/customize', query: route.query })
 }
 
 function backToComprehensive() {
@@ -279,7 +279,7 @@ function backToComprehensive() {
     }
   } catch (e) {}
   router.push({
-    path: '/patient/detection/comprehensive',
+    path: '/patient/detection/customize',
     query: {
       patientId: patientId.value,
       patientName: patientName.value
