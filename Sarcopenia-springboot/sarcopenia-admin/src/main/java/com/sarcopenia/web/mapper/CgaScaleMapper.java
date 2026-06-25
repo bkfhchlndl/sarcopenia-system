@@ -163,4 +163,10 @@ public interface CgaScaleMapper extends BaseMapper<CgaScale> {
      * @return 量表题目选项集合
      */
     List<ScaleQuestionOptionVO> selectBasicInformationScale();
+
+    /**
+     * 查询SARC-F肌少症筛查量表及题目选项信息
+     * @return 量表题目选项集合
+     */
+    List<ScaleQuestionOptionVO> selectSarcFScale();
 }

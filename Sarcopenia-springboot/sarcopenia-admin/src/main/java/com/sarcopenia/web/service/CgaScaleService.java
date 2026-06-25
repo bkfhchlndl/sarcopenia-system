@@ -155,4 +155,5 @@ public interface CgaScaleService extends IService<CgaScale> {
      * @return 量表题目选项集合
      */
     List<ScaleQuestionOptionVO> selectBasicInformationScale();
+
 }

@@ -174,7 +174,7 @@ const assessmentTypes = [
     color: '#f97316',
     tags: ['肌量筛查', '握力检测', '步速评估', 'AWGS标准'],
     highlight: false,
-    route: { path: '/patient/detection/customize', queryMerge: { mode: 'sarcopenia' } }
+    route: { path: '/patient/detection/sarcopeniaSyndrome', queryMerge: { mode: 'sarcopenia' } }
   }
 ]
 

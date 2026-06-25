@@ -731,4 +731,32 @@
         ORDER BY s.id, q.sort, q.id, o.sort, o.id
     </select>
 
+    <!-- 查询SARC-F肌少症筛查量表及题目选项 -->
+    <select id="selectSarcFScale" resultMap="selectScaleList">
+        SELECT
+            s.id AS scale_id,
+            s.scale_name,
+            s.code,
+            s.total_score,
+            s.remark,
+            s.del_flag,
+            q.id AS question_id,
+            q.title,
+            q.type,
+            q.sort,
+            o.id AS option_id,
+            o.label,
+            o.content,
+            o.score,
+            o.sort
+        FROM cga_scale s
+                 LEFT JOIN cga_question q
+                           ON s.id = q.scale_id AND q.del_flag = '0'
+                 LEFT JOIN cga_option o
+                           ON q.id = o.question_id AND o.del_flag = '0'
+        WHERE s.del_flag = '0'
+          AND s.code = 'sarc_f'
+        ORDER BY s.id, q.sort, q.id, o.sort, o.id
+    </select>
+
 </mapper>

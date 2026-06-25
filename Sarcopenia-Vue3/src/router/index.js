@@ -89,6 +89,62 @@ export const constantRoutes = [
         meta: { title: '老年综合评估', activeMenu: '/patient/detection/index' }
       },
       {
+        path: 'sarcopeniaSyndrome',
+        component: () => import('@/views/patient/detection/sarcopeniaSyndrome'),
+        name: 'SarcopeniaSyndrome',
+        hidden: true,
+        meta: { title: '肌少症综合评估', activeMenu: '/patient/detection/index' }
+      },
+      {
+        path: 'sCustomize',
+        component: () => import('@/views/patient/detection/sCustomize'),
+        name: 'SCustomize',
+        hidden: true,
+        meta: { title: '肌少症自定义评估', activeMenu: '/patient/detection/index' }
+      },
+      {
+        path: 'sCustomize/sSarcF',
+        component: () => import('@/views/patient/detection/sCustomize/sSarcF.vue'),
+        name: 'SSarcF',
+        hidden: true,
+        meta: { title: 'SARC-F肌少症筛查', activeMenu: '/patient/detection/index' }
+      },
+      {
+        path: 'sCustomize/sCalfMeasure',
+        component: () => import('@/views/patient/detection/sCustomize/sCalfMeasure.vue'),
+        name: 'SCalfMeasure',
+        hidden: true,
+        meta: { title: '小腿围测量', activeMenu: '/patient/detection/index' }
+      },
+      {
+        path: 'sCustomize/gripStrength',
+        component: () => import('@/views/patient/detection/sCustomize/gripStrength.vue'),
+        name: 'GripStrength',
+        hidden: true,
+        meta: { title: '握力测量', activeMenu: '/patient/detection/index' }
+      },
+      {
+        path: 'sCustomize/situp',
+        component: () => import('@/views/patient/detection/sCustomize/situp.vue'),
+        name: 'SitUp',
+        hidden: true,
+        meta: { title: '5次起坐测试', activeMenu: '/patient/detection/index' }
+      },
+      {
+        path: 'sCustomize/pace',
+        component: () => import('@/views/patient/detection/sCustomize/pace.vue'),
+        name: 'SPace',
+        hidden: true,
+        meta: { title: '6米步速测量', activeMenu: '/patient/detection/index' }
+      },
+      {
+        path: 'sCustomize/balanceStand',
+        component: () => import('@/views/patient/detection/sCustomize/balanceStand.vue'),
+        name: 'BalanceStand',
+        hidden: true,
+        meta: { title: '站立平衡测试', activeMenu: '/patient/detection/index' }
+      },
+      {
         path: 'cga',
         component: () => import('@/views/patient/detection/cga'),
         name: 'Cga',

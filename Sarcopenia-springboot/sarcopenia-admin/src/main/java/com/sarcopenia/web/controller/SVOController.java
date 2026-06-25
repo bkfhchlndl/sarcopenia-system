@@ -1,6 +1,6 @@
 package com.sarcopenia.web.controller;
 
-import com.sarcopenia.common.annotation.Anonymous;
+import com.sarcopenia.common.core.domain.AjaxResult;
 import com.sarcopenia.web.entity.vo.SVO;
 import com.sarcopenia.web.service.SVOService;
 import jakarta.annotation.Resource;
@@ -18,14 +18,21 @@ public class SVOController {
     @Resource
     private SVOService svoService;
 
-    @Anonymous
+    /**
+     * 查询所有肌少症量表列表（轻量，只查主表）
+     */
     @GetMapping("/selectSVOList")
-    public List<SVO> selectSVOList() {
-        return svoService.selectSVOList();
+    public AjaxResult selectSVOList() {
+        List<SVO> list = svoService.selectSVOList();
+        return AjaxResult.success(list);
     }
-    @Anonymous
+
+    /**
+     * 根据ID查询单个肌少症量表详情（带题目+选项）
+     */
     @GetMapping("/selectSVOById/{id}")
-    public SVO selectSVOById(@PathVariable("id") Long id) {
-        return svoService.selectSVOById(id);
+    public AjaxResult selectSVOById(@PathVariable("id") Long id) {
+        SVO svo = svoService.selectSVOById(id);
+        return AjaxResult.success(svo);
     }
 }
