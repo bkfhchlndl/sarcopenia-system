@@ -164,3 +164,49 @@ export function insertBalanceStand(data) {
     data
   })
 }
+
+/**
+ * 查询患者人体成分测量记录列表
+ * @param {Object} params 查询参数
+ */
+export function selectBodyCompositionList(params) {
+  return request({
+    url: '/sBodyComposition/selectByPatientId',
+    method: 'get',
+    params
+  })
+}
+
+/**
+ * 新增人体成分测量记录
+ * @param {Object} data 测量数据
+ */
+export function insertBodyComposition(data) {
+  return request({
+    url: '/sBodyComposition/insert',
+    method: 'post',
+    data
+  })
+}
+
+/**
+ * 生成肌少症综合评估报告
+ * @param {Number|String} patientId 患者ID
+ */
+export function generateSReport(patientId) {
+  return request({
+    url: `/sRecord/generateReport/${patientId}`,
+    method: 'post'
+  })
+}
+
+/**
+ * 删除肌少症综合评估报告
+ * @param {Number|String} patientId 患者ID
+ */
+export function deleteSReport(patientId) {
+  return request({
+    url: `/sRecord/deleteReport/${patientId}`,
+    method: 'delete'
+  })
+}

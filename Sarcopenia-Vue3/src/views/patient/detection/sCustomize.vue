@@ -98,10 +98,10 @@ import {
   ArrowLeft, Files, User, Check, ArrowRight,
   Document, DocumentChecked, Dish, DataAnalysis,
   View, HomeFilled, Setting,
-  UserFilled, MagicStick, ChatDotRound, Monitor, DataLine, Aim
+  UserFilled, MagicStick, ChatDotRound, Monitor, DataLine, Aim, DataBoard
 } from '@element-plus/icons-vue'
 
-import { selectSRecordList, selectCalfMeasureList, selectGripStrengthList, selectSitUpList, selectPaceList, selectBalanceStandList } from '@/api/s.js'
+import { selectSRecordList, selectCalfMeasureList, selectGripStrengthList, selectSitUpList, selectPaceList, selectBalanceStandList, selectBodyCompositionList } from '@/api/s.js'
 
 const route = useRoute()
 const router = useRouter()
@@ -200,34 +200,17 @@ const ASSESSMENT_SECTION_CONFIG = [
         projectId: 0,
         isCustom: true
       },
-    ]
-  },
-  {
-    index: '三',
-    title: '营养与生活方式',
-    desc: '膳食营养与健康生活方式调查',
-    startIdx: 3,
-    items: [
       {
-        name: '膳食与营养状况调查',
-        subTitle: '饮食习惯与营养摄入评估',
-        color: '#84cc16',
-        icon: markRaw(Dish),
-        code: 'diet_nutrition',
-        doneCodes: ['diet_nutrition'],
-        path: '',
-        projectId: 0
+        name: '人体成分测量',
+        subTitle: 'Body Composition · 肌肉量体脂分析',
+        color: '#0ea5e9',
+        icon: markRaw(DataBoard),
+        code: 'body_composition',
+        doneCodes: ['body_composition'],
+        path: '/patient/detection/sCustomize/bodyComposition',
+        projectId: 0,
+        isCustom: true
       },
-      {
-        name: '基础健康与生活方式调查',
-        subTitle: '运动、烟酒、睡眠等综合调查',
-        color: '#0d9488',
-        icon: markRaw(HomeFilled),
-        code: 'health_lifestyle',
-        doneCodes: ['health_lifestyle'],
-        path: '',
-        projectId: 0
-      }
     ]
   }
 ]
@@ -359,6 +342,7 @@ async function refreshCompletionStatus() {
   let sitUpList = []
   let paceList = []
   let balanceStandList = []
+  let bodyCompositionList = []
   try {
     const res = await selectSRecordList({ patientId: patientId.value })
     recordList = normalizeListResponse(res)
@@ -395,6 +379,12 @@ async function refreshCompletionStatus() {
   } catch (error) {
     console.error('加载站立平衡测试记录失败', error)
   }
+  try {
+    const res = await selectBodyCompositionList({ patientId: patientId.value })
+    bodyCompositionList = normalizeListResponse(res)
+  } catch (error) {
+    console.error('加载人体成分测量记录失败', error)
+  }
 
   // 更新所有评估项的完成状态
   assessmentSections.value.forEach(section => {
@@ -418,6 +408,10 @@ async function refreshCompletionStatus() {
       }
       // 站立平衡走独立表
       if (item.code === 'balance_stand' && balanceStandList.length > 0) {
+        done = true
+      }
+      // 人体成分测量走独立表
+      if (item.code === 'body_composition' && bodyCompositionList.length > 0) {
         done = true
       }
       item.completed = done
@@ -460,7 +454,7 @@ function goBack() {
 /** 跳转至综合报告页面 */
 function goComprehensiveReport() {
   router.push({
-    path: '/report/cgareport',
+    path: '/patient/detection/sComprehensive',
     query: {
       patientId: patientId.value,
       patientName: patientName.value

@@ -91,6 +91,7 @@
             <if test="remark != null and remark != ''">remark = #{remark},</if>
             <if test="isDel != null">is_del = #{isDel},</if>
             <if test="isReport != null">is_report = #{isReport},</if>
+            <if test="isProject != null">is_project = #{isProject},</if>
             update_time = SYSDATE(),
             update_by = #{updateBy}
         </set>
@@ -130,7 +131,7 @@
         id, medical_case_no, name, phone, gender, birthday, id_card, social_card_no,
         height, weight, nation, educational_level, religious_belief, marital_status,
         family_status, live_situation, care_situation, pay_type, income_source,
-        create_time, create_by, update_time, update_by, remark, is_del, is_report
+        create_time, create_by, update_time, update_by, remark, is_del, is_report, is_project
     </sql>
 
     <!-- 查询患者信息列表（未生成报告） -->
@@ -169,19 +170,19 @@
         SELECT <include refid="selectFields"/> FROM patient WHERE id = #{patientId} AND is_del = 0
     </select>
 
-    <!-- 更新患者状态为已检查 -->
+    <!-- 更新患者状态为已检查（带项目ID） -->
     <update id="updatePatientIsReport">
-        UPDATE patient SET is_report = 1 WHERE id = #{id}
+        UPDATE patient SET is_report = 1, is_project = #{isProject} WHERE id = #{id}
     </update>
 
-    <!-- 更新患者状态为已报告 -->
+    <!-- 更新患者状态为已报告（带项目ID） -->
     <update id="updatePatientIsReports">
-        UPDATE patient SET is_report = 2 WHERE id = #{id}
+        UPDATE patient SET is_report = 2, is_project = #{isProject} WHERE id = #{id}
     </update>
 
     <!-- 重置患者报告状态为未报告 -->
     <update id="resetPatientIsReport">
-        UPDATE patient SET is_report = 0 WHERE id = #{id}
+        UPDATE patient SET is_report = 0, is_project = NULL WHERE id = #{id}
     </update>
 
     <!-- 查询已完成评估的患者列表 -->
@@ -190,6 +191,9 @@
         FROM patient p
         WHERE p.is_del = 0
         AND p.is_report = 1
+        <if test="isProject != null">
+            AND p.is_project = #{isProject}
+        </if>
         <if test="medicalCaseNo != null and medicalCaseNo != ''">
             AND p.medical_case_no LIKE CONCAT('%', #{medicalCaseNo}, '%')
         </if>

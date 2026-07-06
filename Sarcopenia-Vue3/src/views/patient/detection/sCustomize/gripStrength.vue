@@ -550,9 +550,12 @@ async function handleSubmit() {
  * 返回上一页
  */
 function goBack() {
-  const backPath = route.query.from === 'sCustomize'
-    ? '/patient/detection/sCustomize'
-    : '/patient/detection/customize'
+  let backPath = '/patient/detection/customize'
+  if (route.query.from === 'sCustomize') {
+    backPath = '/patient/detection/sCustomize'
+  } else if (route.query.from === 'sComprehensive') {
+    backPath = '/patient/detection/sComprehensive'
+  }
   router.push({ path: backPath, query: route.query })
 }
 
@@ -567,9 +570,12 @@ function backToCustomize() {
   } catch (e) {
     console.warn('本地存储写入失败：', e)
   }
-  const backPath = route.query.from === 'sCustomize'
-    ? '/patient/detection/sCustomize'
-    : '/patient/detection/customize'
+  let backPath = '/patient/detection/customize'
+  if (route.query.from === 'sCustomize') {
+    backPath = '/patient/detection/sCustomize'
+  } else if (route.query.from === 'sComprehensive') {
+    backPath = '/patient/detection/sComprehensive'
+  }
   router.push({
     path: backPath,
     query: {

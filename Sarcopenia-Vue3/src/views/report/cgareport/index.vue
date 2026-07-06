@@ -272,6 +272,7 @@ const total = ref(0)
 const queryParams = reactive({
   name: '',
   phone: '',
+  isProject: 1,
   pageNum: 1,
   pageSize: 20
 })

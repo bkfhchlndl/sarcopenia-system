@@ -56,18 +56,20 @@ public interface PatientMapper {
     Patient selectPatientById(@Param("patientId") Long patientId);
 
     /**
-     * 更新患者评估状态为已检查
+     * 更新患者评估状态为已检查（带项目ID）
      * @param id 患者ID
+     * @param isProject 项目ID：1-老年综合 2-肌少症
      * @return 影响行数
      */
-    int updatePatientIsReport(@Param("id") Long id);
+    int updatePatientIsReport(@Param("id") Long id, @Param("isProject") Integer isProject);
 
     /**
-     * 更新患者评估状态为已报告
+     * 更新患者评估状态为已报告（带项目ID）
      * @param id 患者ID
+     * @param isProject 项目ID：1-老年综合 2-肌少症
      * @return 影响行数
      */
-    int updatePatientIsReports(@Param("id") Long id);
+    int updatePatientIsReports(@Param("id") Long id, @Param("isProject") Integer isProject);
 
     /**
      * 重置患者评估报告状态为未报告

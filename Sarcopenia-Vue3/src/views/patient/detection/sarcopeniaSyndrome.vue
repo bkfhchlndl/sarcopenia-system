@@ -162,7 +162,7 @@ const assessmentTypes = [
     color: '#f59e0b',
     tags: ['肌力+功能+肌量', '诊断标准', '完整流程'],
     desc: '按照肌少症诊断标准流程，依次进行肌肉力量、躯体功能和肌肉量评估，用于确诊和分级。',
-    route: { path: '' }
+    route: { path: '/patient/detection/sCustomize/sComprehensive' }
   },
   {
     code: 'sarcopenia_custom',

@@ -166,7 +166,7 @@ public class CgaReportVoServiceImpl implements CgaReportVoService {
         if (recordId == null && selectSpecialRecords(patientId).isEmpty()) {
             return 0;
         }
-        return patientMapper.updatePatientIsReport(patientId);
+        return patientMapper.updatePatientIsReport(patientId, 1);
     }
 
     /**
@@ -234,7 +234,7 @@ public class CgaReportVoServiceImpl implements CgaReportVoService {
     @Override
     public int deleteReportByPatientId(Long patientId) {
         int recordRows = reportMapper.deleteReportByPatientId(patientId);
-        int patientRows = patientMapper.updatePatientIsReports(patientId);
+        int patientRows = patientMapper.updatePatientIsReports(patientId, 1);
         return recordRows + patientRows;
     }
 

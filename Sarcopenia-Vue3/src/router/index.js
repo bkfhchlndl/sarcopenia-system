@@ -145,6 +145,27 @@ export const constantRoutes = [
         meta: { title: '站立平衡测试', activeMenu: '/patient/detection/index' }
       },
       {
+        path: 'sCustomize/bodyComposition',
+        component: () => import('@/views/patient/detection/sCustomize/bodyComposition.vue'),
+        name: 'BodyComposition',
+        hidden: true,
+        meta: { title: '人体成分测量', activeMenu: '/patient/detection/index' }
+      },
+      {
+        path: 'sCustomize/sComprehensive',
+        component: () => import('@/views/patient/detection/sCustomize/sComprehensive.vue'),
+        name: 'STotalMeasure',
+        hidden: true,
+        meta: { title: '肌少症综合测量', activeMenu: '/patient/detection/index' }
+      },
+      {
+        path: 'sComprehensive',
+        component: () => import('@/views/patient/detection/sComprehensive.vue'),
+        name: 'SComprehensive',
+        hidden: true,
+        meta: { title: '肌少症综合评估', activeMenu: '/patient/detection/index' }
+      },
+      {
         path: 'cga',
         component: () => import('@/views/patient/detection/cga'),
         name: 'Cga',

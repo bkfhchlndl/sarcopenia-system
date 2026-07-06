@@ -92,6 +92,9 @@ public class Patient extends BaseEntity {
     /** 报告状态：0-未报告 1-已检查 2-已报告 */
     private Integer isReport;
 
+    /** 项目ID：1-老年综合评估 2-肌少症评估 */
+    private Integer isProject;
+
     /** 创建时间起始值，查询入参 */
     @TableField(exist = false)
     private String beginCreateTime;
