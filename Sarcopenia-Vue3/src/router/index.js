@@ -125,7 +125,7 @@ export const constantRoutes = [
       },
       {
         path: 'sCustomize/situp',
-        component: () => import('@/views/patient/detection/sCustomize/situp.vue'),
+        component: () => import('@/views/patient/detection/sCustomize/sitUp.vue'),
         name: 'SitUp',
         hidden: true,
         meta: { title: '5次起坐测试', activeMenu: '/patient/detection/index' }
